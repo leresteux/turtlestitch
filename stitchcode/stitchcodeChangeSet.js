@@ -17,6 +17,11 @@ tStitch.stitches.x = new Array();
 tStitch.stitches.y = new Array();
 tStitch.stitches.jump = new Array();
 
+tStitch.clearPoints = function() {
+	tStitch.stitches.x = new Array();
+	tStitch.stitches.y = new Array();
+	tStitch.stitches.jump = new Array();
+}
 tStitch.addPoint = function (x,y,jump) {
 	if (tStitch.debug) {
 		s = new String();
@@ -25,11 +30,37 @@ tStitch.addPoint = function (x,y,jump) {
 		s+= ")";
 		debug_msg(s);
 	}
-	
+	tStitch.stitches.x.push(x);
+	tStitch.stitches.y.push(y);
+	tStitch.stitches.jump.push(jump);
 }
 
+function getBaseURL() {
+    var url = location.href;  // entire url including querystring - also: window.location.href;
+    var baseURL = url.substring(0, url.lastIndexOf('/'));
+	return baseURL + "/";
+}
+var baseUrl=getBaseURL()
+
 tStitch.upload = function() {
-	debug_msg("uploading points...",true);
+	debug_msg("uploading points... sending SAVE with num points= " + tStitch.stitches.x.length, true);
+	params = { "x[]": tStitch.stitches.x, "y[]":tStitch.stitches.y, "j[]":tStitch.stitches.jump };		
+	//log("sending SAVE with num points= " + tStitch.stitches.x.length);		
+	$.fileDownload(baseUrl+"stitchcode/backend/save.py", {
+		successCallback: function (html, url) {
+			alert("DSD");
+		},
+		failCallback: function (html, url) {
+			alert(
+			  'Your file download just failed for this URL:' + url + 
+			  '\r\n' + 'Here was the resulting error HTML: \r\n' 
+				+ html
+			);
+		},
+	
+		httpMethod: "POST",
+		data: params
+	});		
 }
 
 
@@ -87,6 +118,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
 
 SpriteMorph.prototype.clear = function () {
     this.parent.clearPenTrails();
+    tStitch.clearPoints();
  	if (tStitch.debug) {
 		debug_msg("",true);
 	}   
