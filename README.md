@@ -4,6 +4,13 @@
 is a fork of Snap! focused towards an easy-to-use, educational tool for
 stitchfile generation based on turtle graphics. 
 
+### requirements
+
+backend requires:
+* stitchcode  python library - https://github.com/backface/stitchcode
+
+### license
+
 Copyright (C) 2014 by Michael Aschauer
 
 http://www.stitchcode.com/
