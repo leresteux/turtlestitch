@@ -21,8 +21,8 @@ def main():
 	#sys.stderr.write(hashlib.sha1(str(time.time())).hexdigest())
 		
 	for i in range(0, len(xarr)):
-		x = int(xarr[i])
-		y = int(yarr[i])*-1;
+		x = float(xarr[i])
+		y = float(yarr[i])*-1;
 		if jarr[i] == "true":
 			j = True
 		else:
