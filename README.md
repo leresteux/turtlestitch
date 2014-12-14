@@ -1,17 +1,17 @@
 
-Snap! Build Your Own Blocks
+## TurtleStitch
 
-http://snap.berkeley.edu
+is a fork of Snap! focused towards an easy-to-use, educational tool for
+stitchfile generation based on turtle graphics. 
+Copyright (C) 2014 by Michael Aschauer
+http://www.stitchcode.com/
 
-a visual, blocks based programming language
-inspired by Scratch
-
-written by Jens Mönig and Brian Harvey
-jens@moenig.org, bh@cs.berkeley.edu
-
+Snap! Build Your Own Blocks [http://snap.berkeley.edu] is a 
+visual, blocks based programming language inspired by Scratch
+written by Jens Mönig and Brian Harvey 
 Copyright (C) 2014 by Jens Mönig and Brian Harvey
 
-Snap! is free software: you can redistribute it and/or modify
+This is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation, either version 3 of
 the License, or (at your option) any later version.
