@@ -1,5 +1,5 @@
 
-function debug_msg(st,clear=false) {
+function debug_msg(st,clear) {
 	o = new String();
 	if (!clear) {
 		o = document.getElementById("bug").innerHTML;
