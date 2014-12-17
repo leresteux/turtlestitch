@@ -883,7 +883,7 @@ IDE_Morph.prototype.projectMenu = function () {
         'Select a sound from the media library'
     );
 */
-
+ 
     menu.popup(world, pos);
 };
 
