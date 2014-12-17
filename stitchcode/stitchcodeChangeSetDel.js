@@ -744,6 +744,7 @@ IDE_Morph.prototype.projectMenu = function () {
         },
         'file menu import hint' // looks up the actual text in the translator
     );
+	menu.addItem('Export stitch file', 'uploadStitches','Export stage drawing to stitch file (EXP)..');
 
     menu.addItem(
         shiftClicked ?
