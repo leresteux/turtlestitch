@@ -42,8 +42,8 @@ def main():
 		emb.scale(27.80/pixels_per_millimeter)
 		emb.add_endstitches_to_jumps(10)
 		#emb.to_triple_stitches()	
-		emb.save_as_png("files/%s.png" % fid)
-		emb.save_as_exp("files/%s.exp" % fid,True)
+		emb.save_as_png("files/%s.png" % fid,True)
+		emb.save_as_exp("files/%s.exp" % fid)
 		
 		print "Content-Disposition: attachment; filename=%s.exp" % fid	
 		print "Content-Type: application/octet-stream\n"
