@@ -1,5 +1,6 @@
 
-IDE_Morph.prototype.setDefaultDesign();
+// Stitchode's main changes and addtions to snap! go in here
+// sorry it lacks proper documentation
 
 function debug_msg(st,clear) {
 	o = new String();

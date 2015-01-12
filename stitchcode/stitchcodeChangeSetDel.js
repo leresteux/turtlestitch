@@ -1,9 +1,6 @@
 
-
-// this file includes changes just to deactivate/hide some 
+// this file includes changes just things to deactivate/hide some 
 // stuff and functions we don't need.
-
-
 
 IDE_Morph.prototype.buildPanes = function () {
     this.createLogo();
@@ -28,8 +25,11 @@ IDE_Morph.prototype.createLogo = function () {
     }
 
     this.logo = new Morph();
-    //this.logo.texture = 'snap_logo_sm.png';
-    this.logo.texture = 'stitchcode/stitchcode_logo_small.png';
+    if (MorphicPreferences.isFlat) {
+		this.logo.texture = 'stitchcode/stitchcode_logo_small.png';
+	} else {
+		this.logo.texture = 'stitchcode/stitchcode_logo_small_black.png';
+	}
     this.logo.drawNew = function () {
         this.image = newCanvas(this.extent());
         var context = this.image.getContext('2d'),
