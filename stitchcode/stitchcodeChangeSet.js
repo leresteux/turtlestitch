@@ -1,4 +1,6 @@
 
+IDE_Morph.prototype.setDefaultDesign();
+
 function debug_msg(st,clear) {
 	o = new String();
 	if (!clear) {
