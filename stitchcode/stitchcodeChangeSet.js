@@ -5,6 +5,17 @@
 // Force flat design
 IDE_Morph.prototype.setDefaultDesign = IDE_Morph.prototype.setFlatDesign; 
 
+// change logo
+IDE_Morph.prototype.originalCreateLogo = IDE_Morph.prototype.createLogo;
+IDE_Morph.prototype.createLogo = function () {
+	this.originalCreateLogo();
+	if (MorphicPreferences.isFlat) {
+		this.logo.texture = 'stitchcode/stitchcode_logo_small.png';
+	} else {
+		this.logo.texture = 'stitchcode/stitchcode_logo_small_black.png';
+	}
+	this.logo.drawNew();	
+}
 
 function debug_msg(st,clear) {
 	o = new String();
