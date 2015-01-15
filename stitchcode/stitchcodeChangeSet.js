@@ -2,6 +2,10 @@
 // Stitchode's main changes and addtions to snap! go in here
 // sorry it lacks proper documentation
 
+// Force flat design
+IDE_Morph.prototype.setDefaultDesign = IDE_Morph.prototype.setFlatDesign; 
+
+
 function debug_msg(st,clear) {
 	o = new String();
 	if (!clear) {
