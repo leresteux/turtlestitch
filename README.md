@@ -20,7 +20,7 @@ visual, blocks based programming language inspired by Scratch
 
 written by Jens Mönig and Brian Harvey 
 
-Copyright (C) 2014 by Jens Mönig and Brian Harvey
+Copyright (C) 2015 by Jens Mönig and Brian Harvey
 
 
 This is free software: you can redistribute it and/or modify
