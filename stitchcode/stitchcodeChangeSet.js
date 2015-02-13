@@ -3,7 +3,7 @@
 // sorry it lacks proper documentation
 
 // Force flat design
-IDE_Morph.prototype.setDefaultDesign = IDE_Morph.prototype.setFlatDesign; 
+//IDE_Morph.prototype.setDefaultDesign = IDE_Morph.prototype.setFlatDesign; 
 
 // change logo
 IDE_Morph.prototype.originalCreateLogo = IDE_Morph.prototype.createLogo;
