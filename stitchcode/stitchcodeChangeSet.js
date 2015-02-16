@@ -49,10 +49,10 @@ tStitch.addPoint = function (x,y,jump) {
 
 tStitch.upload = function() {
 
-	debug_msg("uploading points... sending SAVE with num points= " + tStitch.stitches.x.length, true);
+	tStitch.debug_msg("uploading points... sending SAVE with num points= " + tStitch.stitches.x.length, true);
 	params = { "x[]": tStitch.stitches.x, "y[]":tStitch.stitches.y, "j[]":tStitch.stitches.jump };		
 	
-	$.fileDownload(tStitch.getBaseUrl() +"stitchcode/backend/save.py", {
+	$.fileDownload(tStitch.getBaseURL() +"stitchcode/backend/save.py", {
 		successCallback: function (html, url) {
 			alert("DSD");
 		},
