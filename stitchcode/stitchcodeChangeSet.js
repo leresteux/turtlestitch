@@ -127,7 +127,7 @@ SpriteMorph.prototype.clear = function () {
     this.parent.clearPenTrails();
     tStitch.clearPoints();
  	if (tStitch.debug) {
-		debug_msg("",true);
+		tStitch.debug_msg("",true);
 	}   
     
 };
