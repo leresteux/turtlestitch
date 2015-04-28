@@ -41,9 +41,16 @@ tStitch.addPoint = function (x,y,jump) {
 		s+= ")";
 		tStitch.debug_msg(s);
 	}
-	tStitch.stitches.x.push(x);
-	tStitch.stitches.y.push(y);
-	tStitch.stitches.jump.push(jump);
+	
+	if (tStitch.stitches.x[tStitch.stitches.x.length-1] == x  &&
+		tStitch.stitches.y[tStitch.stitches.y.length-1] == y
+	) {
+		//alert("pint exist");
+	} else { 
+		tStitch.stitches.x.push(x);
+		tStitch.stitches.y.push(y);
+		tStitch.stitches.jump.push(jump);
+	}
 }
 
 
@@ -52,6 +59,35 @@ tStitch.upload = function() {
 	tStitch.debug_msg("uploading points... sending SAVE with num points= " + tStitch.stitches.x.length, true);
 	params = { "x[]": tStitch.stitches.x, "y[]":tStitch.stitches.y, "j[]":tStitch.stitches.jump };		
 	
+    if (tStitch.stitches.x.length <= 1 || tStitch.stitches.y <= 1) {
+		new  DialogBoxMorph().inform(
+			'Upload Error', 
+			'No stitches to upload, please (re)generate a drawing first!', 
+			world);
+	
+	} else {
+		
+		$.post( 
+			"/upload", 
+			data = params,
+			successCallback = function (data) {
+				if (data!="ERROR") {
+					/*new  DialogBoxMorph().inform(
+						'Upload Success', 
+						'Your embroidery file is ready and will be available at this url:\n' +
+						window.location.hostname + '/view/'+data,'\n', 
+						world);*/
+					window.open('http://' + window.location.hostname + '/view/'+data, 'TurtleStitch file preview');
+				} else {
+					new  DialogBoxMorph().inform(
+						'Upload Error', 
+						'Sorry! Upload failed for an unknown reason', 
+						world);					
+				}
+			});
+	}
+	
+	/*
 	$.fileDownload(tStitch.getBaseURL() +"stitchcode/backend/save.py", {
 		successCallback: function (html, url) {
 			alert("DSD");
@@ -66,7 +102,7 @@ tStitch.upload = function() {
 	
 		httpMethod: "POST",
 		data: params
-	});		
+	});		*/
 }
 
 

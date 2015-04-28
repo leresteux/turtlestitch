@@ -821,3 +821,58 @@ IDE_Morph.prototype.projectMenu = function () {
     menu.popup(world, pos);
 };
 
+IDE_Morph.prototype.snapMenu = function () {
+    var menu,
+        world = this.world();
+
+    menu = new MenuMorph(this);
+    menu.addItem('About...', 'aboutSnap');
+    menu.addLine();
+    menu.addItem(
+        'Reference manual',
+        function () {
+            window.open('help/SnapManual.pdf', 'SnapReferenceManual');
+        }
+    );
+    menu.addItem(
+        'TurtleStich! website',
+        function () {
+            window.open('http://'+window.location.hostname, 'SnapWebsite');
+        }
+    );
+    menu.addItem(
+        'Snap! website',
+        function () {
+            window.open('http://snap.berkeley.edu/', 'SnapWebsite');
+        }
+    );
+    menu.addItem(
+        'Download source',
+        function () {
+            window.open(
+                'http://snap.berkeley.edu/snapsource/snap.zip',
+                'SnapSource'
+            );
+        }
+    );
+    if (world.isDevMode) {
+        menu.addLine();
+        menu.addItem(
+            'Switch back to user mode',
+            'switchToUserMode',
+            'disable deep-Morphic\ncontext menus'
+                + '\nand show user-friendly ones',
+            new Color(0, 100, 0)
+        );
+    } else if (world.currentKey === 16) { // shift-click
+        menu.addLine();
+        menu.addItem(
+            'Switch to dev mode',
+            'switchToDevMode',
+            'enable Morphic\ncontext menus\nand inspectors,'
+                + '\nnot user-friendly!',
+            new Color(100, 0, 0)
+        );
+    }
+    menu.popup(world, this.logo.bottomLeft());
+};
