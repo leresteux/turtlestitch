@@ -875,30 +875,31 @@ IDE_Morph.prototype.fixLayout = function (situation) {
 IDE_Morph.prototype.downloadSVG = function() {
 	var svgStr = '';
 	
-	var minX=0, maxX=0, minY=0, maxY=0;
-	for (var i=1; i<tStitch.stitches.x .length; i++) {
+	var minX=999999999, maxX=0, minY=999999999, maxY=0;
+	for (var i=0; i<tStitch.stitches.x.length; i++) {
 	
+		var x1 = tStitch.stitches.x[i];
+		var y1 = tStitch.stitches.y[i];
+		
+		if (x1<minX) minX = x1;
+		if (x1>maxX) maxX = x1;
+
+		if (y1<minY) minY = y1;
+		if (y1>maxY) maxY = y1;
+	}
+		
+	for (var i=1; i<tStitch.stitches.x.length; i++) {
 		var x1 = tStitch.stitches.x[i-1];
 		var y1 = tStitch.stitches.y[i-1];
 		var x2 = tStitch.stitches.x[i];
 		var y2 = tStitch.stitches.y[i];
-		
-		if (x1<minX) minX = x1;
-		if (x2<minX) minX = x2;
-		if (x1>maxX) maxX = x1;
-		if (x2>maxX) maxX = x2;
-
-		if (y1<minY) minY = y1;
-		if (y2<minY) minY = y2;
-		if (y1>maxY) maxY = y1;
-		if (y2>maxY) maxY = y2;
-				
+					
 		svgStr += '<line stroke=\"rgb(0,0,0)\" '; 
 		svgStr += 'fill=\"none\" stroke-width=\"0.25\" ';
 		svgStr += 'stroke-linecap=\"round\" stroke-linejoin=\"round\" ';
 		
-		svgStr += 'x1=\"' + x1 + '\" y1=\"' + y1 + '\" ';
-		svgStr += 'x2=\"' + x2 + '\" y2=\"' + y2 + '\" ';
+		svgStr += 'x1=\"' + (x1 - minX) + '\" y1=\"' + (y1 -minY) + '\" ';
+		svgStr += 'x2=\"' + (x2 -minX) + '\" y2=\"' + (y2 -minY) + '\" ';
 		svgStr += '/>\n';
 	}
 	
@@ -906,10 +907,10 @@ IDE_Morph.prototype.downloadSVG = function() {
 	
 	svgHeader = '';
 	svgHeader += '<svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" ';
-	svgHeader += 'x=\" ' + minY + 'px\" ';
-	svgHeader += 'y=\" ' + minX + 'px\" ';
-	svgHeader += 'width=\" ' + (maxY-minY) + 'px\" ';
-	svgHeader += 'height=\" ' + (maxY-minY) + 'px\" ';
+	svgHeader += 'x=\"0px\" ';
+	svgHeader += 'y=\"0px\" ';
+	svgHeader += 'width=\" ' + (maxX - minX) + 'px\" ';
+	svgHeader += 'height=\" ' + (maxY - minY) + 'px\" ';
 	svgHeader += '>\n';
 	
 	svgStr = svgHeader.concat(svgStr);
