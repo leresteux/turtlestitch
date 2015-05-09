@@ -919,9 +919,63 @@ IDE_Morph.prototype.downloadSVG = function() {
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.svg'); 
 }
 
+// EXP export
+IDE_Morph.prototype.downloadEXP = function() {
+	var expArr = new Array();
+	
+	scale = 27.8 / 10;
+	
+	function move(x, y) {
+		y *= -1;
+		if (x<0) x = x + 256;
+		expArr.push(x);
+		if (y<0) y = y + 256;
+		expArr.push(y);
+		
+	}	
 
-// this file includes changes just things to deactivate/hide some 
-// stuff and functions we don't need.
+	for (var i=1; i<tStitch.stitches.x.length; i++) {		
+		x1 = tStitch.stitches.x[i] * scale;
+		y1 = tStitch.stitches.y[i] * scale;
+		x0 = tStitch.stitches.x[i-1] * scale;
+		y0 = tStitch.stitches.y[i-1] * scale;
+
+		sum_x = 0;
+		sum_y = 0;
+		dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+		dsteps = Math.abs(dmax / 127) + 1;
+		if (dsteps == 1) {
+			if (tStitch.stitches.jump[i]) {
+				expArr.push(0x80);
+				expArr.push(0x04);
+			}				
+			move((x1 - x0), (y1 - y0));
+		} else {
+			for(j=0;j<dsteps;j++) {
+				if (tStitch.stitches.jump[i])  {
+					expArr.push(0x80);
+					expArr.push(0x04);
+				}
+				if (j < dsteps -1) {
+					move((x1 - x0)/dsteps, (y1 - y0)/dsteps);
+					sum_x += (x1 - x0)/dsteps;
+					sum_y += (y1 - y0)/dsteps;
+				} else {
+					move((x1 - x0) - sum_x, (y1 - y0) - sum_y);
+				}
+			}
+		}	
+	}
+	
+	expUintArr = new Uint8Array(expArr.length);
+	for (i=0;i<expArr.length;i++) {
+		expUintArr[i] = Math.round(expArr[i]);
+	}
+	
+    blob = new Blob([expUintArr], {type: 'application/octet-stream'});
+    alert(expArr);
+    saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.exp'); 
+}
 
 
 
@@ -1548,8 +1602,13 @@ IDE_Morph.prototype.projectMenu = function () {
 	menu.addItem(
             'Export as SVG',
             function() { myself.downloadSVG() },
-            'download the currently rendered 2D lines\ninto an SVG file'
+            'download current drawing as SVG file'
             );   
+	menu.addItem(
+            'Export as EXP',
+            function() { myself.downloadEXP() },
+            'download current drawing as EXP file'
+            );               
 
     if (shiftClicked) {
         menu.addItem(
