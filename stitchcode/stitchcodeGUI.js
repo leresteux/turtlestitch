@@ -788,11 +788,11 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         'checkbox',
         null,
         function () {
-            //stage.renderer.toggleWireframe();
+            tStitch.toogleShowJumpStitches();
         },
         'Show Jump Stitches',
         function () {
-            return true; //stage.renderer.isWireframeMode
+            return tStitch.getShowJumpStitches();
         });
 	toogleShowJumpsButton.columns = 2;
 

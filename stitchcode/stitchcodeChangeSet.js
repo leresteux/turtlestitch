@@ -5,9 +5,9 @@
 
 var tStitch = {};
 
-tStitch.draw_jump = true;
+tStitch.draw_jumps = true;
 tStitch.draw_stitches = true;
-tStitch.draw_stitch_len = 3;
+tStitch.draw_stitch_len = 2;
 
 tStitch.debug_msg = function (st,clear) {
 	o = new String();
@@ -318,8 +318,8 @@ SpriteMorph.prototype.moveBy = function (delta, justMe) {
 			if (tStitch.draw_stitches)  {
 				this.drawStitch(this.rotationCenter());
 			}		
-			if (tStitch.draw_jump && !this.isDown) {
-				//this.drawJumpLine(origin,this.rotationCenter());	
+			if (tStitch.draw_jumps && !this.isDown) {
+				this.drawJumpLine(origin,this.rotationCenter());	
 			}
 		}
 	}	
