@@ -894,16 +894,17 @@ IDE_Morph.prototype.downloadSVG = function() {
 		var x2 = tStitch.stitches.x[i];
 		var y2 = tStitch.stitches.y[i];
 					
-		svgStr += '<line stroke=\"rgb(0,0,0)\" '; 
-		svgStr += 'fill=\"none\" stroke-width=\"0.25\" ';
-		svgStr += 'stroke-linecap=\"round\" stroke-linejoin=\"round\" ';
-		
-		svgStr += 'x1=\"' + (x1 - minX) + '\" y1=\"' + (y1 -minY) + '\" ';
-		svgStr += 'x2=\"' + (x2 -minX) + '\" y2=\"' + (y2 -minY) + '\" ';
-		svgStr += '/>\n';
+		if ( !tStitch.stitches.jump[i]) { 
+			svgStr += '<line stroke=\"rgb(0,0,0)\" '; 
+			svgStr += 'fill=\"none\" stroke-width=\"0.25\" ';
+			svgStr += 'stroke-linecap=\"round\" stroke-linejoin=\"round\" ';		
+			svgStr += 'x1=\"' + (x1 - minX) + '\" y1=\"' + (y1 -minY) + '\" ';
+			svgStr += 'x2=\"' + (x2 -minX) + '\" y2=\"' + (y2 -minY) + '\" ';
+			svgStr += '/>\n';
+		}
 	}
 	
-	svgStr += '</svg>';
+	svgStr += '</g></svg>';
 	
 	svgHeader = '';
 	svgHeader += '<svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" ';
@@ -912,6 +913,7 @@ IDE_Morph.prototype.downloadSVG = function() {
 	svgHeader += 'width=\" ' + (maxX - minX) + 'px\" ';
 	svgHeader += 'height=\" ' + (maxY - minY) + 'px\" ';
 	svgHeader += '>\n';
+	svgHeader += '<g>\n';
 	
 	svgStr = svgHeader.concat(svgStr);
 	
