@@ -9,7 +9,7 @@ IDE_Morph.prototype.init = function(isAutoFill) {
     // Borders are actually just paddings, so we set the bg white to get them to be white
     //this.backgroundColor = new Color(255,255,255);
     //this.setColor(this.backgroundColor);
-    this.padding = 2;
+    this.padding = 1;
     //this.frameColor = new Color(220,220,220);
 }
 
@@ -660,7 +660,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
 
 IDE_Morph.prototype.createStatusDisplay = function () {
     var frame,
-    padding = 2,
+    padding = 1,
         myself = this,
         elements = [],
         beetle = this.currentSprite.beetle,
@@ -809,7 +809,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         function () {
             return tStitch.getShowJumpStitches();
         });
-	toogleShowJumpsButton.columns = 2;
+	toogleShowJumpsButton.columns = 1;
 
 	elements.push(toogleShowJumpsButton);
 
