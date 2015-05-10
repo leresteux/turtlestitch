@@ -992,7 +992,6 @@ IDE_Morph.prototype.downloadEXP = function() {
 	}
 	
     blob = new Blob([expUintArr], {type: 'application/octet-stream'});
-    alert(expArr);
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.exp'); 
 }
 
