@@ -264,6 +264,24 @@ IDE_Morph.prototype.openIn = function (world) {
         }
     }
 
+    console.log("init");
+	SnapCloud.isloggedin(function () 
+		{
+			console.log(SnapCloud.username);
+			str = SnapCloud.encodeDict(
+				{
+					username: SnapCloud.username
+				}
+			);
+			localStorage['-snap-user'] = str;
+			myself.source = 'cloud';
+			myself.showMessage('now connected.', 2);
+		}, myself.cloudError()
+	);
+	//console.log(SnapCloud.username);
+	//console.log("g");     
+  
+
     this.buildPanes();
     world.add(this);
     world.userMenu = this.userMenu;
@@ -508,6 +526,8 @@ IDE_Morph.prototype.createLogo = function () {
 };
 
 IDE_Morph.prototype.createControlBar = function () {
+	
+	
     // assumes the logo has already been created
     var padding = 5,
         button,
@@ -527,6 +547,7 @@ IDE_Morph.prototype.createControlBar = function () {
         ],
         myself = this;
 
+	
     if (this.controlBar) {
         this.controlBar.destroy();
     }
@@ -1991,12 +2012,16 @@ IDE_Morph.prototype.snapMenu = function () {
 };
 
 IDE_Morph.prototype.cloudMenu = function () {
+	
+	
     var menu,
         myself = this,
         world = this.world(),
         pos = this.controlBar.cloudButton.bottomLeft(),
         shiftClicked = (world.currentKey === 16);
+	
 
+	
     menu = new MenuMorph(this);
     if (shiftClicked) {
         menu.addItem(
@@ -3722,6 +3747,8 @@ IDE_Morph.prototype.setStageExtent = function (aPoint) {
 // IDE_Morph cloud interface
 
 IDE_Morph.prototype.initializeCloud = function () {
+	//SnapCloud.reconnect();
+	console.log("init cloud");
     var myself = this,
         world = this.world();
     new DialogBoxMorph(
@@ -3731,17 +3758,14 @@ IDE_Morph.prototype.initializeCloud = function () {
                 str;
             SnapCloud.login(
                 user.username,
-                pwh,
+                user.password, //pwh,
                 function () {
-                    if (user.choice) {
-                        str = SnapCloud.encodeDict(
-                            {
-                                username: user.username,
-                                password: pwh
-                            }
-                        );
-                        localStorage['-snap-user'] = str;
-                    }
+				   str = SnapCloud.encodeDict(
+						{
+							username: user.username,
+						}
+					);
+					localStorage['-snap-user'] = str;
                     myself.source = 'cloud';
                     myself.showMessage('now connected.', 2);
                 },
@@ -3755,7 +3779,7 @@ IDE_Morph.prototype.initializeCloud = function () {
         null,
         null,
         null,
-        'stay signed in on this computer\nuntil logging out',
+        null, //'stay signed in on this computer\nuntil logging out',
         world,
         myself.cloudIcon(),
         myself.cloudMsg
@@ -3763,13 +3787,16 @@ IDE_Morph.prototype.initializeCloud = function () {
 };
 
 IDE_Morph.prototype.createCloudAccount = function () {
+	
+	window.open('http://' + window.location.hostname + '/signup');
+/*	
     var myself = this,
         world = this.world();
-/*
+
     // force-logout, commented out for now:
-    delete localStorage['-snap-user'];
-    SnapCloud.clear();
-*/
+    //delete localStorage['-snap-user'];
+    //SnapCloud.clear();
+
     new DialogBoxMorph(
         null,
         function (user) {
@@ -3801,6 +3828,7 @@ IDE_Morph.prototype.createCloudAccount = function () {
         myself.cloudIcon(),
         myself.cloudMsg
     );
+    */
 };
 
 IDE_Morph.prototype.resetCloudPassword = function () {
@@ -3845,6 +3873,8 @@ IDE_Morph.prototype.resetCloudPassword = function () {
 };
 
 IDE_Morph.prototype.changeCloudPassword = function () {
+	window.open('http://' + window.location.hostname + '/change_password');
+	/*
     var myself = this,
         world = this.world();
     new DialogBoxMorph(
@@ -3871,7 +3901,7 @@ IDE_Morph.prototype.changeCloudPassword = function () {
         world,
         myself.cloudIcon(),
         myself.cloudMsg
-    );
+    );*/
 };
 
 IDE_Morph.prototype.logout = function () {
@@ -4225,6 +4255,7 @@ ProjectDialogMorph.uber = DialogBoxMorph.prototype;
 
 function ProjectDialogMorph(ide, label) {
     this.init(ide, label);
+    
 }
 
 ProjectDialogMorph.prototype.init = function (ide, task) {
@@ -4265,6 +4296,7 @@ ProjectDialogMorph.prototype.init = function (ide, task) {
     this.onNextStep = function () { // yield to show "updating" message
         myself.setSource(myself.source);
     };
+
 };
 
 ProjectDialogMorph.prototype.buildContents = function () {
@@ -4522,6 +4554,7 @@ ProjectDialogMorph.prototype.setSource = function (source) {
     var myself = this,
         msg;
 
+
     this.source = source; //this.task === 'save' ? 'local' : source;
     this.srcBar.children.forEach(function (button) {
         button.refresh();
@@ -4534,6 +4567,7 @@ ProjectDialogMorph.prototype.setSource = function (source) {
             function (projectList) {
                 myself.installCloudProjectList(projectList);
                 msg.destroy();
+                console.log("installed");
             },
             function (err, lbl) {
                 msg.destroy();

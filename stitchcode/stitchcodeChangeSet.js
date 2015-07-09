@@ -1,4 +1,3 @@
-
 // Stitchode's main changes and addtions to snap! go in here
 // sorry it lacks proper documentation
 
@@ -73,7 +72,9 @@ tStitch.getShowJumpStitches = function() {
 	return tStitch.draw_jumps;
 }
 
-
+tStitch.signup = function() {
+	window.open('http://' + window.location.hostname + '/signup');
+}
 
 tStitch.upload = function() {
 
@@ -86,8 +87,7 @@ tStitch.upload = function() {
 			'No stitches to upload, please (re)generate a drawing first!', 
 			world);
 	
-	} else {
-		
+	} else {		
 		$.post( 
 			"/upload", 
 			data = params,

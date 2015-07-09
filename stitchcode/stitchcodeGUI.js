@@ -464,6 +464,7 @@ ProjectDialogMorph.prototype.getExamplesProjectList = function () {
                     notes: null
                 };
                 projects.push(dta);
+                console.log(dta);
             }
         }
     );
