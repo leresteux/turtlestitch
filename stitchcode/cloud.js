@@ -70,12 +70,10 @@ Cloud.prototype.login = function ( username, password,callBack, errorCall )
 
         request.onreadystatechange = function () {
             if (request.readyState === 4) {
-
                 if (request.responseText) {
-                    if (request.responseText == "OK") {
-                        myself.username = username;
-                        myself.password = password;
-                        //console.log(myself.username);
+                    if (request.responseText.slice(0,2) == "OK") {
+                        this.username = request.responseText.slice(3);
+                        console.log(this.username);
                         callBack.call(myself);
                     } else {
                         errorCall.call(
@@ -113,8 +111,7 @@ Cloud.prototype.logout = function ( callBack, errorCall)
 
                 if (request.responseText) {
                     if (request.responseText != "FALSE") {
-						console.log(request.responseText);
-                        myself.username = request.responseText;
+                        this.username = ""
                         callBack.call(myself);
                     } else {
                         errorCall.call(

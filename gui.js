@@ -3761,6 +3761,8 @@ IDE_Morph.prototype.initializeCloud = function () {
 						}
 					);
 					localStorage['-snap-user'] = str;
+					console.log(user.username)
+					SnapCloud.username = user.username;
                     myself.source = 'cloud';
                     myself.showMessage('now connected.', 2);
                 },
