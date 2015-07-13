@@ -996,6 +996,23 @@ IDE_Morph.prototype.downloadEXP = function() {
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.exp'); 
 }
 
+IDE_Morph.prototype.saveProjectToDisk = function() {
+    var data,
+        blob;
+
+    if (Process.prototype.isCatchingErrors) {
+        try {
+            data = this.serializer.serialize(this.stage);
+        } catch (err) {
+            this.showMessage('Saving failed: ' + err);
+        }
+    } else {
+        data = this.serializer.serialize(this.stage);
+    }
+
+    blob = new Blob([data], {type: 'text/xml;charset=utf-8'});
+    saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch_project') + '.xml');
+}
 
 
 
@@ -1389,6 +1406,7 @@ IDE_Morph.prototype.projectMenu = function () {
         );
     }
     menu.addItem('Save As...', 'saveProjectsBrowser');
+    menu.addItem('Save to disk', 'saveProjectToDisk');
     menu.addLine();
     menu.addItem(
         'Import...',
