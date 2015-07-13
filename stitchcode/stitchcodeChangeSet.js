@@ -76,10 +76,11 @@ tStitch.signup = function() {
 	window.open('http://' + window.location.hostname + '/signup');
 }
 
-tStitch.upload = function() {
+
+tStitch.upload = function(name="") {
 
 	tStitch.debug_msg("uploading points... sending SAVE with num points= " + tStitch.stitches.x.length, true);
-	params = { "x[]": tStitch.stitches.x, "y[]":tStitch.stitches.y, "j[]":tStitch.stitches.jump };		
+	params = { "x[]": tStitch.stitches.x, "y[]":tStitch.stitches.y, "j[]":tStitch.stitches.jump, "name":name };		
 	
     if (tStitch.stitches.x.length <= 1 || tStitch.stitches.y <= 1) {
 		new  DialogBoxMorph().inform(

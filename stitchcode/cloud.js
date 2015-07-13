@@ -149,17 +149,17 @@ Cloud.prototype.isloggedin = function ( callBack, errorCall)
 {
     var request = new XMLHttpRequest(),
         myself = this;
-
+	
+	myself.username = false;
+    
     try {
         request.open("GET", this.url + '/../cloudloggedin',true);
         request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         request.onreadystatechange = function () {
             if (request.readyState === 4) {
-
                 if (request.responseText) {
-                    if (request.responseText != "FALSE") {
-						console.log(request.responseText);
-                        myself.username = request.responseText;
+                    if (request.responseText.slice(0,2) == "OK") {
+                        myself.username = request.responseText.slice(3);
                         callBack.call(myself);
                     } 
                 }

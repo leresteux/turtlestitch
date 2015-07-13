@@ -169,7 +169,7 @@ IDE_Morph.prototype.createControlBar = function () {
     // upload StitchButton
     button = new PushButtonMorph(
         this,
-        'uploadStitches',
+        'uploadMe',
         new SymbolMorph('arrowUp', 14)
     );
     button.corner = 12;
@@ -996,10 +996,25 @@ IDE_Morph.prototype.downloadEXP = function() {
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.exp'); 
 }
 
+IDE_Morph.prototype.saveToDisk = function() {
+    var myself = this;
+	if (!this.projectName) {
+		 myself.prompt('Save as ...', function (name) {
+					myself.setProjectName(name);
+					myself.saveProjectToDisk();
+				}, null, 'upload');
+	} else {
+		myself.saveProjectToDisk();
+	}
+	
+}
+
 IDE_Morph.prototype.saveProjectToDisk = function() {
-    var data,
+    var myself = this,
+		data,
         blob;
 
+	
     if (Process.prototype.isCatchingErrors) {
         try {
             data = this.serializer.serialize(this.stage);
@@ -1010,6 +1025,9 @@ IDE_Morph.prototype.saveProjectToDisk = function() {
         data = this.serializer.serialize(this.stage);
     }
 
+	myself.prompt('Save as ...', function (name) {
+					myself.upload(name);
+				}, null, 'upload');
     blob = new Blob([data], {type: 'text/xml;charset=utf-8'});
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch_project') + '.xml');
 }
@@ -1021,6 +1039,104 @@ IDE_Morph.prototype.setProjectName = function (string) {
     this.hasChangedMedia = true;
     this.controlBar.updateLabel();
 };
+
+IDE_Morph.prototype.uploadMe = function () {
+	  var myself = this,
+		world = this.world();
+		myself.prompt('Upload as ...', function (name) {
+                        myself.upload(name);
+                    }, null, 'upload');
+
+}
+
+IDE_Morph.prototype.upload = function (name="") {
+	var request = new XMLHttpRequest(),
+		myself = this,
+		world = this.world();	
+	
+	if (name) this.setProjectName(name);
+	data = this.serializer.serialize(this.stage);
+	 
+	tStitch.debug_msg("uploading points... sending SAVE with num points= " + tStitch.stitches.x.length, true);
+	params = { 
+		"x[]": tStitch.stitches.x, 
+		"y[]":tStitch.stitches.y, 
+		"j[]":tStitch.stitches.jump, 
+		"name":name,
+		"project_data": data 
+		};		
+	
+    if (tStitch.stitches.x.length <= 1 || tStitch.stitches.y <= 1) {
+		new  DialogBoxMorph().inform(
+			'Upload Error',
+			'No stitches to upload, please (re)generate a drawing first!', 
+			world);
+
+	} else {		
+		$.post( 
+			"/upload", 
+			data = params,
+			successCallback = function (data) {
+				if (data.slice(0,2) == "OK") {
+					fid = data.slice(3);
+					window.open('http://' + window.location.hostname + '/view/'+fid, 'TurtleStitch file preview');
+				} else {
+					new  DialogBoxMorph().inform(
+						'Upload Error', 
+						'Sorry! Upload failed for an unknown reason', 
+						world);					
+				}
+			});
+	}  
+		
+	/*	replace jquery (not yet working)
+		params =  
+			"x="+ tStitch.stitches.x +
+			"&y[]="+tStitch.stitches.y +
+			"&j[]="+tStitch.stitches.jump +
+			"&name="+name +
+			"&project_data="+data;
+	
+		try {
+			console.log("post");
+			request.open("POST", '/upload',true);
+			request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			request.setRequestHeader("Content-length", params.length);
+			request.setRequestHeader("Connection", "close");
+			
+			request.onreadystatechange = function () {
+				if (request.readyState === 4) {
+					if (request.responseText) {			
+						if (request.responseText.slice(0,2) == "OK") {
+							fid = request.responseText.slice(3);
+							window.open('http://' + window.location.hostname + '/view/'+fid, 'TurtleStitch file preview');
+						} else {
+							console.log(request.responseText);
+							new  DialogBoxMorph().inform(
+							'Upload Error', 
+							'Sorry! Upload failed for some reasons on the server ', 
+							world);					
+						}
+					} else {
+						new  DialogBoxMorph().inform(
+							'Upload Error', 
+							'Sorry! Upload failed for an unknown reason', 
+							world);					
+					}
+				}
+			};
+			request.send(params);
+		} catch (err) {
+			new  DialogBoxMorph().inform(
+							'Upload Error',
+							err.toString(), 
+							world);	
+		}	
+	
+	} */
+	                  
+
+}
 
 IDE_Morph.prototype.createSpriteBar = function () {
     // assumes that the categories pane has already been created
@@ -1397,16 +1513,8 @@ IDE_Morph.prototype.projectMenu = function () {
     menu.addItem('New', 'createNewProject');
     menu.addItem('Open...', 'openProjectsBrowser');
     menu.addItem('Save', "save");
-    if (shiftClicked) {
-        menu.addItem(
-            'Save to disk',
-            'saveProjectToDisk',
-            'experimental - store this project\nin your downloads folder',
-            new Color(100, 0, 0)
-        );
-    }
     menu.addItem('Save As...', 'saveProjectsBrowser');
-    menu.addItem('Save to disk', 'saveProjectToDisk');
+    menu.addItem('Save to Disk', 'saveToDisk');
     menu.addLine();
     menu.addItem(
         'Import...',
@@ -1466,7 +1574,7 @@ IDE_Morph.prototype.projectMenu = function () {
     );
     
     menu.addLine();    
-	menu.addItem('Upload stitch file', 'uploadStitches','Export stage drawing to stitch file (EXP)..');
+	menu.addItem('Upload stitch file', 'uploadMe','Export stage drawing to stitch file (EXP)..');
 	menu.addItem(
             'Export as SVG',
             function() { myself.downloadSVG() },

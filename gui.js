@@ -264,10 +264,8 @@ IDE_Morph.prototype.openIn = function (world) {
         }
     }
 
-    console.log("init");
 	SnapCloud.isloggedin(function () 
 		{
-			console.log(SnapCloud.username);
 			str = SnapCloud.encodeDict(
 				{
 					username: SnapCloud.username
@@ -278,9 +276,6 @@ IDE_Morph.prototype.openIn = function (world) {
 			myself.showMessage('now connected.', 2);
 		}, myself.cloudError()
 	);
-	//console.log(SnapCloud.username);
-	//console.log("g");     
-  
 
     this.buildPanes();
     world.add(this);
