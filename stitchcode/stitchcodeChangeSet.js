@@ -4,6 +4,7 @@
 
 var tStitch = {};
 
+tStitch.debug = true;
 tStitch.draw_jumps = true;
 tStitch.draw_stitches = true;
 tStitch.draw_stitch_len = 2;
@@ -25,7 +26,7 @@ tStitch.getBaseURL = function () {
 	return baseURL + "/";
 }
 
-tStitch.debug = true;
+
 tStitch.stitches = {};
 tStitch.stitches.x = new Array();
 tStitch.stitches.y = new Array();
@@ -39,10 +40,10 @@ tStitch.clearPoints = function() {
 tStitch.addPoint = function (x,y,jump) {
 	if (tStitch.debug) {
 		s = new String();
-		s = s + "(" + x + "," + y;
+		s = s + "adding Point (" + x + "," + y;
 		if (jump) s = s + ",jump";
 		s+= ")";
-		tStitch.debug_msg(s);
+		console.log(s);
 	}
 	
 	if (tStitch.stitches.x[tStitch.stitches.x.length-1] == x  &&
@@ -77,7 +78,7 @@ tStitch.signup = function() {
 }
 
 
-tStitch.upload = function(name="") {
+tStitch.upload = function(name) {
 
 	tStitch.debug_msg("uploading points... sending SAVE with num points= " + tStitch.stitches.x.length, true);
 	params = { "x[]": tStitch.stitches.x, "y[]":tStitch.stitches.y, "j[]":tStitch.stitches.jump, "name":name };		
@@ -157,6 +158,7 @@ SpriteMorph.prototype.forward = function (steps) {
     ty = dest.y - this.parent.topLeft().y
     tjump = !this.isDown;
     tStitch.addPoint(tx,ty,tjump);
+    
     //alert("move to: " + tx + "x" + ty + " - isJump = " + tjump);
         
 };
@@ -169,7 +171,10 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
 
     newX = stage.center().x + (+x || 0) * stage.scale;
     newY = stage.center().y - (+y || 0) * stage.scale;
-
+    
+    oldX = this.position().x / stage.scale - stage.center().x + this.extent().x/2;
+	oldY = -(this.position().y / stage.scale - stage.center().y + this.extent().y/2);
+	
     if (this.costume) {
         dest = new Point(newX, newY).subtract(this.rotationOffset);
     } else {
@@ -178,15 +183,20 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
     
     this.setPosition(dest, justMe);
     this.positionTalkBubble();
-
     
     tx = dest.x - this.parent.topLeft().x
     ty = dest.y - this.parent.topLeft().y
     tjump = !this.isDown;    
-    //alert("jump to: " + tx + "x" + ty);
-    tStitch.addPoint(tx,ty,tjump);    
+    
+    if ( Math.abs(x-oldX)<=1.1 && Math.abs(y-oldY)<=1.1 ) {
+		if (tStitch.debug) 
+			console.log("jump in place - don't add.");
+    } else {
+		if (tStitch.debug) 
+			console.log("jump/gotoXY "+ x + "," + y + " from: + " + oldX + "," + oldY);
+		tStitch.addPoint(tx,ty,tjump);  
+	}  
 };
-
 // SpriteMorph drawing:
 
 SpriteMorph.prototype.drawLine = function (start, dest) {

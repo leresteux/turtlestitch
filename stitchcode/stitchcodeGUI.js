@@ -1041,7 +1041,7 @@ IDE_Morph.prototype.setProjectName = function (string) {
 };
 
 IDE_Morph.prototype.uploadMe = function () {
-	  var myself = this,
+		var myself = this,
 		world = this.world();
 		myself.prompt('Upload as ...', function (name) {
                         myself.upload(name);
@@ -1049,14 +1049,14 @@ IDE_Morph.prototype.uploadMe = function () {
 
 }
 
-IDE_Morph.prototype.upload = function (name="") {
+IDE_Morph.prototype.upload = function (name) {
 	var request = new XMLHttpRequest(),
 		myself = this,
 		world = this.world();	
-	
-	if (name) this.setProjectName(name);
-	data = this.serializer.serialize(this.stage);
-	 
+
+		if (name) this.setProjectName(name);
+		data = this.serializer.serialize(this.stage);		
+ 
 	tStitch.debug_msg("uploading points... sending SAVE with num points= " + tStitch.stitches.x.length, true);
 	params = { 
 		"x[]": tStitch.stitches.x, 
@@ -1073,6 +1073,7 @@ IDE_Morph.prototype.upload = function (name="") {
 			world);
 
 	} else {		
+	
 		$.post( 
 			"/upload", 
 			data = params,
