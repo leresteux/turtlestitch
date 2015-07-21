@@ -2070,7 +2070,7 @@ ProjectDialogMorph.prototype.buildContents = function () {
     }
 
 	//disable cloud for now
-    //this.addSourceButton('cloud', localize('Cloud'), 'cloud');
+    // this.addSourceButton('cloud', localize('Cloud'), 'cloud');
     this.addSourceButton('local', localize('Browser'), 'storage');
     if (this.task === 'open') {
         this.addSourceButton('examples', localize('Examples'), 'poster');

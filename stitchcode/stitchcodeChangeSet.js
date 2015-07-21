@@ -22,9 +22,11 @@ tStitch.debug_msg = function (st,clear) {
 
 tStitch.getBaseURL = function () {
     var url = location.href;  // entire url including querystring - also: window.location.href;
-    var mainURL = url.substring(0, url.lastIndexOf('#'));
-    var baseURL = url.substring(0, mainURL.lastIndexOf('/'));
-	return baseURL + "/";
+    if (url.lastIndexOf('#') > 0) {
+		url = url.substring(0, url.lastIndexOf('#'));
+	}
+    url = url.substring(0, url.lastIndexOf('/'));
+	return url + "/";
 }
 
 

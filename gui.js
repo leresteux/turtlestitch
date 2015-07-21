@@ -4261,7 +4261,7 @@ ProjectDialogMorph.prototype.init = function (ide, task) {
     // additional properties:
     this.ide = ide;
     this.task = task || 'open'; // String describing what do do (open, save)
-    this.source = ide.source || 'local'; // or 'cloud' or 'examples'
+    this.source = 'local' // ide.source || 'local'; // or 'cloud' or 'examples'
     this.projectList = []; // [{name: , thumb: , notes:}]
 
     this.handle = null;
