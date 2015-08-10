@@ -1513,7 +1513,7 @@ IDE_Morph.prototype.projectMenu = function () {
     menu.addLine();
     menu.addItem('New', 'createNewProject');
     menu.addItem('Open...', 'openProjectsBrowser');
-    menu.addItem('Save', "save");
+    //menu.addItem('Save', "save");
     menu.addItem('Save As...', 'saveProjectsBrowser');
     menu.addItem('Save to Disk', 'saveToDisk');
     menu.addLine();
