@@ -891,8 +891,8 @@ IDE_Morph.prototype.fixLayout = function (situation) {
 
 // SVG export
 IDE_Morph.prototype.downloadSVG = function() {
-	var svgStr = '';
 	
+
 	var minX=999999999, maxX=0, minY=999999999, maxY=0;
 	for (var i=0; i<tStitch.stitches.x.length; i++) {
 	
@@ -905,35 +905,32 @@ IDE_Morph.prototype.downloadSVG = function() {
 		if (y1<minY) minY = y1;
 		if (y1>maxY) maxY = y1;
 	}
-		
-	for (var i=1; i<tStitch.stitches.x.length; i++) {
-		var x1 = tStitch.stitches.x[i-1];
-		var y1 = tStitch.stitches.y[i-1];
-		var x2 = tStitch.stitches.x[i];
-		var y2 = tStitch.stitches.y[i];
+ 
+	var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
+	svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
+	svgStr += "<svg width=\"" + parseInt(maxX-minX) + "\" height=\"" + parseInt(maxY-minY) + "\" viewBox=\"0 -" + parseInt(maxX-minX) + " " + parseInt(maxY-minY) + " 0\"\n";
+    svgStr += " xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n";
+	svgStr += "<title>Embroidery export</title>\n";
+	svgStr += "<path fill=\"none\" stroke=\"black\" d=\"";
+  	
+  	svgStr += "M "+  (tStitch.stitches.x[0] - minX) + " " + (parseInt(maxY-minY) - (tStitch.stitches.y[0] - minY));
+  	
+	for (var i=1; i < tStitch.stitches.x.length; i++) {
 					
-		if ( !tStitch.stitches.jump[i]) { 
-			svgStr += '<line stroke=\"rgb(0,0,0)\" '; 
-			svgStr += 'fill=\"none\" stroke-width=\"0.25\" ';
-			svgStr += 'stroke-linecap=\"round\" stroke-linejoin=\"round\" ';		
-			svgStr += 'x1=\"' + (x1 - minX) + '\" y1=\"' + (y1 -minY) + '\" ';
-			svgStr += 'x2=\"' + (x2 -minX) + '\" y2=\"' + (y2 -minY) + '\" ';
-			svgStr += '/>\n';
+		if ( tStitch.stitches.jump[i]) { 
+			if ( !tStitch.stitches.jump[i-1]) {
+				svgStr += "\" />\n";
+			}
+		} else {
+			if (tStitch.stitches.jump[i-1]&& i>1) {
+				svgStr +="  <path fill=\"none\" stroke=\"black\" d=\"M "+  
+					(tStitch.stitches.x[i] + minX) + " " + (parseInt(maxY-minY) - (tStitch.stitches.y[i] - minY));
+			}	
+			svgStr += " L "+  (tStitch.stitches.x[i]  - minX) + " " + (parseInt(maxY-minY) - (tStitch.stitches.y[i] - minY));
 		}
 	}
 	
-	svgStr += '</g></svg>';
-	
-	svgHeader = '';
-	svgHeader += '<svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" ';
-	svgHeader += 'x=\"0px\" ';
-	svgHeader += 'y=\"0px\" ';
-	svgHeader += 'width=\" ' + (maxX - minX) + 'px\" ';
-	svgHeader += 'height=\" ' + (maxY - minY) + 'px\" ';
-	svgHeader += '>\n';
-	svgHeader += '<g>\n';
-	
-	svgStr = svgHeader.concat(svgStr);
+	svgStr += "\" />\n</svg>\n"
 	
     blob = new Blob([svgStr], {type: 'text/plain;charset=utf-8'});
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.svg'); 
