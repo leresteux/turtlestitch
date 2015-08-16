@@ -2,18 +2,13 @@
 ## TurtleStitch
 
 is a fork of Snap! focused towards an easy-to-use, educational tool for
-stitchfile generation based on turtle graphics. 
+embroidery file generation based on turtle graphics. 
 
-### requirements
+http://www.turtlestitch.com
 
-backend requires:
-* stitchcode  python library - https://github.com/backface/stitchcode
 
-### license
+### License
 
-Copyright (C) 2014 by Michael Aschauer
-
-http://www.stitchcode.com/
 
 Snap! Build Your Own Blocks [http://snap.berkeley.edu] is a 
 visual, blocks based programming language inspired by Scratch
