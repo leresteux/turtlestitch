@@ -940,7 +940,8 @@ IDE_Morph.prototype.downloadSVG = function() {
 IDE_Morph.prototype.downloadEXP = function() {
 	var expArr = new Array();
 	
-	scale = 27.8 / 10;
+	pixels_per_millimeter = 5
+	scale = 10 / pixels_per_millimeter;
 	
 	function move(x, y) {
 		y *= -1;
