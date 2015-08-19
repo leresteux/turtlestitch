@@ -1289,7 +1289,7 @@ IDE_Morph.prototype.createSpriteBar = function () {
         active.refresh(); // needed when programmatically tabbing
         myself.createSpriteEditor();
         myself.fixLayout('tabEditor');
-    };
+    };t
 
     tab = new TabMorph(
         tabColors,
@@ -1699,11 +1699,6 @@ IDE_Morph.prototype.snapMenu = function () {
     menu.popup(world, this.logo.bottomLeft());
 };
 
-IDE_Morph.prototype.originalCreatePalette = IDE_Morph.prototype.createPalette;
-IDE_Morph.prototype.createPalette = function(){
-    this.originalCreatePalette();
-    this.palette.color = new Color(230, 230, 230);
-}
 
 IDE_Morph.prototype.originalCreateSpriteEditor = IDE_Morph.prototype.createSpriteEditor;
 IDE_Morph.prototype.createSpriteEditor = function(){

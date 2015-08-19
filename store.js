@@ -61,7 +61,7 @@ SyntaxElementMorph, Variable*/
 
 // Global stuff ////////////////////////////////////////////////////////
 
-modules.store = '2015-January-21';
+modules.store = '2015-July-27';
 
 
 // XML_Serializer ///////////////////////////////////////////////////////
@@ -320,7 +320,7 @@ SnapSerializer.prototype.loadProjectModel = function (xmlNode, ide) {
     var appInfo = xmlNode.attributes.app,
         app = appInfo ? appInfo.split(' ')[0] : null;
 
-    if (ide && app !== this.app.split(' ')[0]) {
+    if (ide && app && app !== this.app.split(' ')[0]) {
         ide.inform(
             app + ' Project',
             'This project has been created by a different app:\n\n' +
@@ -413,6 +413,8 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
         model.stage.attributes.threadsafe === 'true';
     StageMorph.prototype.enableCodeMapping =
         model.stage.attributes.codify === 'true';
+    StageMorph.prototype.enableInheritance =
+        model.stage.attributes.inheritance === 'true';
 
     model.hiddenPrimitives = model.project.childNamed('hidden');
     if (model.hiddenPrimitives) {
@@ -459,9 +461,17 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
         myself.loadValue(model);
     });
 
-    // restore nesting associations
+    // restore inheritance and nesting associations
     myself.project.stage.children.forEach(function (sprite) {
-        var anchor;
+        var exemplar, anchor;
+        if (sprite.inheritanceInfo) { // only sprites can inherit
+            exemplar = myself.project.sprites[
+                sprite.inheritanceInfo.exemplar
+            ];
+            if (exemplar) {
+                sprite.setExemplar(exemplar);
+            }
+        }
         if (sprite.nestingInfo) { // only sprites may have nesting info
             anchor = myself.project.sprites[sprite.nestingInfo.anchor];
             if (anchor) {
@@ -471,6 +481,7 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
         }
     });
     myself.project.stage.children.forEach(function (sprite) {
+        delete sprite.inheritanceInfo;
         if (sprite.nestingInfo) { // only sprites may have nesting info
             sprite.nestingScale = +(sprite.nestingInfo.scale || sprite.scale);
             delete sprite.nestingInfo;
@@ -531,8 +542,8 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
         }
         watcher.setStyle(model.attributes.style || 'normal');
         if (watcher.style === 'slider') {
-            watcher.setSliderMin(model.attributes.min || '1');
-            watcher.setSliderMax(model.attributes.max || '100');
+            watcher.setSliderMin(model.attributes.min || '1', true);
+            watcher.setSliderMax(model.attributes.max || '100', true);
         }
         watcher.setPosition(
             project.stage.topLeft().add(new Point(
@@ -639,9 +650,17 @@ SnapSerializer.prototype.loadSprites = function (xmlString, ide) {
         myself.loadObject(sprite, model);
     });
 
-    // restore nesting associations
+    // restore inheritance and nesting associations
     project.stage.children.forEach(function (sprite) {
-        var anchor;
+        var exemplar, anchor;
+        if (sprite.inheritanceInfo) { // only sprites can inherit
+            exemplar = project.sprites[
+                sprite.inheritanceInfo.exemplar
+            ];
+            if (exemplar) {
+                sprite.setExemplar(exemplar);
+            }
+        }
         if (sprite.nestingInfo) { // only sprites may have nesting info
             anchor = project.sprites[sprite.nestingInfo.anchor];
             if (anchor) {
@@ -651,6 +670,7 @@ SnapSerializer.prototype.loadSprites = function (xmlString, ide) {
         }
     });
     project.stage.children.forEach(function (sprite) {
+        delete sprite.inheritanceInfo;
         if (sprite.nestingInfo) { // only sprites may have nesting info
             sprite.nestingScale = +(sprite.nestingInfo.scale || sprite.scale);
             delete sprite.nestingInfo;
@@ -697,6 +717,14 @@ SnapSerializer.prototype.loadObject = function (object, model) {
     this.populateCustomBlocks(object, blocks);
     this.loadVariables(object.variables, model.require('variables'));
     this.loadScripts(object.scripts, model.require('scripts'));
+};
+
+SnapSerializer.prototype.loadInheritanceInfo = function (object, model) {
+    // private
+    var info = model.childNamed('inherit');
+    if (info) {
+        object.inheritanceInfo = info.attributes;
+    }
 };
 
 SnapSerializer.prototype.loadNestingInfo = function (object, model) {
@@ -782,7 +810,7 @@ SnapSerializer.prototype.loadCustomBlocks = function (
 
         names = definition.parseSpec(definition.spec).filter(
             function (str) {
-                return str.charAt(0) === '%';
+                return str.charAt(0) === '%' && str.length > 1;
             }
         ).map(function (str) {
             return str.substr(1);
@@ -977,7 +1005,11 @@ SnapSerializer.prototype.loadBlock = function (model, isReporter) {
             );
         }
         if (!receiver) {
-            return this.obsoleteBlock(isReporter);
+            if (!isGlobal) {
+                receiver = this.project.stage;
+            } else {
+                return this.obsoleteBlock(isReporter);
+            }
         }
         if (isGlobal) {
             info = detect(receiver.globalBlocks, function (block) {
@@ -1023,6 +1055,7 @@ SnapSerializer.prototype.loadBlock = function (model, isReporter) {
             this.loadInput(child, inputs[i], block);
         }
     }, this);
+    block.cachedInputs = null;
     return block;
 };
 
@@ -1403,6 +1436,7 @@ StageMorph.prototype.toXML = function (serializer) {
             'costume="@" tempo="@" threadsafe="@" ' +
             'lines="@" ' +
             'codify="@" ' +
+            'inheritance="@" ' +
             'scheduled="@" ~>' +
             '<pentrails>$</pentrails>' +
             '<costumes>%</costumes>' +
@@ -1430,6 +1464,7 @@ StageMorph.prototype.toXML = function (serializer) {
         this.isThreadSafe,
         SpriteMorph.prototype.useFlatLineEnds ? 'flat' : 'round',
         this.enableCodeMapping,
+        this.enableInheritance,
         StageMorph.prototype.frameRate !== 0,
         this.trailsCanvas.toDataURL('image/png'),
         serializer.store(this.costumes, this.name + '_cst'),
@@ -1462,6 +1497,7 @@ SpriteMorph.prototype.toXML = function (serializer) {
             ' draggable="@"' +
             '%' +
             ' costume="@" color="@,@,@" pen="@" ~>' +
+            '%' + // inheritance info
             '%' + // nesting info
             '<costumes>%</costumes>' +
             '<sounds>%</sounds>' +
@@ -1483,6 +1519,13 @@ SpriteMorph.prototype.toXML = function (serializer) {
         this.color.g,
         this.color.b,
         this.penPoint,
+
+        // inheritance info
+        this.exemplar
+            ? '<inherit exemplar="' +
+                    this.exemplar.name
+                    + '"/>'
+            : '',
 
         // nesting info
         this.anchor
