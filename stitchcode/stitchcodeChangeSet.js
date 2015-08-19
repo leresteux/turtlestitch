@@ -35,6 +35,13 @@ tStitch.stitches.x = new Array();
 tStitch.stitches.y = new Array();
 tStitch.stitches.jump = new Array();
 
+tStitch.isFirst = function() {
+	if (tStitch.stitches.x.length > 0) 
+		return false;
+	else
+		return true;
+}
+
 tStitch.clearPoints = function() {
 	tStitch.stitches.x = new Array();
 	tStitch.stitches.y = new Array();
@@ -144,6 +151,8 @@ SpriteMorph.prototype.forward = function (steps) {
     var dest,
         dist = steps * this.parent.scale || 0;
 
+    oldpos =  this.position();
+    
     if (dist >= 0) {
         dest = this.position().distanceAngle(dist, this.heading);
     } else {
@@ -160,8 +169,16 @@ SpriteMorph.prototype.forward = function (steps) {
     tx = dest.x - this.parent.topLeft().x
     ty = dest.y - this.parent.topLeft().y
     tjump = !this.isDown;
-    tStitch.addPoint(tx,ty,tjump);
     
+    if (tStitch.isFirst()) {
+			origx = oldpos.x - this.parent.topLeft().x;
+			origy = oldpos.y - this.parent.topLeft().y;
+		    tStitch.addPoint(origx , origy ,true);
+		    //alert("first");
+		    //alert("orig: " + origx + "," + origy+ " tx/ty: " + tx + ", "+ ty + " - "+ this.position());
+	}
+    
+    tStitch.addPoint(tx,ty,tjump);
     //alert("move to: " + tx + "x" + ty + " - isJump = " + tjump);
         
 };
