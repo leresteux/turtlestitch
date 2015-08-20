@@ -1607,6 +1607,77 @@ IDE_Morph.prototype.projectMenu = function () {
         },
         'load the official library of\npowerful blocks'
     );
+
+	graphicsName = 'Backgrounds';	
+	menu.addItem(
+        localize(graphicsName) + '...',
+        function () {
+            var dir = "stitchcode/" + graphicsName,
+                names = myself.getCostumesList(dir),
+                libMenu = new MenuMorph(
+                    myself,
+                    localize('Import') + ' ' + localize(dir)
+                );
+
+            function loadCostume(name) {
+                var url = dir + '/' + name,
+                    img = new Image();
+                img.onload = function () {
+                    var canvas = newCanvas(new Point(img.width, img.height));
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    myself.droppedImageStage(canvas, name);
+                };
+                img.src = url;
+            }
+
+            names.forEach(function (line) {
+                if (line.length > 0) {
+                    libMenu.addItem(
+                        line,
+                        function () {loadCostume(line); }
+                    );
+                }
+            });
+            libMenu.popup(world, pos);
+        },
+        'Select a costume from the media library'
+    );    
+    
+/*	graphicsName = 'Costumes';	
+	menu.addItem(
+        localize(graphicsName) + '...',
+        function () {
+            var dir = graphicsName,
+                names = myself.getCostumesList(dir),
+                libMenu = new MenuMorph(
+                    myself,
+                    localize('Import') + ' ' + localize(dir)
+                );
+
+            function loadCostume(name) {
+                var url = dir + '/' + name,
+                    img = new Image();
+                img.onload = function () {
+                    var canvas = newCanvas(new Point(img.width, img.height));
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    myself.droppedImage(canvas, name);
+                };
+                img.src = url;
+            }
+
+            names.forEach(function (line) {
+                if (line.length > 0) {
+                    libMenu.addItem(
+                        line,
+                        function () {loadCostume(line); }
+                    );
+                }
+            });
+            libMenu.popup(world, pos);
+        },
+        'Select a costume from the media library'
+    );    
+    */
     menu.addItem(
         'Libraries...',
         function () {
@@ -2172,3 +2243,28 @@ ProjectDialogMorph.prototype.buildContents = function () {
 
 };
 
+IDE_Morph.prototype.droppedImageStage = function (aCanvas, name) {
+    var costume = new Costume(
+        aCanvas,
+        this.currentSprite.newCostumeName(
+            name ? name.split('.')[0] : '' // up to period
+        )
+    );
+
+    if (costume.isTainted()) {
+        this.inform(
+            'Unable to import this image',
+            'The picture you wish to import has been\n' +
+                'tainted by a restrictive cross-origin policy\n' +
+                'making it unusable for costumes in Snap!. \n\n' +
+                'Try downloading this picture first to your\n' +
+                'computer, and import it from there.'
+        );
+        return;
+    }
+
+    this.stage.addCostume(costume);
+    this.stage.wearCostume(costume);
+    //this.spriteBar.tabBar.tabTo('costumes');
+    this.hasChangedMedia = true;
+};
