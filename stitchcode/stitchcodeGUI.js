@@ -34,7 +34,7 @@ IDE_Morph.prototype.buildPanes = function () {
     this.createCategories();
     this.createPalette();
     this.createStage();
-    this.createSpriteEditor();
+    //this.createSpriteEditor();
     this.createSpriteBar();
     this.createStatusDisplay();
 };
@@ -615,7 +615,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         this.controlBar.stageSizeButton,
         this.controlBar.stageSizeButton,
         //this.controlBar.largeStageSizeButton,
-        this.spriteEditor,
+        //this.spriteEditor,
         this.palette,
         this.categories ];
 
@@ -871,6 +871,7 @@ IDE_Morph.prototype.fixLayout = function (situation) {
         this.spriteBar.fixLayout();
 */ 
         // spriteEditor
+        /*
         if (this.spriteEditor.isVisible) {
             //this.spriteEditor.setPosition(this.spriteBar.bottomLeft());
             this.spriteEditor.setPosition(this.logo.bottomRight().add(padding));
@@ -879,7 +880,7 @@ IDE_Morph.prototype.fixLayout = function (situation) {
                 Math.max(0, this.stage.left() - padding - this.spriteEditor.left()),
                 this.bottom() - this.spriteEditor.top()
             ));
-        }
+        }*/
         this.statusDisplay.fixLayout();
     }
 
