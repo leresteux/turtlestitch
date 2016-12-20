@@ -34,7 +34,7 @@ IDE_Morph.prototype.buildPanes = function () {
     this.createCategories();
     this.createPalette();
     this.createStage();
-    //this.createSpriteEditor();
+    this.createSpriteEditor();
     this.createSpriteBar();
     this.createStatusDisplay();
 };
@@ -615,7 +615,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         this.controlBar.stageSizeButton,
         this.controlBar.stageSizeButton,
         //this.controlBar.largeStageSizeButton,
-        //this.spriteEditor,
+        this.spriteEditor,
         this.palette,
         this.categories ];
 
@@ -861,7 +861,7 @@ IDE_Morph.prototype.fixLayout = function (situation) {
             this.stage.setTop(this.logo.bottom() + padding);
             this.stage.setRight(this.right());
         }
-/*
+
         // spriteBar
         this.spriteBar.setPosition(this.logo.bottomRight().add(padding));
         this.spriteBar.setExtent(new Point(
@@ -869,9 +869,9 @@ IDE_Morph.prototype.fixLayout = function (situation) {
             this.categories.bottom() - this.spriteBar.top() - padding
         ));
         this.spriteBar.fixLayout();
-*/ 
+
         // spriteEditor
-        /*
+        
         if (this.spriteEditor.isVisible) {
             //this.spriteEditor.setPosition(this.spriteBar.bottomLeft());
             this.spriteEditor.setPosition(this.logo.bottomRight().add(padding));
@@ -880,7 +880,7 @@ IDE_Morph.prototype.fixLayout = function (situation) {
                 Math.max(0, this.stage.left() - padding - this.spriteEditor.left()),
                 this.bottom() - this.spriteEditor.top()
             ));
-        }*/
+        }
         this.statusDisplay.fixLayout();
     }
 
@@ -1024,9 +1024,6 @@ IDE_Morph.prototype.saveProjectToDisk = function() {
         data = this.serializer.serialize(this.stage);
     }
 
-	myself.prompt('Save as ...', function (name) {
-					myself.upload(name);
-				}, null, 'upload');
     blob = new Blob([data], {type: 'text/xml;charset=utf-8'});
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch_project') + '.xml');
 }
@@ -2004,6 +2001,75 @@ IDE_Morph.prototype.createSpriteBar = function () {
         this.tabBar.setLeft(this.left());
         this.tabBar.setBottom(this.bottom());
     };
+};
+
+IDE_Morph.prototype.createCorralBar = function () {
+    // assumes the stage has already been created
+    var padding = 5,
+        newbutton,
+        paintbutton,
+        colors = [
+            this.groupColor,
+            this.frameColor.darker(50),
+            this.frameColor.darker(50)
+        ];
+
+    if (this.corralBar) {
+        this.corralBar.destroy();
+    }
+
+    this.corralBar = new Morph();
+    this.corralBar.color = this.frameColor;
+    this.corralBar.setHeight(this.logo.height()); // height is fixed
+    this.add(this.corralBar);
+/*
+    // new sprite button
+    newbutton = new PushButtonMorph(
+        this,
+        "addNewSprite",
+        new SymbolMorph("turtle", 14)
+    );
+    newbutton.corner = 12;
+    newbutton.color = colors[0];
+    newbutton.highlightColor = colors[1];
+    newbutton.pressColor = colors[2];
+    newbutton.labelMinExtent = new Point(36, 18);
+    newbutton.padding = 0;
+    newbutton.labelShadowOffset = new Point(-1, -1);
+    newbutton.labelShadowColor = colors[1];
+    newbutton.labelColor = this.buttonLabelColor;
+    newbutton.contrast = this.buttonContrast;
+    newbutton.drawNew();
+    newbutton.hint = "add a new Turtle sprite";
+    newbutton.fixLayout();
+    newbutton.setCenter(this.corralBar.center());
+    newbutton.setLeft(this.corralBar.left() + padding);
+    this.corralBar.add(newbutton);
+
+    paintbutton = new PushButtonMorph(
+        this,
+        "paintNewSprite",
+        new SymbolMorph("brush", 15)
+    );
+    paintbutton.corner = 12;
+    paintbutton.color = colors[0];
+    paintbutton.highlightColor = colors[1];
+    paintbutton.pressColor = colors[2];
+    paintbutton.labelMinExtent = new Point(36, 18);
+    paintbutton.padding = 0;
+    paintbutton.labelShadowOffset = new Point(-1, -1);
+    paintbutton.labelShadowColor = colors[1];
+    paintbutton.labelColor = this.buttonLabelColor;
+    paintbutton.contrast = this.buttonContrast;
+    paintbutton.drawNew();
+    paintbutton.hint = "paint a new sprite";
+    paintbutton.fixLayout();
+    paintbutton.setCenter(this.corralBar.center());
+    paintbutton.setLeft(
+        this.corralBar.left() + padding + newbutton.width() + padding
+    );
+    this.corralBar.add(paintbutton);
+    */
 };
 
 
