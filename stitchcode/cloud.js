@@ -55,8 +55,7 @@ Cloud.prototype.clear = function () {
 // Cloud: Snap! API.
 
 
-Cloud.prototype.login = function ( username, password,callBack, errorCall ) 
-{
+Cloud.prototype.login = function ( username, password,callBack, errorCall) {
     // both callBack and errorCall are two-argument functions
     var request = new XMLHttpRequest(),
         params = 'password=' + password + '&username=' + username,
@@ -98,7 +97,7 @@ Cloud.prototype.login = function ( username, password,callBack, errorCall )
 };
 
 
-Cloud.prototype.logout = function ( callBack, errorCall) 
+Cloud.prototype.logout = function ( callBack, errorCall)
 {
     var request = new XMLHttpRequest(),
         myself = this;
@@ -142,13 +141,13 @@ Cloud.prototype.disconnect = function () {
 
 
 
-Cloud.prototype.isloggedin = function ( callBack, errorCall) 
+Cloud.prototype.isloggedin = function ( callBack, errorCall)
 {
     var request = new XMLHttpRequest(),
         myself = this;
-	
+
 	myself.username = false;
-    
+
     try {
         request.open("GET", this.url + '/../cloudloggedin',true);
         request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -158,7 +157,7 @@ Cloud.prototype.isloggedin = function ( callBack, errorCall)
                     if (request.responseText.slice(0,2) == "OK") {
                         myself.username = request.responseText.slice(3);
                         callBack.call(myself);
-                    } 
+                    }
                 }
 			}
 		};
@@ -189,18 +188,18 @@ Cloud.prototype.reconnect = function (
             }
         }
     }
-    
+
     if (!(this.username)) {
         this.message('You are not logged in');
-        
+
     /* this.login(
         this.username,
         this.password,
         callBack,
         errorCall
-    ); */       
+    ); */
     return;
-    
+
     }
 
 };
@@ -287,7 +286,7 @@ Cloud.prototype.getPublicProject = function (
         request.withCredentials = true;
         request.onreadystatechange = function () {
             if (request.readyState === 4) {
-				
+
                 if (request.responseText) {
                     if (request.responseText.indexOf('ERROR') === 0) {
                         errorCall.call(
@@ -431,7 +430,7 @@ Cloud.prototype.getProjectList = function (callBack, errorCall) {
     var request = new XMLHttpRequest()
 	//callBack.call();
 	this.reconnect(null,null);
-	
+
     try {
         request.open("GET", this.url + '/list_projects',true);
 		request.setRequestHeader("Connection", "close");
@@ -440,20 +439,20 @@ Cloud.prototype.getProjectList = function (callBack, errorCall) {
             if (request.readyState === 4) {
 
                 if (request.responseText) {
-					
+
 					if (request.responseText.indexOf('ERROR') === 0) {
 							errorCall.call(
                             null,
                             request.responseText,
-                            'connection failed');					
-					} else { 
+                            'connection failed');
+					} else {
 						projects = [];
 						console.log(request.responseText);
 						request.responseText.split('\n').forEach(
 							function (line) {
 								endIdx = line.search(new RegExp('.xml'));
 								if (endIdx > 0) {
-									name = line.substring(0, endIdx);									
+									name = line.substring(0, endIdx);
 									dta = {
 										name: line,
 										thumb: null,
@@ -465,7 +464,7 @@ Cloud.prototype.getProjectList = function (callBack, errorCall) {
 							}
 						);
 						callBack.call(myself,projects);
-					}				
+					}
                 } else {
                     errorCall.call(
                         null,

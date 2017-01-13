@@ -2017,7 +2017,7 @@ IDE_Morph.prototype.createSpriteBar = function () {
 };
 */
 
-/* CORRAL BAR
+/* CORRAL BAR */
 
 IDE_Morph.prototype.createCorralBar = function () {
     // assumes the stage has already been created
@@ -2143,7 +2143,6 @@ IDE_Morph.prototype.createCorral = function () {
 
 };
 
-*/
 
 // turtlestitch project dialog
 ProjectDialogMorph.prototype.buildContents = function () {
