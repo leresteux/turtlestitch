@@ -12,8 +12,14 @@ IDE_Morph.prototype.init = function(isAutoFill) {
     //this.frameColor = new Color(220,220,220);
 };
 
-IDE_Morph.prototype.resourceURL = function (folder, file) {
-    return 'stitchcode/' + folder + '/' + file;
+IDE_Morph.prototype.resourceURLOrig  = IDE_Morph.prototype.resourceURL;
+IDE_Morph.prototype.resourceURL = function () {
+    var args = Array.prototype.slice.call(arguments, 0);
+    if (args[0] == "Backgrounds" || args[0] == "Examples")
+        return 'stitchcode/' + args[0] + '/' + args[1];
+    else {
+        return args.join('/');
+    }
 };
 
 //  change logo
@@ -1457,7 +1463,6 @@ IDE_Morph.prototype.projectMenu = function () {
         'show global custom block definitions as XML\nin a new browser window'
     );
     menu.addLine();
-/* moved to library
     menu.addItem(
         'Import tools',
         function () {
@@ -1468,7 +1473,6 @@ IDE_Morph.prototype.projectMenu = function () {
         },
         'load the official library of\npowerful blocks'
     );
-*/
     menu.addItem(
         'Libraries...',
         createMediaMenu(
