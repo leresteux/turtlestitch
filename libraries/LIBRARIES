@@ -1,3 +1,4 @@
+tools.xml	Tools
 iteration-composition.xml	Iteration, composition
 list-utilities.xml	List utilities
 stream-tools.xml	Streams (lazy lists)

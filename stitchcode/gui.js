@@ -1244,24 +1244,6 @@ StageMorph.prototype.userMenu = function () {
         },
         'open a new window\nwith a picture of the stage'
     );
-    if (shiftClicked) {
-        menu.addLine();
-        menu.addItem(
-            "turn pen trails into new costume...",
-            function () {
-                var costume = new Costume(
-                    myself.trailsCanvas,
-                    Date.now().toString()
-                ).copy();
-                ide.currentSprite.addCostume(costume);
-                ide.currentSprite.wearCostume(costume);
-                ide.hasChangedMedia = true;
-            },
-            'turn all pen trails and stamps\n' +
-                'into a new costume for the\ncurrently selected sprite',
-            new Color(100, 0, 0)
-        );
-    }
     return menu;
 };
 
@@ -1390,14 +1372,10 @@ IDE_Morph.prototype.projectMenu = function () {
     }
 
     menu = new MenuMorph(this);
-    menu.addItem('Project notes...', 'editProjectNotes');
-    menu.addLine();
+    //menu.addItem('Project notes...', 'editProjectNotes');
+    //menu.addLine();
     menu.addItem('New', 'createNewProject');
     menu.addItem('Open...', 'openProjectsBrowser');
-    //menu.addItem('Save', "save");
-    menu.addItem('Save As...', 'saveProjectsBrowser');
-    menu.addItem('Save to Disk', 'saveToDisk');
-    menu.addLine();
     menu.addItem(
         'Import...',
         function () {
@@ -1431,8 +1409,33 @@ IDE_Morph.prototype.projectMenu = function () {
         },
         'file menu import hint' // looks up the actual text in the translator
     );
+    menu.addLine();
+    menu.addItem('Save', "save");
+    menu.addItem('Save As...', 'saveProjectsBrowser');
+    menu.addItem('Save to Disk', 'saveToDisk');
+    menu.addLine();
+    menu.addItem('Upload stitch file', 'uploadMe','Export stage drawing to stitch file (EXP)..');
+    menu.addLine();
+	menu.addItem(
+            'Download as SVG',
+            function() { myself.downloadSVG() },
+            'download current drawing as SVG file'
+            );
+	menu.addItem(
+            'Download as EXP',
+            function() { myself.downloadEXP() },
+            'download current drawing as EXP file'
+            );
 
-
+    if (shiftClicked) {
+        menu.addItem(
+            'Export all scripts as pic...',
+            function () {myself.exportScriptsPicture(); },
+            'show a picture of all scripts\nand block definitions',
+            new Color(100, 0, 0)
+        );
+    }
+    menu.addLine();
     menu.addItem(
         shiftClicked ?
                 'Export project as plain text...' : 'Export project...',
@@ -1448,37 +1451,13 @@ IDE_Morph.prototype.projectMenu = function () {
         'show project data as XML\nin a new browser window',
         shiftClicked ? new Color(100, 0, 0) : null
     );
-
     menu.addItem(
         'Export blocks...',
         function () {myself.exportGlobalBlocks(); },
         'show global custom block definitions as XML\nin a new browser window'
     );
-
     menu.addLine();
-	menu.addItem('Upload stitch file', 'uploadMe','Export stage drawing to stitch file (EXP)..');
-	menu.addItem(
-            'Export as SVG',
-            function() { myself.downloadSVG() },
-            'download current drawing as SVG file'
-            );
-	menu.addItem(
-            'Export as EXP',
-            function() { myself.downloadEXP() },
-            'download current drawing as EXP file'
-            );
-
-    if (shiftClicked) {
-        menu.addItem(
-            'Export all scripts as pic...',
-            function () {myself.exportScriptsPicture(); },
-            'show a picture of all scripts\nand block definitions',
-            new Color(100, 0, 0)
-        );
-    }
-
-    menu.addLine();
-
+/* moved to library
     menu.addItem(
         'Import tools',
         function () {
@@ -1489,6 +1468,7 @@ IDE_Morph.prototype.projectMenu = function () {
         },
         'load the official library of\npowerful blocks'
     );
+*/
     menu.addItem(
         'Libraries...',
         createMediaMenu(
@@ -1520,40 +1500,6 @@ IDE_Morph.prototype.projectMenu = function () {
         ),
         'Select categories of additional blocks to add to this project.'
     );
-/*	menu.addItem(
-        localize(graphicsName) + '...',
-        function () {
-            var dir = "stitchcode/" + graphicsName,
-                names = myself.getCostumesList(dir),
-                libMenu = new MenuMorph(
-                    myself,
-                    localize('Import') + ' ' + localize(dir)
-                );
-
-            function loadCostume(name) {
-                var url = dir + '/' + name,
-                    img = new Image();
-                img.onload = function () {
-                    var canvas = newCanvas(new Point(img.width, img.height));
-                    canvas.getContext('2d').drawImage(img, 0, 0);
-                    myself.droppedImageStage(canvas, name);
-                };
-                img.src = url;
-            }
-
-            names.forEach(function (line) {
-                if (line.length > 0) {
-                    libMenu.addItem(
-                        line,
-                        function () {loadCostume(line); }
-                    );
-                }
-            });
-            libMenu.popup(world, pos);
-        },
-        'Select a costume from the media library'
-    );
-*/
 
     menu.popup(world, pos);
 };
