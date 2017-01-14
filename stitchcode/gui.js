@@ -6,11 +6,14 @@ IDE_Morph.prototype.setDefaultDesign = IDE_Morph.prototype.setFlatDesign;
 IDE_Morph.prototype.originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(isAutoFill) {
     this.originalInit();
-    // Borders are actually just paddings, so we set the bg white to get them to be white
+    this.padding = 1;
     //this.backgroundColor = new Color(255,255,255);
     //this.setColor(this.backgroundColor);
-    this.padding = 1;
     //this.frameColor = new Color(220,220,220);
+};
+
+IDE_Morph.prototype.resourceURL = function (folder, file) {
+    return 'stitchcode/' + folder + '/' + file;
 };
 
 //  change logo
@@ -25,6 +28,18 @@ IDE_Morph.prototype.createLogo = function () {
 	this.logo.color = new Color(230, 230, 230);
 	this.logo.drawNew();
 };
+
+/*
+IDE_Morph.prototype.init = (function init (oldInit) {
+    return function(isAutoFill) {
+        var retval = oldInit.call(this, isAutoFill);
+        this.currentCategory = 'network';
+        this.maxVisibleNodes = DEFAULT_MAX_VISIBLE_NODES;
+        this.logoURL = 'edgy_logo.png';
+        return retval;
+    }
+}(IDE_Morph.prototype.init));
+*/
 
 
 // Single Sprite mode, no corral and no tabs in the scripting area
@@ -450,172 +465,8 @@ IDE_Morph.prototype.createControlBar = function () {
     };
 };
 
-// Get Example Projet list
-
-ProjectDialogMorph.prototype.getExamplesProjectList = function () {
-    var dir,
-        projects = [];
-
-    //dir = this.ide.getURL('http://snap.berkeley.edu/snapsource/Examples/');
-    dir = this.ide.getURL(tStitch.getBaseURL() + '/stitchcode/examples/');
-    dir.split('\n').forEach(
-        function (line) {
-            var startIdx = line.search(new RegExp('href=".*xml"')),
-                endIdx,
-                name,
-                dta;
-            if (startIdx > 0) {
-                endIdx = line.search(new RegExp('.xml'));
-                name = line.substring(startIdx + 6, endIdx);
-                dta = {
-                    name: name,
-                    thumb: null,
-                    notes: null
-                };
-                projects.push(dta);
-                console.log(dta);
-            }
-        }
-    );
-    projects.sort(function (x, y) {
-        return x.name < y.name ? -1 : 1;
-    });
-    return projects;
-};
 
 
-// Get Source
-ProjectDialogMorph.prototype.setSource = function (source) {
-    var myself = this,
-        msg;
-
-    this.source = source; //this.task === 'save' ? 'local' : source;
-    this.srcBar.children.forEach(function (button) {
-        button.refresh();
-    });
-    switch (this.source) {
-    case 'cloud':
-        msg = myself.ide.showMessage('Updating\nproject list...');
-        this.projectList = [];
-        SnapCloud.getProjectList(
-            function (projectList) {
-                myself.installCloudProjectList(projectList);
-                msg.destroy();
-            },
-            function (err, lbl) {
-                msg.destroy();
-                myself.ide.cloudError().call(null, err, lbl);
-            }
-        );
-        return;
-    case 'examples':
-        this.projectList = this.getExamplesProjectList();
-        break;
-    case 'local':
-        this.projectList = this.getLocalProjectList();
-        break;
-    }
-
-    this.listField.destroy();
-    this.listField = new ListMorph(
-        this.projectList,
-        this.projectList.length > 0 ?
-                function (element) {
-                    return element.name;
-                } : null,
-        null,
-        function () {myself.ok(); }
-    );
-
-    this.fixListFieldItemColors();
-    this.listField.fixLayout = nop;
-    this.listField.edge = InputFieldMorph.prototype.edge;
-    this.listField.fontSize = InputFieldMorph.prototype.fontSize;
-    this.listField.typeInPadding = InputFieldMorph.prototype.typeInPadding;
-    this.listField.contrast = InputFieldMorph.prototype.contrast;
-    this.listField.drawNew = InputFieldMorph.prototype.drawNew;
-    this.listField.drawRectBorder = InputFieldMorph.prototype.drawRectBorder;
-
-    if (this.source === 'local') {
-        this.listField.action = function (item) {
-            var src, xml;
-
-            if (item === undefined) {return; }
-            if (myself.nameField) {
-                myself.nameField.setContents(item.name || '');
-            }
-            if (myself.task === 'open') {
-
-                src = localStorage['-snap-project-' + item.name];
-                xml = myself.ide.serializer.parse(src);
-
-                myself.notesText.text = xml.childNamed('notes').contents
-                    || '';
-                myself.notesText.drawNew();
-                myself.notesField.contents.adjustBounds();
-                myself.preview.texture = xml.childNamed('thumbnail').contents
-                    || null;
-                myself.preview.cachedTexture = null;
-                myself.preview.drawNew();
-            }
-            myself.edit();
-        };
-    } else { // 'examples', 'cloud' is initialized elsewhere
-        this.listField.action = function (item) {
-            var src, xml;
-            if (item === undefined) {return; }
-            if (myself.nameField) {
-                myself.nameField.setContents(item.name || '');
-            }
-            src = myself.ide.getURL(
-            //    'http://snap.berkeley.edu/snapsource/Examples/' +
-					tStitch.getBaseURL() + 'stitchcode/examples/' +
-                    item.name + '.xml'
-            );
-
-            xml = myself.ide.serializer.parse(src);
-            myself.notesText.text = xml.childNamed('notes').contents
-                || '';
-            myself.notesText.drawNew();
-            myself.notesField.contents.adjustBounds();
-            myself.preview.texture = xml.childNamed('thumbnail').contents
-                || null;
-            myself.preview.cachedTexture = null;
-            myself.preview.drawNew();
-            myself.edit();
-        };
-    }
-    this.body.add(this.listField);
-    this.shareButton.hide();
-    this.unshareButton.hide();
-    if (this.source === 'local') {
-        this.deleteButton.show();
-    } else { // examples
-        this.deleteButton.hide();
-    }
-    this.buttons.fixLayout();
-    this.fixLayout();
-    if (this.task === 'open') {
-        this.clearDetails();
-    }
-};
-
-// open project
-ProjectDialogMorph.prototype.openProject = function () {
-	var proj = this.listField.selected, src;
-	if (!proj) {return; }
-	this.ide.source = this.source;
-	if (this.source === 'cloud') {
-		this.openCloudProject(proj);
-	} else if (this.source === 'examples') {
-		src = this.ide.getURL(tStitch.getBaseURL() + 'stitchcode/examples/' + proj.name + '.xml');
-		this.ide.openProjectString(src);
-		this.destroy();
-	} else { // 'local'
-		this.ide.openProject(proj.name);
-		this.destroy();
-	}
-};
 
 IDE_Morph.prototype.toggleAppMode = function (appMode) {
     var world = this.world(),
@@ -1493,9 +1344,9 @@ IDE_Morph.prototype.createCategories = function () {
         });
 
         myself.categories.setHeight(
-            (rows + 1) * yPadding
-                + rows * buttonHeight
-                + 2 * border
+            (rows + 1) * yPadding +
+                rows * buttonHeight +
+                2 * border
         );
     }
 
@@ -1516,6 +1367,27 @@ IDE_Morph.prototype.projectMenu = function () {
         graphicsName = this.currentSprite instanceof SpriteMorph ?
                 'Costumes' : 'Backgrounds',
         shiftClicked = (world.currentKey === 16);
+
+    // Utility for creating Costumes, etc menus.
+    // loadFunction takes in two parameters: a file URL, and a canonical name
+    function createMediaMenu(mediaType, loadFunction) {
+        return function () {
+            var names = this.getMediaList(mediaType),
+                mediaMenu = new MenuMorph(
+                    myself,
+                    localize('Import') + ' ' + localize(mediaType)
+                );
+
+            names.forEach(function (item) {
+                mediaMenu.addItem(
+                    item.name,
+                    function () {loadFunction(item.file, item.name); },
+                    item.help
+                );
+            });
+            mediaMenu.popup(world, pos);
+        };
+    }
 
     menu = new MenuMorph(this);
     menu.addItem('Project notes...', 'editProjectNotes');
@@ -1606,21 +1478,49 @@ IDE_Morph.prototype.projectMenu = function () {
     }
 
     menu.addLine();
+
     menu.addItem(
         'Import tools',
         function () {
             myself.droppedText(
-                myself.getURLsbeOrRelative(
-                    'tools.xml'
-                ),
+                myself.getURL(myself.resourceURL('tools.xml')),
                 'tools'
             );
         },
         'load the official library of\npowerful blocks'
     );
+    menu.addItem(
+        'Libraries...',
+        createMediaMenu(
+            'libraries',
+            function loadLib(file, name) {
+                var url = myself.resourceURL('libraries', file);
+                myself.droppedText(myself.getURL(url), name);
+            }
+        ),
+        'Select categories of additional blocks to add to this project.'
+    );
+
 
 	graphicsName = 'Backgrounds';
-	menu.addItem(
+    menu.addItem(
+        'Backgrounds...',
+        createMediaMenu(
+            'Backgrounds',
+            function loadLib(file, name) {
+                var url = myself.resourceURL('Backgrounds', file);
+                img = new Image();
+                img.onload = function () {
+                    var canvas = newCanvas(new Point(img.width, img.height));
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    myself.droppedImageStage(canvas, name);
+                };
+                img.src = url;
+            }
+        ),
+        'Select categories of additional blocks to add to this project.'
+    );
+/*	menu.addItem(
         localize(graphicsName) + '...',
         function () {
             var dir = "stitchcode/" + graphicsName,
@@ -1653,74 +1553,7 @@ IDE_Morph.prototype.projectMenu = function () {
         },
         'Select a costume from the media library'
     );
-
-/*	graphicsName = 'Costumes';
-	menu.addItem(
-        localize(graphicsName) + '...',
-        function () {
-            var dir = graphicsName,
-                names = myself.getCostumesList(dir),
-                libMenu = new MenuMorph(
-                    myself,
-                    localize('Import') + ' ' + localize(dir)
-                );
-
-            function loadCostume(name) {
-                var url = dir + '/' + name,
-                    img = new Image();
-                img.onload = function () {
-                    var canvas = newCanvas(new Point(img.width, img.height));
-                    canvas.getContext('2d').drawImage(img, 0, 0);
-                    myself.droppedImage(canvas, name);
-                };
-                img.src = url;
-            }
-
-            names.forEach(function (line) {
-                if (line.length > 0) {
-                    libMenu.addItem(
-                        line,
-                        function () {loadCostume(line); }
-                    );
-                }
-            });
-            libMenu.popup(world, pos);
-        },
-        'Select a costume from the media library'
-    );
-    */
-    menu.addItem(
-        'Libraries...',
-        function () {
-            // read a list of libraries from an external file,
-            var libMenu = new MenuMorph(this, 'Import library'),
-                libUrl = 'http://snap.berkeley.edu/snapsource/libraries/' +
-                    'LIBRARIES';
-
-            function loadLib(name) {
-                var url = 'http://snap.berkeley.edu/snapsource/libraries/'
-                        + name
-                        + '.xml';
-                myself.droppedText(myself.getURL(url), name);
-            }
-
-            myself.getURL(libUrl).split('\n').forEach(function (line) {
-                if (line.length > 0) {
-                    libMenu.addItem(
-                        line.substring(line.indexOf('\t') + 1),
-                        function () {
-                            loadLib(
-                                line.substring(0, line.indexOf('\t'))
-                            );
-                        }
-                    );
-                }
-            });
-
-            libMenu.popup(world, pos);
-        },
-        'Select categories of additional blocks to add to this project.'
-    );
+*/
 
     menu.popup(world, pos);
 };
@@ -2144,7 +1977,9 @@ IDE_Morph.prototype.createCorral = function () {
 };
 
 
-// turtlestitch project dialog
+// turtlestitch project dialog (removin cloud)
+/*
+
 ProjectDialogMorph.prototype.buildContents = function () {
     var thumbnail, notification;
 
@@ -2279,6 +2114,7 @@ ProjectDialogMorph.prototype.buildContents = function () {
     this.fixLayout();
 
 };
+*/
 
 
 /*
@@ -2310,26 +2146,54 @@ IDE_Morph.prototype.droppedImageStage = function (aCanvas, name) {
 
 */
 
-PaletteHandleMorph.prototype.mouseDownLeft = function (pos) {
-    var world = this.world(),
-        offset = this.right() - pos.x,
-        ide = this.target.parentThatIsA(IDE_Morph);
 
-    if (!this.target) {
-        return null;
-    }
-    this.step = function () {
-        var newPos;
-        if (world.hand.mouseButton) {
-            newPos = world.hand.bounds.origin.x + offset;
-            ide.paletteWidth = Math.min(
-                Math.max(200, newPos),
-                ide.stageHandle.left() - ide.spriteBar.tabBar.width()
-            );
-            ide.setExtent(world.extent());
+IDE_Morph.prototype.getCostumesList = function (dirname) {
+    var dir,
+        costumes = [];
 
-        } else {
-            this.step = null;
+    dir = this.getURL(dirname);
+    dir.split('\n').forEach(
+        function (line) {
+            var startIdx = line.search(new RegExp('href="[^./?].*"')),
+                endIdx,
+                name;
+
+            if (startIdx > 0) {
+                name = line.substring(startIdx + 6);
+                endIdx = name.search(new RegExp('"'));
+                name = name.substring(0, endIdx);
+                costumes.push(name);
+            }
         }
-    };
+    );
+    costumes.sort(function (x, y) {
+        return x < y ? -1 : 1;
+    });
+    return costumes;
+};
+
+IDE_Morph.prototype.droppedImageStage = function (aCanvas, name) {
+    var costume = new Costume(
+        aCanvas,
+        this.currentSprite.newCostumeName(
+            name ? name.split('.')[0] : '' // up to period
+        )
+    );
+
+    if (costume.isTainted()) {
+        this.inform(
+            'Unable to import this image',
+            'The picture you wish to import has been\n' +
+                'tainted by a restrictive cross-origin policy\n' +
+                'making it unusable for costumes in Snap!. \n\n' +
+                'Try downloading this picture first to your\n' +
+                'computer, and import it from there.'
+        );
+        return;
+    }
+
+    this.stage.addCostume(costume);
+    this.stage.wearCostume(costume);
+    //this.spriteBar.tabBar.tabTo('costumes');
+    this.hasChangedMedia = true;
 };
