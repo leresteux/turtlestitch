@@ -652,9 +652,8 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     this.statusDisplay.lastWatcherUpdate = Date.now();
     this.statusDisplay.watcherUpdateFrequency = 250;
 
+    /*
     // Buttons and toggles
-
-
     var toogleShowStitchButton = new ToggleMorph(
         'checkbox',
         null,
@@ -684,7 +683,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
 
 	elements.push(toogleShowJumpsButton);
 
-
+    */
     elements.forEach(function(each) { myself.statusDisplay.addElement(each) });
 };
 
