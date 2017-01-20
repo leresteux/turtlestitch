@@ -16,7 +16,7 @@ SpriteMorph.prototype.forward = function (steps) {
     if (!turtleShepherd.hasSteps())
         turtleShepherd.initPosition(oldx, oldy);
     turtleShepherd.addMoveTo(this.xPosition() , this.yPosition() , this.isDown);
-    this.reRender();
+    this.changed();
 };
 
 SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
@@ -31,7 +31,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
         if (!turtleShepherd.hasSteps())
             turtleShepherd.initPosition(oldx, oldy);
         turtleShepherd.addMoveTo(this.xPosition() , this.yPosition() , this.isDown);
-        this.reRender();
+        this.changed();
 	}
 };
 
@@ -40,7 +40,7 @@ SpriteMorph.prototype.clear = function () {
     this.origClear();
     turtleShepherd.clear();
     //this.changed();
-    this.reRender();
+    this.changed();
 };
 
 SpriteMorph.prototype.reRender = function () {
@@ -61,8 +61,6 @@ StageMorph.prototype.mouseScroll = function (y, x) {
     } else if (y < 0) {
         turtleShepherd.zoomIn();
     }
-
-    this.reRender();
     this.changed();
 };
 
@@ -77,6 +75,7 @@ StageMorph.prototype.originalSetScale = StageMorph.prototype.setScale;
 StageMorph.prototype.setScale = function (number) {
     this.scaleChanged = true;
     this.originalSetScale(number);
+
     if (DEBUG) turtleShepherd.debug_msg("scale stage to "+ number );
     if (DEBUG) turtleShepherd.debug_msg("stage dimensions " +
         this.extent().x + " " +
@@ -86,9 +85,14 @@ StageMorph.prototype.setScale = function (number) {
         this.position().y);
     turtleShepherd.setStageDimensions(this.extent().x, this.extent().y);
     turtleShepherd.setStagePosition(this.position().x, this.position().y);
-    //this.resizePenTrails();
+    this.resizePenTrails();
     this.changed();
     this.reRender();
+};
+
+StageMorph.prototype.clearPenTrails = function () {
+    this.trailsCanvas = newCanvas(new Point(this.extent().x,this.extent().y));
+    this.changed();
 };
 
 StageMorph.prototype.resizePenTrails = function () {
@@ -97,6 +101,62 @@ StageMorph.prototype.resizePenTrails = function () {
 };
 
 StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
+StageMorph.prototype.drawOn  = function (aCanvas, aRect) {
+    this.reRender();
+    this.originalDrawOn(aCanvas, aRect);
+};
+
+
+
+StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
+StageMorph.prototype.drawOn = function (aCanvas, aRect) {
+    this.reRender();
+    // make sure to draw the pen trails canvas as well
+    var rectangle, area, delta, src, context, w, h, sl, st, ws, hs;
+    if (!this.isVisible) {
+        return null;
+    }
+    rectangle = aRect || this.bounds;
+    area = rectangle.intersect(this.bounds);
+    if (area.extent().gt(new Point(0, 0))) {
+        delta = this.position().neg();
+        src = area.copy().translateBy(delta);
+        context = aCanvas.getContext('2d');
+        context.globalAlpha = this.alpha;
+
+        sl = src.left();
+        st = src.top();
+        w = Math.min(src.width(), this.image.width - sl);
+        h = Math.min(src.height(), this.image.height - st);
+
+        if (w < 1 || h < 1) {
+            return null;
+        }
+        // we only draw pen trails!
+        context.save();
+        context.clearRect(
+            area.left(),
+            area.top() ,
+            w,
+            h);
+        try {
+            context.drawImage(
+                this.penTrails(),
+                sl,
+                st,
+                w,
+                h,
+                area.left(),
+                area.top(),
+                w,
+                h
+            );
+        } catch (err) { // sometimes triggered only by Firefox
+            console.log(err);
+        }
+        context.restore();
+    }
+};
 
 /*
 StageMorph.prototype.drawOn = function (aCanvas, aRect) {

@@ -55,7 +55,7 @@ TurtleShepherd.prototype.addMoveTo= function(x,y,penState) {
 
 TurtleShepherd.prototype.initPosition = function(x,y) {
     this.initX = x;
-    this.initY = y;
+    this.initY = -y;
     if (DEBUG) this.debug_msg("init " + x + " " + y );
 };
 
@@ -118,11 +118,11 @@ TurtleShepherd.prototype.toSVG = function() {
 
     //var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
     //svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
-    svgStr = '<svg width="' +this.w + '" height="' +this.h + '"' +
-        ' viewBox="' + (-1 * this.w / 2 * this.scale) + ' ' +
-            (-1 * this.h / 2 * this.scale) + ' ' +
-            (this.w* this.scale) + ' ' +
-            (this.h* this.scale)+ '"\n';
+    svgStr = '<svg width="' + (this.w) + '" height="' +this.h + '"' +
+        ' viewBox="' + (-1 * (this.w / 2) * this.scale) + ' ' +
+            (-1 * (this.h / 2) * this.scale) + ' ' +
+            (this.w * this.scale) + ' ' +
+            (this.h * this.scale) + '"\n';
     svgStr += ' xmlns="http://www.w3.org/2000/svg" version="1.1">\n';
     svgStr += '<title>Embroidery export</title>\n';
 
@@ -196,20 +196,36 @@ TurtleShepherd.prototype.toSVG = function() {
 };
 
 TurtleShepherd.prototype.reRender = function(cnv) {
-    //load a svg snippet in the canvas with id = 'svg'
+    sourceSVG = turtleShepherd.toSVG();
+   //load a svg snippet in the canvas with id = 'svg'
    //canvas = document.getElementById('svg');
-   document.getElementById("code").innerHTML =  turtleShepherd.toSVG();
-   document.getElementById("svg2").innerHTML =  turtleShepherd.toSVG();
+
+   document.getElementById("code").innerHTML =  sourceSVG;
+   //document.getElementById("svg2").innerHTML =  sourceSVG;
    //canvg(document.getElementById('svg'), turtleShepherd.toSVG());
 
-   canvg(cnv, turtleShepherd.toSVG());
+   // draw via canvg - works but very slow!
+   //canvg(cnv, turtleShepherd.toSVG());
 
-   //var cnv = caller.parent.penTrails();
-   //alert(cnv);
-   //if (cnv) {
-    //   var ctx = cnv.getContext('2d');
-    //   ctx.drawSvg(turtleShepherd.toSVG(), 0, 0, cnv.width, cnv.height);
-   //}
+   if (cnv) {
+       var ctx = cnv.getContext('2d');
+       ctx.clearRect(0, 0, cnv.width, cnv.height);
+       ctx.drawSvg(turtleShepherd.toSVG(), 0, 0, cnv.width, cnv.height);
+   }
+
+   /*
+   // another method to draw svg on canvas
+   var svgString = (new XMLSerializer()).serializeToString(document.querySelector('svg'));
+   var img = new Image();
+   ctx = cnv.getContext('2d');
+   img.src = "data:image/svg+xml;base64," + btoa(svgString);
+   img.onload = function() {
+       // after this, Canvas’ origin-clean is DIRTY
+       ctx.clearRect(0, 0, cnv.width, cnv.height);
+       ctx.drawImage(img, 0, 0, cnv.width, cnv.height);
+   };
+   */
+
 };
 
 TurtleShepherd.prototype.debug_msg = function (st, clear) {
