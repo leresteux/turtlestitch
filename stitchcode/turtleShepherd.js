@@ -10,6 +10,10 @@ function TurtleShepherd() {
     this.h = 360;
     this.clear();
     this.gridSize = 50;
+    this.showJumpStitches = true;
+    this.showStitches = true;
+    this.showGrid = true;
+    this.showTurtle = true;
 }
 
 TurtleShepherd.prototype.clear = function() {
@@ -195,6 +199,30 @@ TurtleShepherd.prototype.toSVG = function() {
     return svgStr;
 };
 
+TurtleShepherd.prototype.toogleShowStitches = function() {
+    this.showStitches = !this.showStitches;
+};
+
+TurtleShepherd.prototype.getShowStitches = function() {
+    return this.showStitches;
+};
+
+TurtleShepherd.prototype.toogleShowJumpStitches = function() {
+    this.showJumpStitches = !this.showJumpStitches;
+};
+
+TurtleShepherd.prototype.getShowJumpStitches = function() {
+    return this.showJumpStitches;
+};
+
+TurtleShepherd.prototype.toogleShowGrid = function() {
+    this.showGrid = !this.showGrid;
+};
+
+TurtleShepherd.prototype.getShowGrid = function() {
+    return this.showGrid;
+};
+
 TurtleShepherd.prototype.toSVG2 = function() {
 
     //var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
@@ -207,11 +235,12 @@ TurtleShepherd.prototype.toSVG2 = function() {
     svgStr += ' xmlns="http://www.w3.org/2000/svg" version="1.1">\n';
     svgStr += '<title>Embroidery export</title>\n';
 
-    svgStr += this.renderGrid();
-    svgStr += '<rect x="' + Math.round(-1 * this.w / 2 * this.scale) +
-        '" y="' + Math.round(-1 * this.h / 2 * this.scale) +
-        '" width="100%" height="100%" fill="url(#grid)" />\n';
-
+    if (this.showGrid) {
+        svgStr += this.renderGrid();
+        svgStr += '<rect x="' + Math.round(-1 * this.w / 2 * this.scale) +
+            '" y="' + Math.round(-1 * this.h / 2 * this.scale) +
+            '" width="100%" height="100%" fill="url(#grid)" />\n';
+    }
     hasFirst = false;
     tagOpen = false;
     prevX = this.initX;
@@ -220,18 +249,23 @@ TurtleShepherd.prototype.toSVG2 = function() {
     for (var i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "move") {
             stitch = this.cache[i];
-            svgStr += '<line x1="'+ prevX +
-                '" y1="'+ prevY +
-                '" x2="' + stitch.x +
-                '" y2="' + stitch.y;
-            if (stitch.penDown)
-                svgStr +='" stroke-linecap="round" style="stroke:rgb(0,0,0);stroke-width:0.9" />\n';
-            else
-                svgStr +='" stroke-linecap="round" style="stroke:rgb(255,0,0);stroke-width:0.6;" stroke-dasharray="4 4" />\n';
+            if (stitch.penDown || this.showJumpStitches)
+                svgStr += '<line x1="'+ prevX +
+                    '" y1="'+ prevY +
+                    '" x2="' + stitch.x +
+                    '" y2="' + stitch.y;
 
-            svgStr +='<circle cx="'+ stitch.x +
-                '" cy="'+ stitch.y +
-                '" r="2" stroke="blue" />\n';
+            if (stitch.penDown)
+                svgStr +='" stroke-linecap="round" style="stroke:rgb(0,0,0);stroke-width:1" />\n';
+            else
+                if (this.showJumpStitches)
+                    svgStr +='" stroke-linecap="round" style="stroke:rgb(255,0,0);stroke-width:0.6;" stroke-dasharray="4 4" />\n';
+
+            if (this.showStitches) {
+                svgStr +='<circle cx="'+ stitch.x +
+                    '" cy="'+ stitch.y +
+                    '" r="1.7" stroke="blue" fill="blue"/>\n';
+            }
 
         }
         prevX = stitch.x;

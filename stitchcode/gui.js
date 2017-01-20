@@ -672,17 +672,17 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     this.statusDisplay.lastWatcherUpdate = Date.now();
     this.statusDisplay.watcherUpdateFrequency = 250;
 
-    /*
+
     // Buttons and toggles
     var toogleShowStitchButton = new ToggleMorph(
         'checkbox',
         null,
         function () {
-            tStitch.toogleShowStitches();
+            turtleShepherd.toogleShowStitches();
         },
         'Show Stitches',
         function () {
-            return tStitch.getShowStitches();
+            return turtleShepherd.getShowStitches();
         });
 	toogleShowStitchButton.columns = 2;
 	toogleShowStitchButton.newLines = 1;
@@ -693,18 +693,31 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         'checkbox',
         null,
         function () {
-            tStitch.toogleShowJumpStitches();
+            turtleShepherd.toogleShowJumpStitches();
         },
         'Show Jump Stitches',
         function () {
-            return tStitch.getShowJumpStitches();
+            return turtleShepherd.getShowJumpStitches();
         });
 	toogleShowJumpsButton.columns = 1;
-
+    toogleShowStitchButton.newLines = 1;
 	elements.push(toogleShowJumpsButton);
 
-    */
-    elements.forEach(function(each) { myself.statusDisplay.addElement(each) });
+    var toogleShowGridButton = new ToggleMorph(
+        'checkbox',
+        null,
+        function () {
+            turtleShepherd.toogleShowGrid();
+        },
+        'Show Grid',
+        function () {
+            return turtleShepherd.getShowGrid();
+        });
+	toogleShowGridButton.columns = 2;
+    toogleShowStitchButton.newLines = 1;
+	elements.push(toogleShowGridButton);
+
+    elements.forEach(function(each) { myself.statusDisplay.addElement(each); });
 };
 
 // fix layout custom function
