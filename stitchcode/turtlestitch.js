@@ -1,6 +1,6 @@
 
 turtleShepherd = new TurtleShepherd();
-DEBUG = true;
+DEBUG = false;
 
 function reDraw(cnv) {
     //load a svg snippet in the canvas with id = 'svg'

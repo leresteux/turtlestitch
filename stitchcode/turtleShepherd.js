@@ -195,8 +195,48 @@ TurtleShepherd.prototype.toSVG = function() {
     return svgStr;
 };
 
+TurtleShepherd.prototype.toSVG2 = function() {
+
+    //var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
+    //svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
+    svgStr = '<svg width="' + (this.w) + '" height="' +this.h + '"' +
+        ' viewBox="' + Math.round(-1 * (this.w / 2) * this.scale) + ' ' +
+            Math.round(-1 * (this.h / 2) * this.scale) + ' ' +
+            Math.round(this.w * this.scale) + ' ' +
+            Math.round(this.h * this.scale) + '"\n';
+    svgStr += ' xmlns="http://www.w3.org/2000/svg" version="1.1">\n';
+    svgStr += '<title>Embroidery export</title>\n';
+
+    svgStr += this.renderGrid();
+    svgStr += '<rect x="' + Math.round(-1 * this.w / 2 * this.scale) +
+        '" y="' + Math.round(-1 * this.h / 2 * this.scale) +
+        '" width="100%" height="100%" fill="url(#grid)" />\n';
+
+    hasFirst = false;
+    tagOpen = false;
+    prevX = this.initX;
+    prevY = this.initY;
+
+    for (var i=0; i < this.cache.length; i++) {
+        if (this.cache[i].cmd == "move") {
+            stitch = this.cache[i];
+            svgStr += '<line x1="'+ prevX +
+                '" y1="'+ Math.round(prevY) +
+                '" x2="' + Math.round(stitch.x) +
+                '" y2="' + Math.round(stitch.y);
+            if (stitch.penDown)
+                svgStr +='" style="stroke:rgb(0,0,0);stroke-width:2" />\n';
+            else
+                svgStr +='" style="stroke:rgb(255,0,0);stroke-width:2;stroke-dasharray="4 4" />\n';
+        }
+    }
+    if (tagOpen) svgStr += '" />\n';
+    svgStr += '</svg>\n';
+    return svgStr;
+};
+
 TurtleShepherd.prototype.reRender = function(cnv) {
-    sourceSVG = turtleShepherd.toSVG();
+    sourceSVG = turtleShepherd.toSVG2();
    //load a svg snippet in the canvas with id = 'svg'
    //canvas = document.getElementById('svg');
 

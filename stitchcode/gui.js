@@ -771,7 +771,6 @@ IDE_Morph.prototype.fixLayout = function (situation) {
 
     }
 
-
     Morph.prototype.trackChanges = true;
     this.changed();
 };
