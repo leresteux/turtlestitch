@@ -221,14 +221,21 @@ TurtleShepherd.prototype.toSVG2 = function() {
         if (this.cache[i].cmd == "move") {
             stitch = this.cache[i];
             svgStr += '<line x1="'+ prevX +
-                '" y1="'+ Math.round(prevY) +
-                '" x2="' + Math.round(stitch.x) +
-                '" y2="' + Math.round(stitch.y);
+                '" y1="'+ prevY +
+                '" x2="' + stitch.x +
+                '" y2="' + stitch.y;
             if (stitch.penDown)
-                svgStr +='" style="stroke:rgb(0,0,0);stroke-width:2" />\n';
+                svgStr +='" stroke-linecap="round" style="stroke:rgb(0,0,0);stroke-width:0.9" />\n';
             else
-                svgStr +='" style="stroke:rgb(255,0,0);stroke-width:2;stroke-dasharray="4 4" />\n';
+                svgStr +='" stroke-linecap="round" style="stroke:rgb(255,0,0);stroke-width:0.6;" stroke-dasharray="4 4" />\n';
+
+            svgStr +='<circle cx="'+ stitch.x +
+                '" cy="'+ stitch.y +
+                '" r="2" stroke="blue" />\n';
+
         }
+        prevX = stitch.x;
+        prevY = stitch.y;
     }
     if (tagOpen) svgStr += '" />\n';
     svgStr += '</svg>\n';
@@ -250,7 +257,7 @@ TurtleShepherd.prototype.reRender = function(cnv) {
    if (cnv) {
        var ctx = cnv.getContext('2d');
        ctx.clearRect(0, 0, cnv.width, cnv.height);
-       ctx.drawSvg(turtleShepherd.toSVG(), 0, 0, cnv.width, cnv.height);
+       ctx.drawSvg(turtleShepherd.toSVG2(), 0, 0, cnv.width, cnv.height);
    }
 
    /*
