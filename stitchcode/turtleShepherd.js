@@ -1,9 +1,9 @@
 
-function CommandCache() {
+function TurtleShepherd() {
     this.clear();
 }
 
-CommandCache.prototype.addMoveTo= function(x,y,penState) {
+TurtleShepherd.prototype.addMoveTo= function(x,y,penState) {
     this.cache.push(
         {
             "cmd":"move",
@@ -28,11 +28,11 @@ CommandCache.prototype.addMoveTo= function(x,y,penState) {
     //if (DEBUG) tstools.debug_msg("add move to" + x + " " + y + " " + penState );
 };
 
-CommandCache.prototype.hasSteps = function() {
+TurtleShepherd.prototype.hasSteps = function() {
     return this.count > 0;
 };
 
-CommandCache.prototype.addColorChange= function(color) {
+TurtleShepherd.prototype.addColorChange= function(color) {
     this.cache.push(
         {
             "cmd":"color",
@@ -41,7 +41,7 @@ CommandCache.prototype.addColorChange= function(color) {
     );
 };
 
-CommandCache.prototype.clear = function() {
+TurtleShepherd.prototype.clear = function() {
     this.cache = [];
     this.minX = 0;
     this.minY = 0;
@@ -55,35 +55,35 @@ CommandCache.prototype.clear = function() {
     this.scale = 1;
 };
 
-CommandCache.prototype.initPosition = function(x,y) {
+TurtleShepherd.prototype.initPosition = function(x,y) {
     this.initX = x;
     this.initY = y;
 };
 
-CommandCache.prototype.setScale = function(s) {
+TurtleShepherd.prototype.setScale = function(s) {
     this.scale = s;
     if (DEBUG) tstools.debug_msg("zoom to scale "+ s );
 };
 
 
-CommandCache.prototype.zoomIn = function() {
+TurtleShepherd.prototype.zoomIn = function() {
     this.scale += 0.1;
     if (DEBUG) tstools.debug_msg("zoom to scale "+this.scale );
 };
 
-CommandCache.prototype.zoomOut = function() {
+TurtleShepherd.prototype.zoomOut = function() {
     if (this.scale > 0.15)
         this.scale -= 0.1;
     if (DEBUG) tstools.debug_msg("zoom to scale "+ this.scale );
 };
 
-CommandCache.prototype.setDimensions = function(x,y) {
+TurtleShepherd.prototype.setDimensions = function(x,y) {
     this.w = x;
     this.h = y;
 };
 
 
-CommandCache.prototype.renderGrid = function(size=50) {
+TurtleShepherd.prototype.renderGrid = function(size=50) {
     return '<defs>' +
         '<pattern id="grid" width="'+size+'" height="'+size+'" patternUnits="userSpaceOnUse">' +
         '<path d="M '+size+' 0 L 0 0 0 '+size+'" fill="none" stroke="gray" stroke-width="0.5"/>' +
@@ -91,7 +91,7 @@ CommandCache.prototype.renderGrid = function(size=50) {
         '</defs>';
 };
 
-CommandCache.prototype.toSVG = function() {
+TurtleShepherd.prototype.toSVG = function() {
 
     //var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
     //svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
