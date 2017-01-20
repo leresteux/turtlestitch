@@ -9,7 +9,7 @@ SpriteMorph.prototype.forward = function (steps) {
     if (!turtleShepherd.hasSteps())
         turtleShepherd.initPosition(oldx, oldy);
     turtleShepherd.addMoveTo(this.xPosition() , this.yPosition() , this.isDown);
-    this.reDrawTrails();
+    this.reRender();
 };
 
 SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
@@ -24,7 +24,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
         if (!turtleShepherd.hasSteps())
             turtleShepherd.initPosition(oldx, oldy);
         turtleShepherd.addMoveTo(this.xPosition() , this.yPosition() , this.isDown);
-        this.reDrawTrails();
+        this.reRender();
 	}
 };
 
@@ -32,12 +32,12 @@ SpriteMorph.prototype.origClear = SpriteMorph.prototype.clear;
 SpriteMorph.prototype.clear = function () {
     this.origClear();
     turtleShepherd.clear();
-    this.reDrawTrails();
+    this.reRender();
 };
 
-SpriteMorph.prototype.reDrawTrails = function () {
+SpriteMorph.prototype.reRender = function () {
     this.parent.clearPenTrails();
-    reDraw(this.parent.penTrails());
+    turtleShepherd.reRender(this.parent.penTrails());
 };
 
 /* Stage */

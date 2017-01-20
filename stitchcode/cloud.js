@@ -33,9 +33,18 @@ localize*/
 modules.cloud = '2015-January-12';
 
 // Global stuff
+getBaseURL = function () {
+    var url = location.href;  // entire url including querystring - also: window.location.href;
+    if (url.lastIndexOf('#') > 0) {
+		url = url.substring(0, url.lastIndexOf('#'));
+	}
+    url = url.substring(0, url.lastIndexOf('/'));
+	return url + "/";
+};
+
 var Cloud;
 var SnapCloud = new Cloud(
-    tstools.getBaseURL()+ '../cloud'
+    getBaseURL()+ '../cloud'
 );
 
 // Cloud /////////////////////////////////////////////////////////////

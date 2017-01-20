@@ -1,7 +1,31 @@
+/*
+    TurtleShepherd
+
+    turltestich's central intelligence agancy
+
+*/
 
 function TurtleShepherd() {
     this.clear();
 }
+
+TurtleShepherd.prototype.clear = function() {
+    this.cache = [];
+    this.minX = 0;
+    this.minY = 0;
+    this.maxX = 0;
+    this.maxY = 0;
+    this.steps = 0;
+    this.initX = 0;
+    this.initY = 0;
+    this.w = 480;
+    this.h = 360;
+    this.scale = 1;
+};
+
+TurtleShepherd.prototype.hasSteps = function() {
+    return this.steps > 0;
+};
 
 TurtleShepherd.prototype.addMoveTo= function(x,y,penState) {
     this.cache.push(
@@ -12,7 +36,7 @@ TurtleShepherd.prototype.addMoveTo= function(x,y,penState) {
             "penDown":penState,
         }
     );
-    if (this.count === 0) {
+    if (this.steps === 0) {
         this.minX = x;
         this.minY = y;
         this.maxX = x;
@@ -24,12 +48,14 @@ TurtleShepherd.prototype.addMoveTo= function(x,y,penState) {
         if (y < this.minY) this.minY  = y;
         if (y > this.maxY) this.maxY  = y;
     }
-    this.count++;
-    //if (DEBUG) tstools.debug_msg("add move to" + x + " " + y + " " + penState );
+    this.steps++;
+    if (DEBUG) this.debug_msg("move to " + x + " " + y + " " + penState );
 };
 
-TurtleShepherd.prototype.hasSteps = function() {
-    return this.count > 0;
+TurtleShepherd.prototype.initPosition = function(x,y) {
+    this.initX = x;
+    this.initY = y;
+    if (DEBUG) this.debug_msg("init " + x + " " + y );
 };
 
 TurtleShepherd.prototype.addColorChange= function(color) {
@@ -41,40 +67,22 @@ TurtleShepherd.prototype.addColorChange= function(color) {
     );
 };
 
-TurtleShepherd.prototype.clear = function() {
-    this.cache = [];
-    this.minX = 0;
-    this.minY = 0;
-    this.maxX = 0;
-    this.maxY = 0;
-    this.count = 0;
-    this.initX = 0;
-    this.initY = 0;
-    this.w = 480;
-    this.h = 360;
-    this.scale = 1;
-};
-
-TurtleShepherd.prototype.initPosition = function(x,y) {
-    this.initX = x;
-    this.initY = y;
-};
 
 TurtleShepherd.prototype.setScale = function(s) {
     this.scale = s;
-    if (DEBUG) tstools.debug_msg("zoom to scale "+ s );
+    if (DEBUG) this.debug_msg("zoom to scale "+ s );
 };
 
 
 TurtleShepherd.prototype.zoomIn = function() {
     this.scale += 0.1;
-    if (DEBUG) tstools.debug_msg("zoom to scale "+this.scale );
+    if (DEBUG) this.debug_msg("zoom to scale "+this.scale );
 };
 
 TurtleShepherd.prototype.zoomOut = function() {
     if (this.scale > 0.15)
         this.scale -= 0.1;
-    if (DEBUG) tstools.debug_msg("zoom to scale "+ this.scale );
+    if (DEBUG) this.debug_msg("zoom to scale "+ this.scale );
 };
 
 TurtleShepherd.prototype.setDimensions = function(x,y) {
@@ -84,11 +92,11 @@ TurtleShepherd.prototype.setDimensions = function(x,y) {
 
 
 TurtleShepherd.prototype.renderGrid = function(size=50) {
-    return '<defs>' +
-        '<pattern id="grid" width="'+size+'" height="'+size+'" patternUnits="userSpaceOnUse">' +
-        '<path d="M '+size+' 0 L 0 0 0 '+size+'" fill="none" stroke="gray" stroke-width="0.5"/>' +
+    return '<defs>\n' +
+        '<pattern id="grid" width="'+size+'" height="'+size+'" patternUnits="userSpaceOnUse">\n' +
+        '<path d="M '+size+' 0 L 0 0 0 '+size+'" fill="none" stroke="gray" stroke-width="0.5"/>\n' +
         '</pattern>' +
-        '</defs>';
+        '</defs>\n';
 };
 
 TurtleShepherd.prototype.toSVG = function() {
@@ -106,9 +114,11 @@ TurtleShepherd.prototype.toSVG = function() {
     svgStr += this.renderGrid();
     svgStr += '<rect x="' + (-1 * this.w / 2 * this.scale) +
         '" y="' + (-1 * this.h / 2 * this.scale) +
-        '" width="100%" height="100%" fill="url(#grid)" />';
+        '" width="100%" height="100%" fill="url(#grid)" />\n';
+
     hasFirst = false;
     tagOpen = false;
+
     for (var i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "move") {
             stitch = this.cache[i];
@@ -168,4 +178,30 @@ TurtleShepherd.prototype.toSVG = function() {
     if (tagOpen) svgStr += '" />\n';
     svgStr += '</svg>\n';
     return svgStr;
+};
+
+TurtleShepherd.prototype.reRender = function(cnv) {
+    //load a svg snippet in the canvas with id = 'svg'
+   canvas = document.getElementById('svg');
+   document.getElementById("code").innerHTML =  turtleShepherd.toSVG();
+   document.getElementById("svg2").innerHTML =  turtleShepherd.toSVG();
+   //canvg(document.getElementById('svg'), cmdCache.toSVG());
+
+   //canvg(cnv, cmdCache.toSVG());
+
+   //var cnv = caller.parent.penTrails();
+   //var ctx = cnv.getContext('2d');
+   //ctx.drawSvg(cmdCache.toSVG(), 0, 0, cnv.width, cnv.height);
+
+}
+
+TurtleShepherd.prototype.debug_msg = function (st, clear) {
+	o = "";
+	if (!clear) {
+		o = document.getElementById("debug").innerHTML;
+	} else {
+		o = "";
+	}
+	o = st + "<br />" + o;
+	document.getElementById("debug").innerHTML = o;
 };
