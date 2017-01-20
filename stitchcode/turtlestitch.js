@@ -4,9 +4,9 @@ DEBUG = true;
 
 function reDraw(cnv) {
     //load a svg snippet in the canvas with id = 'svg'
-   canvas = document.getElementById('svg');
+   //canvas = document.getElementById('svg');
    //document.getElementById("code").innerHTML =  cmdCache.toSVG();
-   document.getElementById("svg2").innerHTML =  turtleShepherd.toSVG();
+ // document.getElementById("svg2").innerHTML =  turtleShepherd.toSVG();
    //canvg(document.getElementById('svg'), cmdCache.toSVG());
 
    //canvg(cnv, cmdCache.toSVG());

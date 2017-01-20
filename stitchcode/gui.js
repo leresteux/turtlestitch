@@ -68,6 +68,11 @@ IDE_Morph.prototype.buildPanes = function () {
     this.createPaletteHandle();
 };
 
+IDE_Morph.prototype.origSetStageExtent = IDE_Morph.prototype.setStageExtent;
+IDE_Morph.prototype.setStageExtent = function (aPoint) {
+    this.origSetStageExtent(aPoint);
+    turtleShepherd.setStageDimensions(aPoint.x, aPoint.y);
+};
 
 // Create contol bar - (and add custom buttons)
 IDE_Morph.prototype.createControlBar = function () {
@@ -1310,9 +1315,9 @@ IDE_Morph.prototype.createCategories = function () {
             buttonHeight = myself.categories.children[0].height(),
             border = 3,
             rows =  Math.ceil((myself.categories.children.length) / 2),
-            xPadding = (myself.categories.width()
-                - border
-                - buttonWidth * 2) / 3,
+            xPadding = (myself.categories.width() -
+                border -
+                buttonWidth * 2) / 3,
             yPadding = 2,
             l = myself.categories.left(),
             t = myself.categories.top(),
@@ -1423,12 +1428,12 @@ IDE_Morph.prototype.projectMenu = function () {
     menu.addLine();
 	menu.addItem(
             'Download as SVG',
-            function() { myself.downloadSVG() },
+            function() { myself.downloadSVG(); },
             'download current drawing as SVG file'
             );
 	menu.addItem(
             'Download as EXP',
-            function() { myself.downloadEXP() },
+            function() { myself.downloadEXP(); },
             'download current drawing as EXP file'
             );
 
@@ -1483,27 +1488,6 @@ IDE_Morph.prototype.projectMenu = function () {
         ),
         'Select categories of additional blocks to add to this project.'
     );
-
-
-	graphicsName = 'Backgrounds';
-    menu.addItem(
-        'Backgrounds...',
-        createMediaMenu(
-            'Backgrounds',
-            function loadLib(file, name) {
-                var url = myself.resourceURL('Backgrounds', file);
-                img = new Image();
-                img.onload = function () {
-                    var canvas = newCanvas(new Point(img.width, img.height));
-                    canvas.getContext('2d').drawImage(img, 0, 0);
-                    myself.droppedImageStage(canvas, name);
-                };
-                img.src = url;
-            }
-        ),
-        'Select categories of additional blocks to add to this project.'
-    );
-
     menu.popup(world, pos);
 };
 

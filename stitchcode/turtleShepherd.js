@@ -6,7 +6,10 @@
 */
 
 function TurtleShepherd() {
+    this.w = 480;
+    this.h = 360;
     this.clear();
+    this.gridSize = 50;
 }
 
 TurtleShepherd.prototype.clear = function() {
@@ -18,8 +21,6 @@ TurtleShepherd.prototype.clear = function() {
     this.steps = 0;
     this.initX = 0;
     this.initY = 0;
-    this.w = 480;
-    this.h = 360;
     this.scale = 1;
 };
 
@@ -85,16 +86,30 @@ TurtleShepherd.prototype.zoomOut = function() {
     if (DEBUG) this.debug_msg("zoom to scale "+ this.scale );
 };
 
-TurtleShepherd.prototype.setDimensions = function(x,y) {
-    this.w = x;
-    this.h = y;
+TurtleShepherd.prototype.setStageDimensions = function(w,h) {
+    this.w = w;
+    this.h = h;
+    /*
+    document.getElementById("svg2").style.left = x + "px";
+    document.getElementById("svg2").style.top = y+ "px";
+    */
+    document.getElementById("svg2").style.width = w + "px";
+    document.getElementById("svg2").style.height = h + "px";
+    document.getElementById("svg2").style.right = "0";
+    document.getElementById("svg2").style.bottom = "0";
+};
+
+TurtleShepherd.prototype.setStagePosition = function(x,y) {
+    //document.getElementById("svg2").style.top = y + "px";
+    //document.getElementById("svg2").style.left = x + "px";
 };
 
 
-TurtleShepherd.prototype.renderGrid = function(size=50) {
-    return '<defs>\n' +
-        '<pattern id="grid" width="'+size+'" height="'+size+'" patternUnits="userSpaceOnUse">\n' +
-        '<path d="M '+size+' 0 L 0 0 0 '+size+'" fill="none" stroke="gray" stroke-width="0.5"/>\n' +
+TurtleShepherd.prototype.renderGrid = function(size) {
+    size = this.gridSize;
+    return '<defs>' +
+        '<pattern id="grid" width="'+size+'" height="'+size+'" patternUnits="userSpaceOnUse">' +
+        '<path d="M '+size+' 0 L 0 0 0 '+size+'" fill="none" stroke="gray" stroke-width="0.5"/>' +
         '</pattern>' +
         '</defs>\n';
 };
@@ -103,7 +118,7 @@ TurtleShepherd.prototype.toSVG = function() {
 
     //var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
     //svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
-    svgStr = '<svg width="' + this.w +'" height="' +this.h + '"' +
+    svgStr = '<svg width="' +this.w + '" height="' +this.h + '"' +
         ' viewBox="' + (-1 * this.w / 2 * this.scale) + ' ' +
             (-1 * this.h / 2 * this.scale) + ' ' +
             (this.w* this.scale) + ' ' +
@@ -182,18 +197,20 @@ TurtleShepherd.prototype.toSVG = function() {
 
 TurtleShepherd.prototype.reRender = function(cnv) {
     //load a svg snippet in the canvas with id = 'svg'
-   canvas = document.getElementById('svg');
+   //canvas = document.getElementById('svg');
    document.getElementById("code").innerHTML =  turtleShepherd.toSVG();
    document.getElementById("svg2").innerHTML =  turtleShepherd.toSVG();
-   //canvg(document.getElementById('svg'), cmdCache.toSVG());
+   //canvg(document.getElementById('svg'), turtleShepherd.toSVG());
 
-   //canvg(cnv, cmdCache.toSVG());
+   canvg(cnv, turtleShepherd.toSVG());
 
    //var cnv = caller.parent.penTrails();
-   //var ctx = cnv.getContext('2d');
-   //ctx.drawSvg(cmdCache.toSVG(), 0, 0, cnv.width, cnv.height);
-
-}
+   //alert(cnv);
+   //if (cnv) {
+    //   var ctx = cnv.getContext('2d');
+    //   ctx.drawSvg(turtleShepherd.toSVG(), 0, 0, cnv.width, cnv.height);
+   //}
+};
 
 TurtleShepherd.prototype.debug_msg = function (st, clear) {
 	o = "";
