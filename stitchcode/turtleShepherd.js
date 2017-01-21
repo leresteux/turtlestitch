@@ -35,6 +35,8 @@ TurtleShepherd.prototype.clear = function() {
     this.initX = 0;
     this.initY = 0;
     this.scale = 1;
+    this.dx = 0;
+    this.dy = 0;
 };
 
 TurtleShepherd.prototype.setWorld = function(world) {
@@ -103,6 +105,16 @@ TurtleShepherd.prototype.zoomOut = function() {
     if (DEBUG) this.debug_msg("zoom to scale "+ this.scale );
 };
 
+TurtleShepherd.prototype.zoomIn = function() {
+    this.scale += 0.1;
+    if (DEBUG) this.debug_msg("zoom to scale "+this.scale );
+};
+
+TurtleShepherd.prototype.pan = function(dx, dy) {
+    this.dx -= dx;
+    this.dy -= dy;
+};
+
 TurtleShepherd.prototype.setStageDimensions = function(w,h) {
     this.w = w;
     this.h = h;
@@ -110,10 +122,12 @@ TurtleShepherd.prototype.setStageDimensions = function(w,h) {
     document.getElementById("svg2").style.left = x + "px";
     document.getElementById("svg2").style.top = y+ "px";
     */
+    /*
     document.getElementById("svg2").style.width = w + "px";
     document.getElementById("svg2").style.height = h + "px";
     document.getElementById("svg2").style.right = "0";
     document.getElementById("svg2").style.bottom = "0";
+    */
 };
 
 TurtleShepherd.prototype.setStagePosition = function(x,y) {
@@ -136,7 +150,8 @@ TurtleShepherd.prototype.toSVG = function() {
     var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
     svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
     svgStr += '<svg width="' + (this.w) + '" height="' +this.h + '"' +
-        ' viewBox="' + (-1 * (this.w / 2) * this.scale) + ' ' +
+        ' viewBox="' +
+            (-1 * (this.w / 2) * this.scale) + ' ' +
             (-1 * (this.h / 2) * this.scale) + ' ' +
             (this.w * this.scale) + ' ' +
             (this.h * this.scale) + '"\n';
@@ -241,10 +256,11 @@ TurtleShepherd.prototype.toSVG2 = function() {
     //var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
     //svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
     svgStr = '<svg width="' + (this.w) + '" height="' +this.h + '"' +
-        ' viewBox="' + Math.round(-1 * (this.w / 2) * this.scale) + ' ' +
-            Math.round(-1 * (this.h / 2) * this.scale) + ' ' +
-            Math.round(this.w * this.scale) + ' ' +
-            Math.round(this.h * this.scale) + '"\n';
+        ' viewBox="' +
+            Math.round((-1 * (this.w / 2) * this.scale) + (this.dx * this.scale)) + ' ' +
+            Math.round((-1 * (this.h / 2) * this.scale) + (this.dy * this.scale)) + ' ' +
+            Math.round((this.w * this.scale) + (this.dx * this.scale)) + ' ' +
+            Math.round((this.h * this.scale) + (this.dy * this.scale)) + '"\n';
     svgStr += ' xmlns="http://www.w3.org/2000/svg" version="1.1">\n';
     svgStr += '<title>Embroidery export</title>\n';
 

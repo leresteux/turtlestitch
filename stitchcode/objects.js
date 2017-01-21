@@ -63,6 +63,37 @@ StageMorph.prototype.mouseScroll = function (y, x) {
     this.changed();
 };
 
+StageMorph.prototype.referencePos = null;
+
+
+StageMorph.prototype.mouseDownLeft = function (pos) {
+    this.referencePos = pos;
+};
+
+StageMorph.prototype.mouseDownRight = function (pos) {
+    this.referencePos = pos;
+};
+
+StageMorph.prototype.mouseMove = function (pos, button) {
+
+    if (this.referencePos === null) { return; }
+
+
+   var dx = (pos.x - this.referencePos.x);
+   var dy = (pos.y - this.referencePos.y);
+
+    this.referencePos = pos;
+
+    if (button === 'right' || this.world().currentKey === 16) { // right clikc or shiftClicked
+        // do nothing
+    } else {
+        turtleShepherd.pan(dx, dy);
+        if (DEBUG) turtleShepherd.debug_msg("pan " + dx + " " + dy);
+    }
+
+    this.reRender();
+};
+
 
 StageMorph.prototype.reRender = function () {
     //this.changed();
@@ -104,7 +135,6 @@ StageMorph.prototype.drawOn  = function (aCanvas, aRect) {
     this.reRender();
     this.originalDrawOn(aCanvas, aRect);
 };
-
 
 
 StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
