@@ -42,10 +42,19 @@
 				world = new WorldMorph(document.getElementById('world'));
                 world.worldCanvas.focus();
 				new IDE_Morph().openIn(world);
-        loop();
+				turtleShepherd = new TurtleShepherd(world);
+				DEBUG = true;
+				if (DEBUG) turtleShepherd.debug_msg("this world is " + this.world );
+			    if (DEBUG) turtleShepherd.debug_msg("this world has " +
+			    	 this.world.children.length  + " child(ren)");
+			    if (DEBUG) turtleShepherd.debug_msg("this world first child is  " +
+			     	this.world.children[0] );
+			    if (DEBUG) turtleShepherd.debug_msg("this child has a stage  " +
+			     	this.world.children[0].stage );
+        		loop();
 			};
 			function loop() {
-        requestAnimationFrame(loop);
+        		requestAnimationFrame(loop);
 				world.doOneCycle();
 			}
 		</script>

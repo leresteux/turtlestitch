@@ -5,7 +5,7 @@
 
 */
 
-function TurtleShepherd() {
+function TurtleShepherd(world) {
     this.w = 480;
     this.h = 360;
     this.clear();
@@ -14,6 +14,7 @@ function TurtleShepherd() {
     this.showStitches = true;
     this.showGrid = true;
     this.showTurtle = true;
+    this.world = world;
 }
 
 TurtleShepherd.prototype.clear = function() {
@@ -120,9 +121,9 @@ TurtleShepherd.prototype.renderGrid = function(size) {
 
 TurtleShepherd.prototype.toSVG = function() {
 
-    //var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
-    //svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
-    svgStr = '<svg width="' + (this.w) + '" height="' +this.h + '"' +
+    var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
+    svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
+    svgStr += '<svg width="' + (this.w) + '" height="' +this.h + '"' +
         ' viewBox="' + (-1 * (this.w / 2) * this.scale) + ' ' +
             (-1 * (this.h / 2) * this.scale) + ' ' +
             (this.w * this.scale) + ' ' +
@@ -264,7 +265,7 @@ TurtleShepherd.prototype.toSVG2 = function() {
             if (this.showStitches) {
                 svgStr +='<circle cx="'+ stitch.x +
                     '" cy="'+ stitch.y +
-                    '" r="1.7" stroke="blue" fill="blue"/>\n';
+                    '" r="1.8" stroke="blue" fill="blue"/>\n';
             }
 
         }
@@ -278,32 +279,44 @@ TurtleShepherd.prototype.toSVG2 = function() {
 
 TurtleShepherd.prototype.reRender = function(cnv) {
     sourceSVG = turtleShepherd.toSVG2();
-   //load a svg snippet in the canvas with id = 'svg'
-   //canvas = document.getElementById('svg');
 
-   document.getElementById("code").innerHTML =  sourceSVG;
-   //document.getElementById("svg2").innerHTML =  sourceSVG;
-   //canvg(document.getElementById('svg'), turtleShepherd.toSVG());
+    /* get canvas of world not via call
+    if (DEBUG) this.debug_msg("this world is " + this.world.children[0].stage.penTrails() );
+    if (typeof this.world !== 'undefined') {
+        cnv = this.world.children[0].stage.penTrails();
+        this.debug_msg("override canvas" );
+    }
+    */
 
-   // draw via canvg - works but very slow!
-   //canvg(cnv, turtleShepherd.toSVG());
+    // draw via canvg's drawSVF
+    if (cnv) {
+        var ctx = cnv.getContext('2d');
+        ctx.clearRect(0, 0, cnv.width, cnv.height);
+        ctx.drawSvg(turtleShepherd.toSVG2(), 0, 0, cnv.width, cnv.height);
+    }
 
-   if (cnv) {
-       var ctx = cnv.getContext('2d');
-       ctx.clearRect(0, 0, cnv.width, cnv.height);
-       ctx.drawSvg(turtleShepherd.toSVG2(), 0, 0, cnv.width, cnv.height);
-   }
+    // debug options
+    document.getElementById("code").innerHTML =  sourceSVG;
+    //document.getElementById("svg2").innerHTML =  sourceSVG;
 
-   /*
-   // another method to draw svg on canvas
-   var svgString = (new XMLSerializer()).serializeToString(document.querySelector('svg'));
-   var img = new Image();
-   ctx = cnv.getContext('2d');
-   img.src = "data:image/svg+xml;base64," + btoa(svgString);
-   img.onload = function() {
-       // after this, Canvas’ origin-clean is DIRTY
-       ctx.clearRect(0, 0, cnv.width, cnv.height);
-       ctx.drawImage(img, 0, 0, cnv.width, cnv.height);
+    // drawing alternatives - to be REMOVED:
+
+    // draw via canvg - works but very slow!
+    //canvg(document.getElementById('svg'), turtleShepherd.toSVG());
+
+    // draw via canvg - works but very slow!
+    //canvg(cnv, turtleShepherd.toSVG());
+
+    /*
+    // another method to draw svg on canvas
+    var svgString = (new XMLSerializer()).serializeToString(document.querySelector('svg'));
+    var img = new Image();
+    ctx = cnv.getContext('2d');
+    img.src = "data:image/svg+xml;base64," + btoa(svgString);
+    img.onload = function() {
+    // after this, Canvas’ origin-clean is DIRTY
+    ctx.clearRect(0, 0, cnv.width, cnv.height);
+    ctx.drawImage(img, 0, 0, cnv.width, cnv.height);
    };
    */
 

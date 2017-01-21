@@ -672,6 +672,10 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     this.statusDisplay.lastWatcherUpdate = Date.now();
     this.statusDisplay.watcherUpdateFrequency = 250;
 
+    var space = new Morph();
+    space.alpha = 0;
+    space.newLines = 0.5;
+    elements.push(space);
 
     // Buttons and toggles
     var toogleShowStitchButton = new ToggleMorph(
@@ -679,13 +683,15 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         null,
         function () {
             turtleShepherd.toogleShowStitches();
+            stage.reRender();
         },
-        'Show Stitches',
+        'Stitches',
         function () {
             return turtleShepherd.getShowStitches();
         });
-	toogleShowStitchButton.columns = 2;
-	toogleShowStitchButton.newLines = 1;
+	toogleShowStitchButton.columns = 3;
+	toogleShowStitchButton.newColumn = 1;
+    //toogleShowStitchButton.newLines = 1;
 
 	elements.push(toogleShowStitchButton);
 
@@ -694,13 +700,16 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         null,
         function () {
             turtleShepherd.toogleShowJumpStitches();
+            stage.reRender();
         },
-        'Show Jump Stitches',
+        'Jump Stitches',
         function () {
             return turtleShepherd.getShowJumpStitches();
         });
-	toogleShowJumpsButton.columns = 1;
-    toogleShowStitchButton.newLines = 1;
+
+    toogleShowJumpsButton.columns = 3;
+    toogleShowJumpsButton.newColumn = 2;
+    //toogleShowJumpsButton.newLines = 2;
 	elements.push(toogleShowJumpsButton);
 
     var toogleShowGridButton = new ToggleMorph(
@@ -708,14 +717,32 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         null,
         function () {
             turtleShepherd.toogleShowGrid();
+            stage.reRender();
         },
-        'Show Grid',
+        'Grid',
         function () {
             return turtleShepherd.getShowGrid();
         });
-	toogleShowGridButton.columns = 2;
-    toogleShowStitchButton.newLines = 1;
+	//toogleShowGridButton.columns = 3;
+    toogleShowGridButton.newLines = 2;
+    //toogleShowGridButton.newColumn = 1;
 	elements.push(toogleShowGridButton);
+
+    var toggleTurboButton = new ToggleMorph(
+            'checkbox',
+            null,
+            function () {
+                myself.toggleFastTracking();
+            },
+            'Turbo mode',
+            function () {
+                return stage.isFastTracked;
+            });
+    //toggleTurboButton.columns = 1;
+    //toggleTurboButton.newColumn = 1;
+    toggleTurboButton.newLines = 2;
+    elements.push(toggleTurboButton);
+
 
     elements.forEach(function(each) { myself.statusDisplay.addElement(each); });
 };

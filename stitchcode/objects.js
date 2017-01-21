@@ -50,7 +50,6 @@ SpriteMorph.prototype.reRender = function () {
     this.changed();
 };
 
-
 /* Stage */
 // modified StageMorph turtlestitch functions
 
@@ -68,7 +67,7 @@ StageMorph.prototype.mouseScroll = function (y, x) {
 StageMorph.prototype.reRender = function () {
     //this.changed();
     turtleShepherd.reRender(this.penTrails());
-    //this.changed();
+    this.changed();
 };
 
 StageMorph.prototype.originalSetScale = StageMorph.prototype.setScale;
@@ -91,7 +90,7 @@ StageMorph.prototype.setScale = function (number) {
 };
 
 StageMorph.prototype.clearPenTrails = function () {
-    this.trailsCanvas = newCanvas(new Point(this.extent().x,this.extent().y));
+    //this.trailsCanvas = newCanvas(new Point(this.extent().x,this.extent().y));
     this.changed();
 };
 
