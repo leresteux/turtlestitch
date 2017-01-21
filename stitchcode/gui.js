@@ -7,9 +7,7 @@ IDE_Morph.prototype.originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(isAutoFill) {
     this.originalInit();
     this.padding = 1;
-    //this.backgroundColor = new Color(255,255,255);
-    //this.setColor(this.backgroundColor);
-    //this.frameColor = new Color(220,220,220);
+    turtleShepherd.setWorld(this.world);
 };
 
 IDE_Morph.prototype.resourceURLOrig  = IDE_Morph.prototype.resourceURL;
@@ -79,15 +77,34 @@ IDE_Morph.prototype.newProject = function () {
     this.origNewProject();
     turtleShepherd.clear();
     this.stage.reRender();
+    this.createStatusDisplay();
 };
 
 IDE_Morph.prototype.origRawOpenProjectString = IDE_Morph.prototype.rawOpenProjectString;
 IDE_Morph.prototype.rawOpenProjectString = function (str) {
     this.origRawOpenProjectString(str);
     turtleShepherd.clear();
+
+    // hide sprite
     this.stage.children[0].hide();
+    this.createStatusDisplay();
     this.stage.reRender();
 };
+
+
+/*
+
+TODO: remove sprite instead of hideing it?
+
+IDE_Morph.prototype.originalRemoveSprite = IDE_Morph.prototype.removeSprite;
+IDE_Morph.prototype.removeSprite = function (sprite) {
+    var stage = sprite.parentThatIsA(StageMorph);
+    stage.scene.remove(sprite.beetle);
+    stage.reRender();
+    this.originalRemoveSprite(sprite);
+};
+
+*/
 
 // Create contol bar - (and add custom buttons)
 IDE_Morph.prototype.createControlBar = function () {

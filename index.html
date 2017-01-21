@@ -42,8 +42,7 @@
 				world = new WorldMorph(document.getElementById('world'));
                 world.worldCanvas.focus();
 				new IDE_Morph().openIn(world);
-				turtleShepherd = new TurtleShepherd(world);
-				DEBUG = true;
+
 				if (DEBUG) turtleShepherd.debug_msg("this world is " + this.world );
 			    if (DEBUG) turtleShepherd.debug_msg("this world has " +
 			    	 this.world.children.length  + " child(ren)");

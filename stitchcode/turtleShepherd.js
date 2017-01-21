@@ -5,7 +5,16 @@
 
 */
 
+function TurtleShepherd() {
+    this.init();
+}
+
 function TurtleShepherd(world) {
+    this.init();
+    this.setWorld(world);
+}
+
+TurtleShepherd.prototype.init = function() {
     this.w = 480;
     this.h = 360;
     this.clear();
@@ -14,8 +23,7 @@ function TurtleShepherd(world) {
     this.showStitches = true;
     this.showGrid = true;
     this.showTurtle = true;
-    this.world = world;
-}
+};
 
 TurtleShepherd.prototype.clear = function() {
     this.cache = [];
@@ -27,6 +35,10 @@ TurtleShepherd.prototype.clear = function() {
     this.initX = 0;
     this.initY = 0;
     this.scale = 1;
+};
+
+TurtleShepherd.prototype.setWorld = function(world) {
+    this.world = world;
 };
 
 TurtleShepherd.prototype.hasSteps = function() {
