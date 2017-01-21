@@ -279,10 +279,10 @@ TurtleShepherd.prototype.toSVG2 = function() {
         if (this.cache[i].cmd == "move") {
             stitch = this.cache[i];
             if (stitch.penDown || this.showJumpStitches)
-                svgStr += '<line x1="'+ prevX +
-                    '" y1="'+ prevY +
-                    '" x2="' + stitch.x +
-                    '" y2="' + stitch.y;
+                svgStr += '<line x1="'+ Math.round(prevX) +
+                    '" y1="'+ Math.round(prevY) +
+                    '" x2="' + Math.round(stitch.x) +
+                    '" y2="' + Math.round(stitch.y);
 
             if (stitch.penDown)
                 svgStr +='" stroke-linecap="round" style="stroke:rgb(0,0,0);stroke-width:1" />\n';
