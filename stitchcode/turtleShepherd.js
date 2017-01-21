@@ -47,7 +47,10 @@ TurtleShepherd.prototype.hasSteps = function() {
     return this.steps > 0;
 };
 
-TurtleShepherd.prototype.addMoveTo= function(x,y,penState) {
+TurtleShepherd.prototype.addMoveTo= function(x, y, penState) {
+
+    x = Math.round(x);
+    y = Math.round(y);
     this.cache.push(
         {
             "cmd":"move",
@@ -73,6 +76,8 @@ TurtleShepherd.prototype.addMoveTo= function(x,y,penState) {
 };
 
 TurtleShepherd.prototype.initPosition = function(x,y) {
+    x = Math.round(x);
+    y = Math.round(y);
     this.initX = x;
     this.initY = -y;
     if (DEBUG) this.debug_msg("init " + x + " " + y );
@@ -252,22 +257,28 @@ TurtleShepherd.prototype.getShowGrid = function() {
 };
 
 TurtleShepherd.prototype.toSVG2 = function() {
+    tx = ((-1 * (this.w / 2) * this.scale) + (this.dx * this.scale));
+    ty = ((-1 * (this.h / 2) * this.scale) + (this.dy * this.scale));
+    bx = ((this.w * this.scale) + (this.dx * this.scale));
+    by = ((this.h * this.scale) + (this.dy * this.scale));
+
+    // TODO: Panning
 
     //var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
     //svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
     svgStr = '<svg width="' + (this.w) + '" height="' +this.h + '"' +
         ' viewBox="' +
-            Math.round((-1 * (this.w / 2) * this.scale) + (this.dx * this.scale)) + ' ' +
-            Math.round((-1 * (this.h / 2) * this.scale) + (this.dy * this.scale)) + ' ' +
-            Math.round((this.w * this.scale) + (this.dx * this.scale)) + ' ' +
-            Math.round((this.h * this.scale) + (this.dy * this.scale)) + '"\n';
+            (tx) + ' ' +
+            (ty) + ' ' +
+            (bx) + ' ' +
+            (by) + '"\n';
     svgStr += ' xmlns="http://www.w3.org/2000/svg" version="1.1">\n';
     svgStr += '<title>Embroidery export</title>\n';
 
     if (this.showGrid) {
         svgStr += this.renderGrid();
-        svgStr += '<rect x="' + Math.round(-1 * this.w / 2 * this.scale) +
-            '" y="' + Math.round(-1 * this.h / 2 * this.scale) +
+        svgStr += '<rect x="' + ((-1 * (this.w / 2) * this.scale)) +
+            '" y="' + ((-1 * (this.h / 2) * this.scale)) +
             '" width="100%" height="100%" fill="url(#grid)" />\n';
     }
     hasFirst = false;
@@ -279,10 +290,10 @@ TurtleShepherd.prototype.toSVG2 = function() {
         if (this.cache[i].cmd == "move") {
             stitch = this.cache[i];
             if (stitch.penDown || this.showJumpStitches)
-                svgStr += '<line x1="'+ Math.round(prevX) +
-                    '" y1="'+ Math.round(prevY) +
-                    '" x2="' + Math.round(stitch.x) +
-                    '" y2="' + Math.round(stitch.y);
+                svgStr += '<line x1="'+ (prevX) +
+                    '" y1="'+ (prevY) +
+                    '" x2="' + (stitch.x) +
+                    '" y2="' + (stitch.y);
 
             if (stitch.penDown)
                 svgStr +='" stroke-linecap="round" style="stroke:rgb(0,0,0);stroke-width:1" />\n';
@@ -291,8 +302,8 @@ TurtleShepherd.prototype.toSVG2 = function() {
                     svgStr +='" stroke-linecap="round" style="stroke:rgb(255,0,0);stroke-width:0.6;" stroke-dasharray="4 4" />\n';
 
             if (this.showStitches) {
-                svgStr +='<circle cx="'+ stitch.x +
-                    '" cy="'+ stitch.y +
+                svgStr +='<circle cx="'+  (stitch.x) +
+                    '" cy="'+  (stitch.y) +
                     '" r="1.8" stroke="blue" fill="blue"/>\n';
             }
 
@@ -317,6 +328,7 @@ TurtleShepherd.prototype.reRender = function(cnv) {
     */
 
     // draw via canvg's drawSVF
+
     if (cnv) {
         var ctx = cnv.getContext('2d');
         ctx.clearRect(0, 0, cnv.width, cnv.height);
@@ -324,9 +336,10 @@ TurtleShepherd.prototype.reRender = function(cnv) {
     }
 
     // debug options
-    document.getElementById("code").innerHTML =  sourceSVG;
-    //document.getElementById("svg2").innerHTML =  sourceSVG;
-
+    if (DEBUG) {
+        document.getElementById("code").innerHTML =  sourceSVG;
+        //document.getElementById("svg2").innerHTML =  sourceSVG;
+    }
     // drawing alternatives - to be REMOVED:
 
     // draw via canvg - works but very slow!
