@@ -535,8 +535,8 @@ StageMorph.prototype.initTurtle = function() {
     var material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
 
     geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
-         new THREE.Vector3(-8, 8, 0.01),
-         new THREE.Vector3(-8,-8, 0.01),
+         new THREE.Vector3(-8, 8, 0.02),
+         new THREE.Vector3(-8,-8, 0.02),
     ];
     geometry.faces.push(new THREE.Face3(0, 1, 2));
     geometry.verticesNeedUpdate = true;

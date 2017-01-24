@@ -70,6 +70,8 @@ IDE_Morph.prototype.rawOpenProjectString = function (str) {
 
     // hide sprite
     this.stage.children[0].hide();
+    this.stage.clearAll();
+    this.stage.rotateTurtle(this.stage.children[0].heading);
     this.createStatusDisplay();
     this.stage.reRender();
 };
