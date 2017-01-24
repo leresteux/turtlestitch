@@ -32,19 +32,6 @@ IDE_Morph.prototype.createLogo = function () {
 	this.logo.drawNew();
 };
 
-/*
-IDE_Morph.prototype.init = (function init (oldInit) {
-    return function(isAutoFill) {
-        var retval = oldInit.call(this, isAutoFill);
-        this.currentCategory = 'network';
-        this.maxVisibleNodes = DEFAULT_MAX_VISIBLE_NODES;
-        this.logoURL = 'edgy_logo.png';
-        return retval;
-    }
-}(IDE_Morph.prototype.init));
-*/
-
-
 // Single Sprite mode, no corral and no tabs in the scripting area
 IDE_Morph.prototype.createCorralBar = nop;
 IDE_Morph.prototype.createCorral = nop;
@@ -633,7 +620,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
                 element = new Morph();
                 element.setHeight(1);
                 element.setWidth(this.width());
-                element.setColor(new Color(150, 150, 150));
+                element.setColor(new Color(200, 200, 200));
                 element.newLines = 0.5;
                 element.flush = true;
             } else {
@@ -701,7 +688,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     space.newLines = 0.5;
     elements.push(space);
 
-    elements.push('Total Stitches: ');
+    elements.push(' Total Stitches: ');
     element = new StringMorph();
     element.update = function () {
         this.text = (stage.turtleShepherd.getStepCount()).toString()+ "        ";
@@ -730,65 +717,71 @@ IDE_Morph.prototype.createStatusDisplay = function () {
 
     elements.push('-');
 
+    var toogleShowStitchPointsButton = new ToggleMorph(
+            'checkbox',
+            null,
+            function () {
+                stage.renderer.toggleStitchPoints();
+            },
+            'Stitchpoints',
+            function () {
+                return stage.renderer.showingStitchPoints;
+            });
+    toogleShowStitchPointsButton.columns = 4;
+    toogleShowStitchPointsButton.newColumn = 1;
+    elements.push(toogleShowStitchPointsButton);
 
-    /*
-    // Buttons and toggles
-    var toogleShowStitchButton = new ToggleMorph(
-        'checkbox',
-        null,
-        function () {
-            turtleShepherd.toogleShowStitches();
-            stage.reRender();
-        },
-        'Stitches',
-        function () {
-            return turtleShepherd.getShowStitches();
-        });
-	toogleShowStitchButton.columns = 3;
-	toogleShowStitchButton.newColumn = 1;
-    //toogleShowStitchButton.newLines = 1;
+    var toogleShowJumpLinesButton = new ToggleMorph(
+            'checkbox',
+            null,
+            function () {
+                stage.renderer.toggleJumpLines();
+            },
+            'Jumps',
+            function () {
+                return stage.renderer.showingJumpLines;
+            });
+    toogleShowJumpLinesButton.columns = 4;
+    toogleShowJumpLinesButton.newColumn = 2;
+    elements.push(toogleShowJumpLinesButton);
 
-	elements.push(toogleShowStitchButton);
+    var toggleGridButton = new ToggleMorph(
+            'checkbox',
+            null,
+            function () {
+                stage.scene.grid.toggle();
+            },
+            'Grid',
+            function () {
+                return stage.scene.grid.visible;
+            });
+    toggleGridButton.columns = 4;
+    toggleGridButton.newColumn = 3;
+    elements.push(toggleGridButton);
 
-    var toogleShowJumpsButton = new ToggleMorph(
-        'checkbox',
-        null,
-        function () {
-            turtleShepherd.toogleShowJumpStitches();
-            stage.reRender();
-        },
-        'Jump Stitches',
-        function () {
-            return turtleShepherd.getShowJumpStitches();
-        });
+    var toogleTurtleButton = new ToggleMorph(
+            'checkbox',
+            null,
+            function () {
+                stage.renderer.toggleTurtle();
+            },
+            'Turtle',
+            function () {
+                return stage.renderer.showingTurtle;
+            });
 
-    toogleShowJumpsButton.columns = 3;
-    toogleShowJumpsButton.newColumn = 2;
-    //toogleShowJumpsButton.newLines = 2;
-	elements.push(toogleShowJumpsButton);
+    toogleTurtleButton.newLines = 2;
+    elements.push(toogleTurtleButton);
+    elements.push('-');
 
-    var toogleShowGridButton = new ToggleMorph(
-        'checkbox',
-        null,
-        function () {
-            turtleShepherd.toogleShowGrid();
-            stage.reRender();
-        },
-        'Grid',
-        function () {
-            return turtleShepherd.getShowGrid();
-        });
-	//toogleShowGridButton.columns = 3;
-    toogleShowGridButton.newLines = 2;
-    //toogleShowGridButton.newColumn = 1;
-	elements.push(toogleShowGridButton);
-    */
-
-    var space = new Morph();
-    space.alpha = 0;
-    space.newLines = 1;
-    elements.push(space);
-
+    var resetCameraButton = new PushButtonMorph(
+            null,
+            function () { stage.camera.reset(); },
+            'Reset View'
+            );
+    resetCameraButton.columns = 4;
+    resetCameraButton.newColumn = 2;
+    elements.push(resetCameraButton);
 
     var toggleTurboButton = new ToggleMorph(
             'checkbox',
@@ -800,10 +793,11 @@ IDE_Morph.prototype.createStatusDisplay = function () {
             function () {
                 return stage.isFastTracked;
             });
-    //toggleTurboButton.columns = 1;
-    //toggleTurboButton.newColumn = 1;
-    toggleTurboButton.newLines = 2;
+    toggleTurboButton.columns = 4;
+    toggleTurboButton.newColumn = 1;
     elements.push(toggleTurboButton);
+
+
 
 
     elements.forEach(function(each) { myself.statusDisplay.addElement(each); });
@@ -1346,33 +1340,6 @@ IDE_Morph.prototype.createSpriteBar = function () {
         this.tabBar.setBottom(this.bottom());
     };
 };
-
-
-
-// StageMorph user menu
-
-StageMorph.prototype.userMenu = function () {
-    var ide = this.parentThatIsA(IDE_Morph),
-        menu = new MenuMorph(this),
-        shiftClicked = this.world().currentKey === 16,
-        myself = this;
-
-    if (ide && ide.isAppMode) {
-        // menu.addItem('help', 'nop');
-        return menu;
-    }
-    //menu.addItem("edit", 'edit');
-    menu.addItem("show all", 'showAll');
-    menu.addItem(
-        "pic...",
-        function () {
-            window.open(myself.fullImageClassic().toDataURL());
-        },
-        'open a new window\nwith a picture of the stage'
-    );
-    return menu;
-};
-
 
 IDE_Morph.prototype.createCategories = function () {
     // assumes the logo has already been created

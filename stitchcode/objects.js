@@ -7,7 +7,9 @@ SpriteMorph.prototype.init = function(globals) {
     this.origInit(globals);
     this.hide();
     this.lastJumped = false;
+    this.turtle = null;
 };
+
 
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
     var   stage = this.parentThatIsA(StageMorph),
@@ -60,6 +62,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
     jumpLine.geometry.vertices = jumpLine.points;
     jumpLine.geometry.verticesNeedUpdate = true;
     jumpLine.line = new THREE.Line(jumpLine.geometry, lineMaterial);
+    jumpLine.line.visible = stage.renderer.showingJumpLines;
 
     stage.myJumpLines.add(jumpLine.line);
 
@@ -68,7 +71,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 };
 
 SpriteMorph.prototype.addStitchPoint = function(x1, y1) {
-    var   stage = this.parentThatIsA(StageMorph);
+    var stage = this.parentThatIsA(StageMorph);
 
     var geometry = new THREE.CircleGeometry( 1.5, 4 );
     geometry.vertices.shift();
@@ -76,6 +79,7 @@ SpriteMorph.prototype.addStitchPoint = function(x1, y1) {
     var circle = new THREE.Mesh( geometry, material );
     circle.translateX(x1);
     circle.translateY(y1);
+    circle.visible = stage.renderer.showingStitchPoints;
 
     stage.myStitchPoints.add(circle);
 
@@ -87,6 +91,7 @@ SpriteMorph.prototype.origForward = SpriteMorph.prototype.forward;
 SpriteMorph.prototype.forward = function (steps) {
     var dest,
         dist = steps * this.parent.scale || 0;
+        stage = this.parentThatIsA(StageMorph);
 
     oldx = this.xPosition();
     oldy = this.yPosition();
@@ -101,8 +106,7 @@ SpriteMorph.prototype.forward = function (steps) {
     this.setPosition(dest);
     this.positionTalkBubble();
 
-
-    this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
+    stage.turtleShepherd.moveTo(
         oldx, oldy,
         this.xPosition(), this.yPosition(),
         this.isDown );
@@ -113,12 +117,14 @@ SpriteMorph.prototype.forward = function (steps) {
         this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
     }
     this.addStitchPoint(this.xPosition(), this.yPosition());
+    stage.moveTurtle(this.xPosition(), this.yPosition());
 
     //this.changed();
 };
 
 SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
 SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
+    var stage = this.parentThatIsA(StageMorph);
     oldx = this.xPosition();
     oldy = this.yPosition();
     this.origGotoXY(x, y, justMe);
@@ -130,15 +136,23 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
             this.xPosition(), this.yPosition(),
             this.isDown );
 
-            if (this.isDown)
-                this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
-            else {
-                this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
-            }
-            this.addStitchPoint(this.xPosition(), this.yPosition());
-        //this.changed();
+        if (this.isDown)
+            this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
+        else {
+            this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
+        }
+        this.addStitchPoint(this.xPosition(), this.yPosition());
+        stage.moveTurtle(this.xPosition(), this.yPosition());
 	}
 };
+
+SpriteMorph.prototype.origSetHeading = SpriteMorph.prototype.setHeading;
+SpriteMorph.prototype.setHeading = function (degrees) {
+    var stage = this.parentThatIsA(StageMorph);
+    this.origSetHeading(degrees);
+    stage.rotateTurtle(this.heading);
+};
+
 
 SpriteMorph.prototype.drawLine = function (start, dest) {};
 
@@ -214,11 +228,11 @@ StageMorph.prototype.init = function (globals) {
     this.initScene();
     this.initRenderer();
     this.initCamera();
-    this.initLights();
+
+
     this.turtleShepherd = new TurtleShepherd();
 
     this.scene.grid.draw();
-
     this.myObjects = new THREE.Object3D();
     this.myStitchPoints = new THREE.Object3D();
     this.myStitchLines = new THREE.Object3D();
@@ -228,7 +242,7 @@ StageMorph.prototype.init = function (globals) {
     this.scene.add(this.myStitchLines);
     this.scene.add(this.myJumpLines);
 
-    //this.trailsCanvas = this.renderer.domElement;
+    this.initTurtle();
 };
 
 StageMorph.prototype.initScene = function () {
@@ -255,6 +269,7 @@ StageMorph.prototype.initScene = function () {
         this.lines = [];
 
         limit = this.interval.x * 20
+
         for (x = -limit / this.interval.x; x <= limit / this.interval.x; x++) {
             p1 = new THREE.Vector3(x * this.interval.x, -limit, 0);
             p2 = new THREE.Vector3(x * this.interval.x, limit, 0);
@@ -279,9 +294,9 @@ StageMorph.prototype.initScene = function () {
             this.lines.push(l);
         }
 
-        for (y = -limit/10 / this.interval.y; y <= limit/10 / this.interval.y; y++) {
-            p1 = new THREE.Vector3(-limit, y * this.interval.y* 10, 0);
-            p2 = new THREE.Vector3(limit, y * this.interval.y* 10, 0);
+        for (y = -limit/10 / this.interval.y / 10; y <= limit/10 / this.interval.y / 10 ; y++) {
+            p1 = new THREE.Vector3(-limit, y * this.interval.y/ 10, 0);
+            p2 = new THREE.Vector3(limit, y * this.interval.y/ 10, 0);
             l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
             l.visible = this.visible;
             this.lines.push(l);
@@ -304,16 +319,16 @@ StageMorph.prototype.initScene = function () {
     this.scene.grid.toggle = function () {
         var myInnerSelf = this;
         this.visible = !this.visible;
-        this.lines.forEach(function (line){ line.visible = myInnerSelf.visible });
+        this.lines.forEach(function (line){ line.visible = myInnerSelf.visible; });
         myself.reRender();
     };
 
 };
 
 StageMorph.prototype.clearAll = function () {
-    for (var i = this.myObjects.children.length - 1; i >= 0; i--) {
+    /*for (var i = this.myObjects.children.length - 1; i >= 0; i--) {
         this.myObjects.remove(this.myObjects.children[i]);
-    }
+    }*/
     for (i = this.myStitchPoints.children.length - 1; i >= 0; i--) {
         this.myStitchPoints.remove(this.myStitchPoints.children[i]);
     }
@@ -336,49 +351,43 @@ StageMorph.prototype.initRenderer = function () {
     });
     this.renderer.setClearColor(0xffffff, 1);
 
-    if (localStorage) {
-        // ide is not set yet, we're accessing its prototype to circumvent this
-        this.renderer.setClearColor(IDE_Morph.prototype.getSetting('bgcolor'), 1);
-    }
-
     this.renderer.changed = false;
-    this.renderer.isWireframeMode = false;
     this.renderer.showingAxes = true;
+    this.renderer.showingStitchPoints = true;
+    this.renderer.showingJumpLines = true;
+    this.renderer.showingTurtle = true;
     this.renderer.isParallelProjection = true;
 
-    this.renderer.toggleWireframe = function () {
+
+    this.renderer.toggleJumpLines = function () {
         var myInnerSelf = this;
-        this.isWireframeMode = !this.isWireframeMode;
-        myself.myObjects.children.forEach(function (eachObject) {
-            eachObject.material.wireframe = myInnerSelf.isWireframeMode;
+        this.showingJumpLines = !this.showingJumpLines;
+        myself.myJumpLines.children.forEach(function (eachObject) {
+            eachObject.visible = myInnerSelf.showingJumpLines;
         });
         myself.reRender();
-    }
+    };
 
-    this.renderer.toggleAxes = function () {
+    this.renderer.toggleStitchPoints = function () {
         var myInnerSelf = this;
-        this.showingAxes = !this.showingAxes;
-
-        myself.scene.labels.forEach(function (label){ label.visible = myInnerSelf.showingAxes });
-        myself.scene.axes.forEach(function (line){ line.visible = myInnerSelf.showingAxes });
-        myself.children.forEach(function (morph) {
-            if (morph instanceof SpriteMorph) {
-                morph.beetle.axes.forEach(function (line){ line.visible = myInnerSelf.showingAxes });
-            }
-        })
+        this.showingStitchPoints = !this.showingStitchPoints;
+        myself.myStitchPoints.children.forEach(function (eachObject) {
+            eachObject.visible = myInnerSelf.showingStitchPoints;
+        });
         myself.reRender();
-    }
+    };
 
-    this.renderer.toggleParallelProjection = function () {
-        this.isParallelProjection = !this.isParallelProjection;
-        myself.initCamera();
-    }
+    this.renderer.toggleTurtle = function () {
+        var myInnerSelf = this;
+        this.showingTurtle = !this.showingTurtle;
+        myself.turtle.visible = myInnerSelf.showingTurtle;
+        myself.reRender();
+    };
+
 };
 
 
 StageMorph.prototype.render = function () {
-    //this.pointLight.position.copy(this.camera.position); // lights move with the camera
-    //this.directionalLight.position.copy(this.camera.position);
     this.renderer.render(this.scene, this.camera);
 };
 
@@ -399,7 +408,7 @@ StageMorph.prototype.initCamera = function () {
     var myself = this,
         threeLayer;
 
-    if (this.scene.camera) { this.scene.remove(this.camera) };
+    if (this.scene.camera) { this.scene.remove(this.camera); }
 
     var createCamera = function () {
         threeLayer = document.createElement('div');
@@ -425,11 +434,11 @@ StageMorph.prototype.initCamera = function () {
         myself.camera.zoomIn = function () {
             this.zoomFactor /= 1.1;
             this.applyZoom();
-        }
+        };
         myself.camera.zoomOut = function () {
             this.zoomFactor *= 1.1;
             this.applyZoom();
-        }
+        };
 
         myself.camera.applyZoom = function () {
             var zoom = myself.camera ? myself.camera.zoomFactor : 82,
@@ -440,12 +449,12 @@ StageMorph.prototype.initCamera = function () {
             this.top = height / zoom;
             this.bottom = height / - zoom;
             this.updateProjectionMatrix();
-        }
+        };
 
         myself.camera.reset = function () {
 
             myself.controls = new THREE.OrbitControls(this, threeLayer);
-            myself.controls.addEventListener('change', function (event) { myself.render });
+            myself.controls.addEventListener('change', function (event) { myself.render(); });
 
             if (myself.renderer.isParallelProjection) {
                 this.zoomFactor = 2;
@@ -458,11 +467,11 @@ StageMorph.prototype.initCamera = function () {
 
             myself.controls.update();
             myself.reRender();
-        }
+        };
 
         myself.camera.fitScene = function () {
 
-            var boundingBox = new THREE.Box3().setFromObject(myself.myObjects),
+            var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
                 boundingSphere = boundingBox.getBoundingSphere(),
                 center = boundingSphere.center,
                 distance = boundingSphere.radius;
@@ -476,23 +485,40 @@ StageMorph.prototype.initCamera = function () {
             myself.controls.dollyOut(1.2);
             myself.controls.update();
             myself.reRender();
-        }
-    }
+        };
+    };
 
     createCamera();
     this.scene.add(this.camera);
     this.camera.reset();
 };
 
-StageMorph.prototype.initLights = function () {
-    this.directionalLight = new THREE.DirectionalLight(0x4c4c4c, 1);
-    this.directionalLight.position.set(this.camera.position);
-    this.scene.add(this.directionalLight);
-
-    this.pointLight = new THREE.PointLight(0xffffff, 1, 2000);
-    this.pointLight.position.set(this.camera.position);
-    this.scene.add(this.pointLight);
+StageMorph.prototype.initTurtle = function() {
+    var myself = this;
+    var geometry = new THREE.Geometry();
+    var material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+    geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
+         new THREE.Vector3(-8, 8, 0.01),
+         new THREE.Vector3(-8,-8, 0.01),
+    ];
+    geometry.faces.push(new THREE.Face3(0, 1, 2));
+    geometry.verticesNeedUpdate = true;
+    this.turtle = new THREE.Mesh( geometry, material );
+    this.turtle.visible = this.renderer.showingTurtle;
+    myself.myObjects.add(this.turtle);
 };
+
+StageMorph.prototype.moveTurtle = function(x, y) {
+    this.turtle.position.x = x;
+    this.turtle.position.y = y;
+};
+
+StageMorph.prototype.rotateTurtle = function(h) {
+    this.turtle.rotation.z = (90 -h) * Math.PI / 180;
+    this.renderer.changed = true;
+};
+
+
 
 StageMorph.prototype.originalStep = StageMorph.prototype.step;
 StageMorph.prototype.step = function () {

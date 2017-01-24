@@ -3962,10 +3962,12 @@ SpriteMorph.prototype.bounceOffEdge = function () {
 
 SpriteMorph.prototype.setRotationX = function (absoluteX) {
   this.setRotationCenter(new Point(absoluteX, this.yPosition()));
+  alert(absoluteX);
 };
 
 SpriteMorph.prototype.setRotationY = function (absoluteY) {
   this.setRotationCenter(new Point(this.xPosition(), absoluteY));
+  alert(absolutexy);
 };
 
 SpriteMorph.prototype.setRotationCenter = function (absoluteCoordinate) {
