@@ -1642,7 +1642,6 @@ IDE_Morph.prototype.createSpriteEditor = function(){
 
 /* CORRAL BAR */
 // Single Sprite mode, no corral and no tabs in the scripting area
-
 IDE_Morph.prototype.createCorralBar = nop;
 IDE_Morph.prototype.createCorral = nop;
 
@@ -1825,4 +1824,14 @@ IDE_Morph.prototype.setLanguage = function(lang, callback) {
         document.head.appendChild(translation);
         translation.src = src;
     });
+};
+
+
+StageHandleMorph.prototype.fixLayout = function () {
+    if (!this.target) {return; }
+    var ide = this.target.parentThatIsA(IDE_Morph);
+    this.setTop(this.target.top() + 10);
+    this.setRight(ide.stage.left());
+
+    if (ide) {ide.add(this); } // come to front
 };

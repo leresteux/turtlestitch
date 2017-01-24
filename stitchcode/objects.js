@@ -285,14 +285,14 @@ StageMorph.prototype.initScene = function () {
     this.scene.grid = {};
     this.scene.grid.defaultColor = 0xe0e0e0;
     this.scene.grid.visible = true;
-    this.scene.grid.interval = new Point(50, 50);
+    this.scene.grid.interval = new Point(5, 5);
 
     // Grid
     this.scene.grid.draw = function () {
 
         //var color = this.lines ? this.lines[0].material.color : this.defaultColor;
-        var color = 0xf0f0f0;
-        var color2 = 0xd0d0d0;
+        var color = 0xf6f6f6;
+        var color2 = 0xe0e0e0;
 
         if (this.lines) {
             this.lines.forEach(function (eachLine){
@@ -302,7 +302,7 @@ StageMorph.prototype.initScene = function () {
 
         this.lines = [];
 
-        limit = this.interval.x * 20
+        limit = this.interval.x * 50;
 
         for (x = -limit / this.interval.x; x <= limit / this.interval.x; x++) {
             p1 = new THREE.Vector3(x * this.interval.x, -limit, 0);
@@ -320,7 +320,9 @@ StageMorph.prototype.initScene = function () {
             this.lines.push(l);
         }
 
-        for (x = -limit/10 / this.interval.x; x <= limit/10 / this.interval.x *1; x++) {
+        limit = this.interval.x * 200;
+
+        for (x = -limit/10 / this.interval.x; x <= limit/10 / this.interval.x; x++) {
             p1 = new THREE.Vector3(x * this.interval.x * 10, -limit,0);
             p2 = new THREE.Vector3(x * this.interval.x* 10, limit,0);
             l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
@@ -328,9 +330,9 @@ StageMorph.prototype.initScene = function () {
             this.lines.push(l);
         }
 
-        for (y = -limit/10 / this.interval.y / 10; y <= limit/10 / this.interval.y / 10 ; y++) {
-            p1 = new THREE.Vector3(-limit, y * this.interval.y/ 10, 0);
-            p2 = new THREE.Vector3(limit, y * this.interval.y/ 10, 0);
+        for (y = -limit/10 / this.interval.y; y <= limit/10 / this.interval.y ; y++) {
+            p1 = new THREE.Vector3(-limit, y * this.interval.y * 10, 0);
+            p2 = new THREE.Vector3(limit, y * this.interval.y * 10, 0);
             l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
             l.visible = this.visible;
             this.lines.push(l);

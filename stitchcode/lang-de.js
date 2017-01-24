@@ -25,7 +25,9 @@ tempDict = {
 	'Reset View':
 		'Anzeige zur\u00fccksetzen',
     'Dimensions : ':
-		'Gr\u00f6\u00dfe : '
+		'Gr\u00f6\u00dfe : ',
+	'clear':
+		'l\u00f6schen'
 };
 
 // Add attributes to original SnapTranslator.dict.de
