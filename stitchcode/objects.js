@@ -6,10 +6,6 @@ SpriteMorph.prototype.origInit = SpriteMorph.prototype.init;
 SpriteMorph.prototype.init = function(globals) {
     this.origInit(globals);
     this.hide();
-    this.polyline = null;
-    this.jumpLines = null;
-    this.stitchLines = null;
-    this.stitchPoints = null;
     this.lastJumped = false;
 };
 
@@ -22,24 +18,24 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
     endPoint = new THREE.Vector3(x2,y2, 0);
 
 
+    startPoint = new THREE.Vector3(x1, y1, 0);
+    endPoint = new THREE.Vector3(x2,y2, 0);
+
     if (this.stitchLines === null) {
         this.stitchLines = new THREE.Group();
     }
 
-    if (this.lastJumped || this.polyline === null) {
-        this.polyline = {};
-        this.polyline.points = [startPoint];
-    }
+    stitchLine = {};
+    stitchLine.points = [startPoint];
+    stitchLine.points.push(endPoint);
+    stitchLine.geometry = new THREE.Geometry();
+    stitchLine.geometry.vertices = stitchLine.points;
+    stitchLine.geometry.verticesNeedUpdate = true;
+    stitchLine.line = new THREE.Line(stitchLine.geometry, lineMaterial);
 
-    this.polyline.points.push(endPoint);
-    this.polyline.geometry = new THREE.Geometry();
-    this.polyline.geometry.vertices = this.polyline.points;
-    this.polyline.geometry.verticesNeedUpdate = true;
-    this.polyline.line = new THREE.Line(this.polyline.geometry, lineMaterial);
-
-    stage.myObjects.remove(this.stitchLines);
-    this.stitchLines.add(this.polyline.line);
-    stage.myObjects.add(this.stitchLines);
+    //stage.myObjects.remove(this.stitchLines);
+    //this.stitchLines.add( stitchLine.line );
+    stage.myStitchLines.add(stitchLine.line);
 
     this.lastJumped = false;
     stage.reRender();
@@ -65,9 +61,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
     jumpLine.geometry.verticesNeedUpdate = true;
     jumpLine.line = new THREE.Line(jumpLine.geometry, lineMaterial);
 
-    stage.myObjects.remove(this.jumpLines);
-    this.jumpLines.add( jumpLine.line );
-    stage.myObjects.add(this.jumpLines);
+    stage.myJumpLines.add(jumpLine.line);
 
     this.lastJumped = true;
     stage.reRender();
@@ -83,14 +77,7 @@ SpriteMorph.prototype.addStitchPoint = function(x1, y1) {
     circle.translateX(x1);
     circle.translateY(y1);
 
-
-    if (this.stitchPoints === null) {
-        this.stitchPoints = new THREE.Group();
-    }
-
-    stage.myObjects.remove(this.stitchPoints);
-    this.stitchPoints.add( circle );
-    stage.myObjects.add(this.stitchPoints);
+    stage.myStitchPoints.add(circle);
 
     stage.reRender();
 };
@@ -127,7 +114,7 @@ SpriteMorph.prototype.forward = function (steps) {
     }
     this.addStitchPoint(this.xPosition(), this.yPosition());
 
-    this.changed();
+    //this.changed();
 };
 
 SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
@@ -149,7 +136,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
                 this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
             }
             this.addStitchPoint(this.xPosition(), this.yPosition());
-        this.changed();
+        //this.changed();
 	}
 };
 
@@ -165,10 +152,6 @@ SpriteMorph.prototype.clear = function () {
     this.origClear();
     this.parentThatIsA(StageMorph).clearAll();
     this.parentThatIsA(StageMorph).turtleShepherd.clear();
-    this.polyline = null;
-    this.jumpLines = null;
-    this.stitchLines = null;
-    this.stitchPoints = null;
     this.parentThatIsA(StageMorph).renderer.changed = true  ;
 };
 
@@ -237,7 +220,13 @@ StageMorph.prototype.init = function (globals) {
     this.scene.grid.draw();
 
     this.myObjects = new THREE.Object3D();
+    this.myStitchPoints = new THREE.Object3D();
+    this.myStitchLines = new THREE.Object3D();
+    this.myJumpLines = new THREE.Object3D();
     this.scene.add(this.myObjects);
+    this.scene.add(this.myStitchPoints);
+    this.scene.add(this.myStitchLines);
+    this.scene.add(this.myJumpLines);
 
     //this.trailsCanvas = this.renderer.domElement;
 };
@@ -325,6 +314,16 @@ StageMorph.prototype.clearAll = function () {
     for (var i = this.myObjects.children.length - 1; i >= 0; i--) {
         this.myObjects.remove(this.myObjects.children[i]);
     }
+    for (i = this.myStitchPoints.children.length - 1; i >= 0; i--) {
+        this.myStitchPoints.remove(this.myStitchPoints.children[i]);
+    }
+    for (i = this.myStitchLines.children.length - 1; i >= 0; i--) {
+        this.myStitchLines.remove(this.myStitchLines.children[i]);
+    }
+    for (i = this.myJumpLines.children.length - 1; i >= 0; i--) {
+        this.myJumpLines.remove(this.myJumpLines.children[i]);
+    }
+
     this.renderer.clear();
 };
 
