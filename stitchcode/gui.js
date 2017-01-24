@@ -1641,131 +1641,18 @@ IDE_Morph.prototype.createSpriteEditor = function(){
 };
 
 /* CORRAL BAR */
+// Single Sprite mode, no corral and no tabs in the scripting area
 
-IDE_Morph.prototype.createCorralBar = function () {
-    // assumes the stage has already been created
-    var padding = 5,
-        newbutton,
-        paintbutton,
-        colors = [
-            this.groupColor,
-            this.frameColor.darker(50),
-            this.frameColor.darker(50)
-        ];
+IDE_Morph.prototype.createCorralBar = nop;
+IDE_Morph.prototype.createCorral = nop;
 
-    if (this.corralBar) {
-        this.corralBar.destroy();
-    }
-
-    this.corralBar = new Morph();
-    this.corralBar.color = this.frameColor;
-    this.corralBar.setHeight(this.logo.height()); // height is fixed
-    this.add(this.corralBar);
-
+IDE_Morph.prototype.selectSprite = function (sprite) {
+    this.currentSprite = sprite;
+    this.createPalette();
+    this.createSpriteEditor();
+    this.fixLayout('selectSprite');
+    this.currentSprite.scripts.fixMultiArgs();
 };
-
-
-IDE_Morph.prototype.createCorral = function () {
-    // assumes the corral bar has already been created
-    var frame, template, padding = 5, myself = this;
-
-    if (this.corral) {
-        this.corral.destroy();
-    }
-
-    this.corral = new Morph();
-    this.corral.color = this.groupColor;
-    //this.add(this.corral);
-
-    this.corral.stageIcon = new SpriteIconMorph(this.stage);
-    this.corral.stageIcon.isDraggable = false;
-    this.corral.add(this.corral.stageIcon);
-
-    frame = new ScrollFrameMorph(null, null, this.sliderColor);
-    frame.acceptsDrops = false;
-    frame.contents.acceptsDrops = false;
-
-    frame.contents.wantsDropOf = function (morph) {
-        return morph instanceof SpriteIconMorph;
-    };
-
-    frame.contents.reactToDropOf = function (spriteIcon) {
-        myself.corral.reactToDropOf(spriteIcon);
-    };
-
-    frame.alpha = 0;
-
-    this.sprites.asArray().forEach(function (morph) {
-        template = new SpriteIconMorph(morph, template);
-        frame.contents.add(template);
-    });
-
-    this.corral.frame = frame;
-    this.corral.add(frame);
-
-    this.corral.fixLayout = function () {
-        this.stageIcon.setCenter(this.center());
-        this.stageIcon.setLeft(this.left() + padding);
-        this.frame.setLeft(this.stageIcon.right() + padding);
-        this.frame.setExtent(new Point(
-            this.right() - this.frame.left(),
-            this.height()
-        ));
-        this.arrangeIcons();
-        this.refresh();
-    };
-
-    this.corral.arrangeIcons = function () {
-        var x = this.frame.left(),
-            y = this.frame.top(),
-            max = this.frame.right(),
-            start = this.frame.left();
-
-        this.frame.contents.children.forEach(function (icon) {
-            var w = icon.width();
-
-            if (x + w > max) {
-                x = start;
-                y += icon.height(); // they're all the same
-            }
-            icon.setPosition(new Point(x, y));
-            x += w;
-        });
-        this.frame.contents.adjustBounds();
-    };
-
-    this.corral.addSprite = function (sprite) {
-        this.frame.contents.add(new SpriteIconMorph(sprite));
-        this.fixLayout();
-    };
-
-    this.corral.refresh = function () {
-        this.stageIcon.refresh();
-        this.frame.contents.children.forEach(function (icon) {
-            icon.refresh();
-        });
-    };
-
-    this.corral.wantsDropOf = function (morph) {
-        return morph instanceof SpriteIconMorph;
-    };
-
-    this.corral.reactToDropOf = function (spriteIcon) {
-        var idx = 1,
-            pos = spriteIcon.position();
-        spriteIcon.destroy();
-        this.frame.contents.children.forEach(function (icon) {
-            if (pos.gt(icon.position()) || pos.y > icon.bottom()) {
-                idx += 1;
-            }
-        });
-        myself.sprites.add(spriteIcon.object, idx);
-        myself.createCorral();
-        myself.fixLayout();
-    };
-
-};
-
 
 // turtlestitch project dialog (removin cloud)
 /*
