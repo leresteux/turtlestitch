@@ -11,7 +11,6 @@ SpriteMorph.prototype.init = function(globals) {
     this.stitchLines = null;
     this.stitchPoints = null;
     this.lastJumped = false;
-    this.turtleShepherd = new TurtleShepherd();
 };
 
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
@@ -114,10 +113,12 @@ SpriteMorph.prototype.forward = function (steps) {
     }
     this.setPosition(dest);
     this.positionTalkBubble();
-    if (!this.turtleShepherd.hasSteps())
-        this.turtleShepherd.initPosition( oldx, oldy);
 
-    this.turtleShepherd.addMoveTo(this.xPosition(), this.yPosition(), this.isDown );
+
+    this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
+        oldx, oldy,
+        this.xPosition(), this.yPosition(),
+        this.isDown );
 
     if (this.isDown)
         this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
@@ -137,9 +138,10 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
     if ( Math.abs(this.xPosition()-oldx)<=1 && Math.abs(this.yPosition()-oldy)<=1 ) {
 		// jump in place - don't add
     } else {
-        if (!this.turtleShepherd.hasSteps())
-            this.turtleShepherd.initPosition(oldx, oldy);
-            this.turtleShepherd.addMoveTo(this.xPosition(), this.yPosition(), this.isDown );
+        this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
+            oldx, oldy,
+            this.xPosition(), this.yPosition(),
+            this.isDown );
 
             if (this.isDown)
                 this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
@@ -162,6 +164,7 @@ SpriteMorph.prototype.origClear = SpriteMorph.prototype.clear;
 SpriteMorph.prototype.clear = function () {
     this.origClear();
     this.parentThatIsA(StageMorph).clearAll();
+    this.parentThatIsA(StageMorph).turtleShepherd.clear();
     this.polyline = null;
     this.jumpLines = null;
     this.stitchLines = null;
@@ -229,6 +232,7 @@ StageMorph.prototype.init = function (globals) {
     this.initRenderer();
     this.initCamera();
     this.initLights();
+    this.turtleShepherd = new TurtleShepherd();
 
     this.scene.grid.draw();
 

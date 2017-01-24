@@ -25,10 +25,12 @@ TurtleShepherd.prototype.clear = function() {
     this.minY = 0;
     this.maxX = 0;
     this.maxY = 0;
-    this.steps = 0;
+
     this.initX = 0;
     this.initY = 0;
     this.scale = 1;
+
+    this.steps = 0;
     this.stitchCount = 0;
     this.jumpCount = 0;
 };
@@ -37,7 +39,21 @@ TurtleShepherd.prototype.hasSteps = function() {
     return this.steps > 0;
 };
 
-TurtleShepherd.prototype.addMoveTo= function(x, y, penState) {
+TurtleShepherd.prototype.getStepCount = function() {
+    return this.steps;
+};
+TurtleShepherd.prototype.getJumpCount = function() {
+    return this.jumpCount;
+};
+
+TurtleShepherd.prototype.getDimensions = function() {
+    w= ((this.maxX - this.minX)/5).toFixed(2).toString();
+    h= ((this.maxY - this.minY)/5).toFixed(2).toString();
+    return w + " x " + h + " mm";
+};
+
+
+TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 
     x = Math.round(x);
     y = Math.round(y);
@@ -50,26 +66,24 @@ TurtleShepherd.prototype.addMoveTo= function(x, y, penState) {
         }
     );
     if (this.steps === 0) {
-        this.minX = x;
-        this.minY = y;
-        this.maxX = x;
-        this.maxY = y;
+        this.initX = x1;
+        this.initY = y1;
+        this.minX = x1;
+        this.minY = y1;
+        this.maxX = x1;
+        this.maxY = y1;
     } else {
-        if (x < this.minX) this.minX = x;
-        if (x > this.maxX) this.maxX = x;
+        if (x2 < this.minX) this.minX = x2;
+        if (x2 > this.maxX) this.maxX = x2;
 
-        if (y < this.minY) this.minY  = y;
-        if (y > this.maxY) this.maxY  = y;
+        if (y2 < this.minY) this.minY  = y2;
+        if (y2 > this.maxY) this.maxY  = y2;
     }
     this.steps++;
+    if (!penState)
+        this.jumpCount++;
 };
 
-TurtleShepherd.prototype.initPosition = function(x,y) {
-    x = Math.round(x);
-    y = Math.round(y);
-    this.initX = x;
-    this.initY = y;
-};
 
 TurtleShepherd.prototype.addColorChange= function(color) {
     this.cache.push(

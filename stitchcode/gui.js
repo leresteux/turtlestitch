@@ -566,7 +566,6 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     padding = 1,
         myself = this,
         elements = [],
-        beetle = this.currentSprite.beetle,
         stage = this.stage;
 
     if (this.statusDisplay) {
@@ -630,8 +629,20 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     this.statusDisplay.addElement = function (element) {
 
         if (typeof element == 'string') {
-            element = new StringMorph(localize(element), 12, null, true);
-        }
+            if (element == '-') {
+                element = new Morph();
+                element.setHeight(1);
+                element.setWidth(this.width());
+                element.setColor(new Color(150, 150, 150));
+                element.newLines = 0.5;
+                element.flush = true;
+            } else {
+                element = new StringMorph(localize(element), 12, null, true);
+            }
+            if (element.hidden) {
+                element.setColor(new Color(0,0,0,0));
+            }
+        };
 
         this.frame.contents.add(element);
         this.fixLayout();
@@ -644,7 +655,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
                 element.changed();
                 element.drawNew();
                 element.changed();
-            }
+            };
         });
     };
 
@@ -689,6 +700,37 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     space.alpha = 0;
     space.newLines = 0.5;
     elements.push(space);
+
+    elements.push('Total Stitches: ');
+    element = new StringMorph();
+    element.update = function () {
+        this.text = (stage.turtleShepherd.getStepCount()).toString()+ "        ";
+    };
+    elements.push(element);
+
+    elements.push('      ');
+
+    elements.push('Jumps : ');
+    element = new StringMorph();
+    element.update = function () {
+        this.text = (stage.turtleShepherd.getJumpCount()).toString()+ "        ";
+    };
+    elements.push(element);
+    elements.push('  ');
+
+    elements.push('Dimensions : ');
+    element = new StringMorph();
+    element.update = function () {
+        this.text = (stage.turtleShepherd.getDimensions());
+    };
+
+    element.newLines = 1;
+    elements.push(element);
+
+
+    elements.push('-');
+
+
     /*
     // Buttons and toggles
     var toogleShowStitchButton = new ToggleMorph(
@@ -741,6 +783,13 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     //toogleShowGridButton.newColumn = 1;
 	elements.push(toogleShowGridButton);
     */
+
+    var space = new Morph();
+    space.alpha = 0;
+    space.newLines = 1;
+    elements.push(space);
+
+
     var toggleTurboButton = new ToggleMorph(
             'checkbox',
             null,
