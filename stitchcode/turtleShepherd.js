@@ -5,24 +5,18 @@
 
 */
 
+var camera, renderer, scene;
+
 function TurtleShepherd() {
     this.init();
 }
 
 function TurtleShepherd(world) {
     this.init();
-    this.setWorld(world);
 }
 
 TurtleShepherd.prototype.init = function() {
-    this.w = 480;
-    this.h = 360;
     this.clear();
-    this.gridSize = 50;
-    this.showJumpStitches = true;
-    this.showStitches = true;
-    this.showGrid = true;
-    this.showTurtle = true;
 };
 
 TurtleShepherd.prototype.clear = function() {
@@ -35,12 +29,8 @@ TurtleShepherd.prototype.clear = function() {
     this.initX = 0;
     this.initY = 0;
     this.scale = 1;
-    this.dx = 0;
-    this.dy = 0;
-};
-
-TurtleShepherd.prototype.setWorld = function(world) {
-    this.world = world;
+    this.stitchCount = 0;
+    this.jumpCount = 0;
 };
 
 TurtleShepherd.prototype.hasSteps = function() {
@@ -55,7 +45,7 @@ TurtleShepherd.prototype.addMoveTo= function(x, y, penState) {
         {
             "cmd":"move",
             "x":x,
-            "y":-y,
+            "y":y,
             "penDown":penState,
         }
     );
@@ -72,15 +62,13 @@ TurtleShepherd.prototype.addMoveTo= function(x, y, penState) {
         if (y > this.maxY) this.maxY  = y;
     }
     this.steps++;
-    if (DEBUG) this.debug_msg("move to " + x + " " + y + " " + penState );
 };
 
 TurtleShepherd.prototype.initPosition = function(x,y) {
     x = Math.round(x);
     y = Math.round(y);
     this.initX = x;
-    this.initY = -y;
-    if (DEBUG) this.debug_msg("init " + x + " " + y );
+    this.initY = y;
 };
 
 TurtleShepherd.prototype.addColorChange= function(color) {
@@ -95,51 +83,9 @@ TurtleShepherd.prototype.addColorChange= function(color) {
 
 TurtleShepherd.prototype.setScale = function(s) {
     this.scale = s;
-    if (DEBUG) this.debug_msg("zoom to scale "+ s );
 };
 
-
-TurtleShepherd.prototype.zoomIn = function() {
-    this.scale += 0.1;
-    if (DEBUG) this.debug_msg("zoom to scale "+this.scale );
-};
-
-TurtleShepherd.prototype.zoomOut = function() {
-    if (this.scale > 0.15)
-        this.scale -= 0.1;
-    if (DEBUG) this.debug_msg("zoom to scale "+ this.scale );
-};
-
-TurtleShepherd.prototype.zoomIn = function() {
-    this.scale += 0.1;
-    if (DEBUG) this.debug_msg("zoom to scale "+this.scale );
-};
-
-TurtleShepherd.prototype.pan = function(dx, dy) {
-    this.dx -= dx;
-    this.dy -= dy;
-};
-
-TurtleShepherd.prototype.setStageDimensions = function(w,h) {
-    this.w = w;
-    this.h = h;
-    /*
-    document.getElementById("svg2").style.left = x + "px";
-    document.getElementById("svg2").style.top = y+ "px";
-    */
-    /*
-    document.getElementById("svg2").style.width = w + "px";
-    document.getElementById("svg2").style.height = h + "px";
-    document.getElementById("svg2").style.right = "0";
-    document.getElementById("svg2").style.bottom = "0";
-    */
-};
-
-TurtleShepherd.prototype.setStagePosition = function(x,y) {
-    //document.getElementById("svg2").style.top = y + "px";
-    //document.getElementById("svg2").style.left = x + "px";
-};
-
+/*
 
 TurtleShepherd.prototype.renderGrid = function(size) {
     size = this.gridSize;
@@ -149,24 +95,34 @@ TurtleShepherd.prototype.renderGrid = function(size) {
         '</pattern>' +
         '</defs>\n';
 };
+*/
 
 TurtleShepherd.prototype.toSVG = function() {
 
-    var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
-    svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
-    svgStr += '<svg width="' + (this.w) + '" height="' +this.h + '"' +
+    tx = ((-1 * (this.w / 2) * this.scale) + (this.dx * this.scale));
+    ty = ((-1 * (this.h / 2) * this.scale) + (this.dy * this.scale));
+    bx = ((this.w * this.scale) + (this.dx * this.scale));
+    by = ((this.h * this.scale) + (this.dy * this.scale));
+
+    // TODO: Panning
+
+    //var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
+    //svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
+    svgStr = '<svg width="' + (this.w) + '" height="' +this.h + '"' +
         ' viewBox="' +
-            (-1 * (this.w / 2) * this.scale) + ' ' +
-            (-1 * (this.h / 2) * this.scale) + ' ' +
-            (this.w * this.scale) + ' ' +
-            (this.h * this.scale) + '"\n';
+            (tx) + ' ' +
+            (ty) + ' ' +
+            (bx) + ' ' +
+            (by) + '"\n';
     svgStr += ' xmlns="http://www.w3.org/2000/svg" version="1.1">\n';
     svgStr += '<title>Embroidery export</title>\n';
 
-    svgStr += this.renderGrid();
-    svgStr += '<rect x="' + (-1 * this.w / 2 * this.scale) +
-        '" y="' + (-1 * this.h / 2 * this.scale) +
-        '" width="100%" height="100%" fill="url(#grid)" />\n';
+    if (this.showGrid) {
+        svgStr += this.renderGrid();
+        svgStr += '<rect x="' + ((-1 * (this.w / 2) * this.scale)) +
+            '" y="' + ((-1 * (this.h / 2) * this.scale)) +
+            '" width="100%" height="100%" fill="url(#grid)" />\n';
+    }
 
     hasFirst = false;
     tagOpen = false;
@@ -314,53 +270,6 @@ TurtleShepherd.prototype.toSVG2 = function() {
     if (tagOpen) svgStr += '" />\n';
     svgStr += '</svg>\n';
     return svgStr;
-};
-
-TurtleShepherd.prototype.reRender = function(cnv) {
-    sourceSVG = turtleShepherd.toSVG2();
-
-    /* get canvas of world not via call
-    if (DEBUG) this.debug_msg("this world is " + this.world.children[0].stage.penTrails() );
-    if (typeof this.world !== 'undefined') {
-        cnv = this.world.children[0].stage.penTrails();
-        this.debug_msg("override canvas" );
-    }
-    */
-
-    // draw via canvg's drawSVF
-
-    if (cnv) {
-        var ctx = cnv.getContext('2d');
-        ctx.clearRect(0, 0, cnv.width, cnv.height);
-        ctx.drawSvg(turtleShepherd.toSVG2(), 0, 0, cnv.width, cnv.height);
-    }
-
-    // debug options
-    if (DEBUG) {
-        document.getElementById("code").innerHTML =  sourceSVG;
-        //document.getElementById("svg2").innerHTML =  sourceSVG;
-    }
-    // drawing alternatives - to be REMOVED:
-
-    // draw via canvg - works but very slow!
-    //canvg(document.getElementById('svg'), turtleShepherd.toSVG());
-
-    // draw via canvg - works but very slow!
-    //canvg(cnv, turtleShepherd.toSVG());
-
-    /*
-    // another method to draw svg on canvas
-    var svgString = (new XMLSerializer()).serializeToString(document.querySelector('svg'));
-    var img = new Image();
-    ctx = cnv.getContext('2d');
-    img.src = "data:image/svg+xml;base64," + btoa(svgString);
-    img.onload = function() {
-    // after this, Canvas’ origin-clean is DIRTY
-    ctx.clearRect(0, 0, cnv.width, cnv.height);
-    ctx.drawImage(img, 0, 0, cnv.width, cnv.height);
-   };
-   */
-
 };
 
 TurtleShepherd.prototype.debug_msg = function (st, clear) {

@@ -7,7 +7,6 @@ IDE_Morph.prototype.originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(isAutoFill) {
     this.originalInit();
     this.padding = 1;
-    turtleShepherd.setWorld(this.world);
 };
 
 IDE_Morph.prototype.resourceURLOrig  = IDE_Morph.prototype.resourceURL;
@@ -69,13 +68,11 @@ IDE_Morph.prototype.buildPanes = function () {
 IDE_Morph.prototype.origSetStageExtent = IDE_Morph.prototype.setStageExtent;
 IDE_Morph.prototype.setStageExtent = function (aPoint) {
     this.origSetStageExtent(aPoint);
-    turtleShepherd.setStageDimensions(aPoint.x, aPoint.y);
 };
 
 IDE_Morph.prototype.origNewProject = IDE_Morph.prototype.newProject;
 IDE_Morph.prototype.newProject = function () {
     this.origNewProject();
-    turtleShepherd.clear();
     this.stage.reRender();
     this.createStatusDisplay();
 };
@@ -83,7 +80,6 @@ IDE_Morph.prototype.newProject = function () {
 IDE_Morph.prototype.origRawOpenProjectString = IDE_Morph.prototype.rawOpenProjectString;
 IDE_Morph.prototype.rawOpenProjectString = function (str) {
     this.origRawOpenProjectString(str);
-    turtleShepherd.clear();
 
     // hide sprite
     this.stage.children[0].hide();
@@ -693,7 +689,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     space.alpha = 0;
     space.newLines = 0.5;
     elements.push(space);
-
+    /*
     // Buttons and toggles
     var toogleShowStitchButton = new ToggleMorph(
         'checkbox',
@@ -744,7 +740,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     toogleShowGridButton.newLines = 2;
     //toogleShowGridButton.newColumn = 1;
 	elements.push(toogleShowGridButton);
-
+    */
     var toggleTurboButton = new ToggleMorph(
             'checkbox',
             null,
