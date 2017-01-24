@@ -189,6 +189,7 @@ IDE_Morph.prototype.createControlBar = function () {
     this.controlBar.add(appModeButton);
     this.controlBar.appModeButton = appModeButton; // for refreshing
 
+    /*
     // upload StitchButton
     button = new PushButtonMorph(
         this,
@@ -210,7 +211,7 @@ IDE_Morph.prototype.createControlBar = function () {
     button.fixLayout();
     upstitchButton = button;
     this.controlBar.add(upstitchButton);
-
+    */
 
     // stopButton
     button = new ToggleButtonMorph(
@@ -406,7 +407,7 @@ IDE_Morph.prototype.createControlBar = function () {
             myself.right() - StageMorph.prototype.dimensions.x *
                 (myself.isSmallStage ? myself.stageRatio : 1)
         );
-        [upstitchButton, stageSizeButton, appModeButton].forEach(
+        [stageSizeButton, appModeButton].forEach(
             function (button) {
                 x += padding;
                 button.setCenter(myself.controlBar.center());
@@ -688,7 +689,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     space.newLines = 0.5;
     elements.push(space);
 
-    elements.push(' Total Stitches: ');
+    elements.push('Total Stitches : ');
     element = new StringMorph();
     element.update = function () {
         this.text = (stage.turtleShepherd.getStepCount()).toString()+ "        ";
@@ -1506,6 +1507,7 @@ IDE_Morph.prototype.projectMenu = function () {
     menu.addItem('Save', "save");
     menu.addItem('Save As...', 'saveProjectsBrowser');
     menu.addItem('Save to Disk', 'saveToDisk');
+/*
     menu.addLine();
     menu.addItem('Upload stitch file', 'uploadMe','Export stage drawing to stitch file (EXP)..');
     menu.addLine();
@@ -1519,7 +1521,7 @@ IDE_Morph.prototype.projectMenu = function () {
             function() { myself.downloadEXP(); },
             'download current drawing as EXP file'
             );
-
+    */
     if (shiftClicked) {
         menu.addItem(
             'Export all scripts as pic...',
@@ -1903,3 +1905,37 @@ ProjectDialogMorph.prototype.buildContents = function () {
 
 };
 */
+
+
+// Addressing #54: Stage occasionally goes blank
+IDE_Morph.prototype.originalRefreshPalette = IDE_Morph.prototype.refreshPalette;
+IDE_Morph.prototype.refreshPalette = function (shouldIgnorePosition) {
+    this.originalRefreshPalette(shouldIgnorePosition);
+    this.stage.reRender();
+};
+
+// Language
+
+IDE_Morph.prototype.originalSetLanguage = IDE_Morph.prototype.setLanguage;
+IDE_Morph.prototype.setLanguage = function(lang, callback) {
+    var myself = this;
+
+    myself.originalSetLanguage(lang, function () {
+        var translation = document.getElementById('bb-language'),
+            src = 'stitchcode/lang-' + lang + '.js',
+            myInnerSelf = this;
+        if (translation) {
+            document.head.removeChild(translation);
+        }
+        if (lang === 'en') {
+            return this.reflectLanguage('en', callback);
+        }
+        translation = document.createElement('script');
+        translation.id = 'bb-language';
+        translation.onload = function () {
+            myInnerSelf.reflectLanguage(lang, callback);
+        };
+        document.head.appendChild(translation);
+        translation.src = src;
+    });
+};
