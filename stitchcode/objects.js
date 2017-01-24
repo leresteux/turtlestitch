@@ -14,10 +14,7 @@ SpriteMorph.prototype.init = function(globals) {
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
     var   stage = this.parentThatIsA(StageMorph),
     lineMaterial = new THREE.LineDashedMaterial(
-        { color: 0x00000, dashSize: 4, gapSize: 0, linewidth: 1.3 } );
-
-    startPoint = new THREE.Vector3(x1, y1, 0);
-    endPoint = new THREE.Vector3(x2,y2, 0);
+        { color: stage.drawingColor, dashSize: 4, gapSize: 0, linewidth: stage.penSize } );
 
 
     startPoint = new THREE.Vector3(x1, y1, 0);
@@ -48,8 +45,8 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
         lineMaterial = new THREE.LineDashedMaterial(
             { color: 0xff0000, dashSize: 4, gapSize: 4, linewidth: .8 } );
 
-    startPoint = new THREE.Vector3(x1, y1, 0);
-    endPoint = new THREE.Vector3(x2,y2, 0);
+    startPoint = new THREE.Vector3(x1, y1, 0.01);
+    endPoint = new THREE.Vector3(x2,y2, 0.01);
 
     if (this.jumpLines === null) {
         this.jumpLines = new THREE.Group();
@@ -73,12 +70,13 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 SpriteMorph.prototype.addStitchPoint = function(x1, y1) {
     var stage = this.parentThatIsA(StageMorph);
 
-    var geometry = new THREE.CircleGeometry( 1.5, 4 );
+    var geometry = new THREE.CircleGeometry( 1.2, 6 );
     geometry.vertices.shift();
     var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
     var circle = new THREE.Mesh( geometry, material );
     circle.translateX(x1);
     circle.translateY(y1);
+    circle.translateZ(0.01);
     circle.visible = stage.renderer.showingStitchPoints;
 
     stage.myStitchPoints.add(circle);
@@ -151,6 +149,42 @@ SpriteMorph.prototype.setHeading = function (degrees) {
     var stage = this.parentThatIsA(StageMorph);
     this.origSetHeading(degrees);
     stage.rotateTurtle(this.heading);
+};
+
+SpriteMorph.prototype.setColor = function (aColor) {
+    var stage = this.parentThatIsA(StageMorph);
+    if (!this.color.eq(aColor)) {
+        this.color = aColor.copy();
+    }
+    stage.setColor(aColor);
+
+    // TO DO: set color in turtleShepherd
+};
+
+SpriteMorph.prototype.setHue = function (num) {
+    var stage = this.parentThatIsA(StageMorph);
+    var hsv = this.color.hsv();
+    hsv[0] = Math.max(Math.min(+num || 0, 100), 0) / 100;
+    hsv[1] = 1; // we gotta fix this at some time
+    this.color.set_hsv.apply(this.color, hsv);
+    stage.setColor(this.color);
+};
+
+SpriteMorph.prototype.setBrightness = function (num) {
+    var stage = this.parentThatIsA(StageMorph);
+    var hsv = this.color.hsv();
+    hsv[1] = 1; // we gotta fix this at some time
+    hsv[2] = Math.max(Math.min(+num || 0, 100), 0) / 100;
+    this.color.set_hsv.apply(this.color, hsv);
+    stage.setColor(this.color);
+};
+
+SpriteMorph.prototype.setSize = function (size) {
+    var stage = this.parentThatIsA(StageMorph);
+    if (!isNaN(size)) {
+        this.size = Math.min(Math.max(+size, 0.0001), 1000);
+    }
+    stage.setPenSize(this.size);
 };
 
 
@@ -497,6 +531,7 @@ StageMorph.prototype.initTurtle = function() {
     var myself = this;
     var geometry = new THREE.Geometry();
     var material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+
     geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
          new THREE.Vector3(-8, 8, 0.01),
          new THREE.Vector3(-8,-8, 0.01),
@@ -506,12 +541,27 @@ StageMorph.prototype.initTurtle = function() {
     this.turtle = new THREE.Mesh( geometry, material );
     this.turtle.visible = this.renderer.showingTurtle;
     myself.myObjects.add(this.turtle);
+
+    this.drawingColor = new THREE.Color("rgb(0, 0, 0)");
+    this.penSize = 1.2;
 };
 
 StageMorph.prototype.moveTurtle = function(x, y) {
     this.turtle.position.x = x;
     this.turtle.position.y = y;
 };
+
+StageMorph.prototype.setColor = function(c) {
+    this.drawingColor =
+        new THREE.Color("rgb(" + Math.round(c.r) + "," + Math.round(c.g) + "," + Math.round(c.b)  + ")");
+};
+
+
+StageMorph.prototype.setPenSize = function(s) {
+    this.penSize = s;
+};
+
+
 
 StageMorph.prototype.rotateTurtle = function(h) {
     this.turtle.rotation.z = (90 -h) * Math.PI / 180;
@@ -686,4 +736,525 @@ StageMorph.prototype.userMenu = function () {
             'open a new window\nwith a picture of the scene'
             );
     return menu;
+};
+
+// SpriteMorph block templates
+
+SpriteMorph.prototype.blockTemplates = function (category) {
+    var blocks = [], myself = this, varNames, button,
+        cat = category || 'motion', txt,
+        inheritedVars = this.inheritedVariableNames();
+
+    function block(selector) {
+        if (StageMorph.prototype.hiddenPrimitives[selector]) {
+            return null;
+        }
+        var newBlock = SpriteMorph.prototype.blockForSelector(selector, true);
+        newBlock.isTemplate = true;
+        return newBlock;
+    }
+
+    function variableBlock(varName) {
+        var newBlock = SpriteMorph.prototype.variableBlock(varName);
+        newBlock.isDraggable = false;
+        newBlock.isTemplate = true;
+        if (contains(inheritedVars, varName)) {
+            newBlock.ghost();
+        }
+        return newBlock;
+    }
+
+    function watcherToggle(selector) {
+        if (StageMorph.prototype.hiddenPrimitives[selector]) {
+            return null;
+        }
+        var info = SpriteMorph.prototype.blocks[selector];
+        return new ToggleMorph(
+            'checkbox',
+            this,
+            function () {
+                myself.toggleWatcher(
+                    selector,
+                    localize(info.spec),
+                    myself.blockColor[info.category]
+                );
+            },
+            null,
+            function () {
+                return myself.showingWatcher(selector);
+            },
+            null
+        );
+    }
+
+    function variableWatcherToggle(varName) {
+        return new ToggleMorph(
+            'checkbox',
+            this,
+            function () {
+                myself.toggleVariableWatcher(varName);
+            },
+            null,
+            function () {
+                return myself.showingVariableWatcher(varName);
+            },
+            null
+        );
+    }
+
+    function helpMenu() {
+        var menu = new MenuMorph(this);
+        menu.addItem('help...', 'showHelp');
+        return menu;
+    }
+
+    function addVar(pair) {
+        var ide;
+        if (pair) {
+            if (myself.isVariableNameInUse(pair[0], pair[1])) {
+                myself.inform('that name is already in use');
+            } else {
+                ide = myself.parentThatIsA(IDE_Morph);
+                myself.addVariable(pair[0], pair[1]);
+                if (!myself.showingVariableWatcher(pair[0])) {
+                    myself.toggleVariableWatcher(pair[0], pair[1]);
+                }
+                ide.flushBlocksCache('variables'); // b/c of inheritance
+                ide.refreshPalette();
+            }
+        }
+    }
+
+    if (cat === 'motion') {
+
+        blocks.push(block('forward'));
+        blocks.push(block('turn'));
+        blocks.push(block('turnLeft'));
+        blocks.push('-');
+        blocks.push(block('setHeading'));
+        blocks.push(block('doFaceTowards'));
+        blocks.push('-');
+        blocks.push(block('gotoXY'));
+        blocks.push(block('doGotoObject'));
+        blocks.push(block('doGlide'));
+        blocks.push('-');
+        blocks.push(block('changeXPosition'));
+        blocks.push(block('setXPosition'));
+        blocks.push(block('changeYPosition'));
+        blocks.push(block('setYPosition'));
+        blocks.push('-');
+        blocks.push(block('bounceOffEdge'));
+        blocks.push('-');
+        blocks.push(watcherToggle('xPosition'));
+        blocks.push(block('xPosition'));
+        blocks.push(watcherToggle('yPosition'));
+        blocks.push(block('yPosition'));
+        blocks.push(watcherToggle('direction'));
+        blocks.push(block('direction'));
+
+    } else if (cat === 'looks') {
+
+        blocks.push(block('doSwitchToCostume'));
+        blocks.push(block('doWearNextCostume'));
+        blocks.push(watcherToggle('getCostumeIdx'));
+        blocks.push(block('getCostumeIdx'));
+        blocks.push('-');
+        blocks.push(block('doSayFor'));
+        blocks.push(block('bubble'));
+        blocks.push(block('doThinkFor'));
+        blocks.push(block('doThink'));
+        blocks.push('-');
+        blocks.push(block('changeEffect'));
+        blocks.push(block('setEffect'));
+        blocks.push(block('clearEffects'));
+        blocks.push('-');
+        blocks.push(block('changeScale'));
+        blocks.push(block('setScale'));
+        blocks.push(watcherToggle('getScale'));
+        blocks.push(block('getScale'));
+        blocks.push('-');
+        blocks.push(block('show'));
+        blocks.push(block('hide'));
+        blocks.push('-');
+        blocks.push(block('comeToFront'));
+        blocks.push(block('goBack'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(block('reportCostumes'));
+            blocks.push('-');
+            blocks.push(block('log'));
+            blocks.push(block('alert'));
+            blocks.push('-');
+            blocks.push(block('doScreenshot'));
+        }
+
+    /////////////////////////////////
+
+    } else if (cat === 'sound') {
+
+        blocks.push(block('playSound'));
+        blocks.push(block('doPlaySoundUntilDone'));
+        blocks.push(block('doStopAllSounds'));
+        blocks.push('-');
+        blocks.push(block('doRest'));
+        blocks.push('-');
+        blocks.push(block('doPlayNote'));
+        blocks.push('-');
+        blocks.push(block('doChangeTempo'));
+        blocks.push(block('doSetTempo'));
+        blocks.push(watcherToggle('getTempo'));
+        blocks.push(block('getTempo'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(block('reportSounds'));
+        }
+
+    } else if (cat === 'pen') {
+
+        blocks.push(block('clear'));
+        blocks.push('-');
+        blocks.push(block('down'));
+        blocks.push(block('up'));
+        blocks.push('-');
+        blocks.push(block('setColor'));
+        blocks.push(block('setSize'));
+    } else if (cat === 'control') {
+
+        blocks.push(block('receiveGo'));
+        blocks.push(block('receiveKey'));
+        blocks.push(block('receiveInteraction'));
+        blocks.push(block('receiveCondition'));
+        blocks.push(block('receiveMessage'));
+        blocks.push('-');
+        blocks.push(block('doBroadcast'));
+        blocks.push(block('doBroadcastAndWait'));
+        blocks.push(watcherToggle('getLastMessage'));
+        blocks.push(block('getLastMessage'));
+        blocks.push('-');
+        blocks.push(block('doWarp'));
+        blocks.push('-');
+        blocks.push(block('doWait'));
+        blocks.push(block('doWaitUntil'));
+        blocks.push('-');
+        blocks.push(block('doForever'));
+        blocks.push(block('doRepeat'));
+        blocks.push(block('doUntil'));
+        blocks.push('-');
+        blocks.push(block('doIf'));
+        blocks.push(block('doIfElse'));
+        blocks.push('-');
+        blocks.push(block('doReport'));
+        blocks.push('-');
+    /*
+    // old STOP variants, migrated to a newer version, now redundant
+        blocks.push(block('doStopBlock'));
+        blocks.push(block('doStop'));
+        blocks.push(block('doStopAll'));
+    */
+        blocks.push(block('doStopThis'));
+        blocks.push(block('doStopOthers'));
+        blocks.push('-');
+        blocks.push(block('doRun'));
+        blocks.push(block('fork'));
+        blocks.push(block('evaluate'));
+        blocks.push('-');
+    /*
+    // list variants commented out for now (redundant)
+        blocks.push(block('doRunWithInputList'));
+        blocks.push(block('forkWithInputList'));
+        blocks.push(block('evaluateWithInputList'));
+        blocks.push('-');
+    */
+        blocks.push(block('doCallCC'));
+        blocks.push(block('reportCallCC'));
+        blocks.push('-');
+        blocks.push(block('receiveOnClone'));
+        blocks.push(block('createClone'));
+        blocks.push(block('removeClone'));
+        blocks.push('-');
+        blocks.push(block('doPauseAll'));
+
+    } else if (cat === 'sensing') {
+
+        blocks.push(block('reportTouchingObject'));
+        blocks.push(block('reportTouchingColor'));
+        blocks.push(block('reportColorIsTouchingColor'));
+        blocks.push('-');
+        blocks.push(block('doAsk'));
+        blocks.push(watcherToggle('getLastAnswer'));
+        blocks.push(block('getLastAnswer'));
+        blocks.push('-');
+        blocks.push(watcherToggle('reportMouseX'));
+        blocks.push(block('reportMouseX'));
+        blocks.push(watcherToggle('reportMouseY'));
+        blocks.push(block('reportMouseY'));
+        blocks.push(block('reportMouseDown'));
+        blocks.push('-');
+        blocks.push(block('reportKeyPressed'));
+        blocks.push('-');
+        blocks.push(block('reportDistanceTo'));
+        blocks.push('-');
+        blocks.push(block('doResetTimer'));
+        blocks.push(watcherToggle('getTimer'));
+        blocks.push(block('getTimer'));
+        blocks.push('-');
+        blocks.push(block('reportAttributeOf'));
+
+        if (SpriteMorph.prototype.enableFirstClass) {
+            blocks.push(block('reportGet'));
+        }
+        blocks.push('-');
+
+        blocks.push(block('reportURL'));
+        blocks.push('-');
+        blocks.push(block('reportIsFastTracking'));
+        blocks.push(block('doSetFastTracking'));
+        blocks.push('-');
+        blocks.push(block('reportDate'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(watcherToggle('reportThreadCount'));
+            blocks.push(block('reportThreadCount'));
+            blocks.push(block('colorFiltered'));
+            blocks.push(block('reportStackSize'));
+            blocks.push(block('reportFrameCount'));
+        }
+
+    } else if (cat === 'operators') {
+
+        blocks.push(block('reifyScript'));
+        blocks.push(block('reifyReporter'));
+        blocks.push(block('reifyPredicate'));
+        blocks.push('#');
+        blocks.push('-');
+        blocks.push(block('reportSum'));
+        blocks.push(block('reportDifference'));
+        blocks.push(block('reportProduct'));
+        blocks.push(block('reportQuotient'));
+        blocks.push('-');
+        blocks.push(block('reportModulus'));
+        blocks.push(block('reportRound'));
+        blocks.push(block('reportMonadic'));
+        blocks.push(block('reportRandom'));
+        blocks.push('-');
+        blocks.push(block('reportLessThan'));
+        blocks.push(block('reportEquals'));
+        blocks.push(block('reportGreaterThan'));
+        blocks.push('-');
+        blocks.push(block('reportAnd'));
+        blocks.push(block('reportOr'));
+        blocks.push(block('reportNot'));
+        blocks.push(block('reportBoolean'));
+        blocks.push('-');
+        blocks.push(block('reportJoinWords'));
+        blocks.push(block('reportTextSplit'));
+        blocks.push(block('reportLetter'));
+        blocks.push(block('reportStringSize'));
+        blocks.push('-');
+        blocks.push(block('reportUnicode'));
+        blocks.push(block('reportUnicodeAsLetter'));
+        blocks.push('-');
+        blocks.push(block('reportIsA'));
+        blocks.push(block('reportIsIdentical'));
+        blocks.push('-');
+        blocks.push(block('reportJSFunction'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(block('reportTypeOf'));
+            blocks.push(block('reportTextFunction'));
+        }
+
+    /////////////////////////////////
+
+    } else if (cat === 'variables') {
+
+        button = new PushButtonMorph(
+            null,
+            function () {
+                new VariableDialogMorph(
+                    null,
+                    addVar,
+                    myself
+                ).prompt(
+                    'Variable name',
+                    null,
+                    myself.world()
+                );
+            },
+            'Make a variable'
+        );
+        button.userMenu = helpMenu;
+        button.selector = 'addVariable';
+        button.showHelp = BlockMorph.prototype.showHelp;
+        blocks.push(button);
+
+        if (this.deletableVariableNames().length > 0) {
+            button = new PushButtonMorph(
+                null,
+                function () {
+                    var menu = new MenuMorph(
+                        myself.deleteVariable,
+                        null,
+                        myself
+                    );
+                    myself.deletableVariableNames().forEach(function (name) {
+                        menu.addItem(name, name);
+                    });
+                    menu.popUpAtHand(myself.world());
+                },
+                'Delete a variable'
+            );
+            button.userMenu = helpMenu;
+            button.selector = 'deleteVariable';
+            button.showHelp = BlockMorph.prototype.showHelp;
+            blocks.push(button);
+        }
+
+        blocks.push('-');
+
+        varNames = this.variables.allNames();
+        if (varNames.length > 0) {
+            varNames.forEach(function (name) {
+                blocks.push(variableWatcherToggle(name));
+                blocks.push(variableBlock(name));
+            });
+            blocks.push('-');
+        }
+
+        blocks.push(block('doSetVar'));
+        blocks.push(block('doChangeVar'));
+        blocks.push(block('doShowVar'));
+        blocks.push(block('doHideVar'));
+        blocks.push(block('doDeclareVariables'));
+
+    // inheritance:
+
+        if (StageMorph.prototype.enableInheritance) {
+            blocks.push('-');
+            blocks.push(block('doDeleteAttr'));
+        }
+
+    ///////////////////////////////
+
+        blocks.push('=');
+
+        blocks.push(block('reportNewList'));
+        blocks.push('-');
+        blocks.push(block('reportCONS'));
+        blocks.push(block('reportListItem'));
+        blocks.push(block('reportCDR'));
+        blocks.push('-');
+        blocks.push(block('reportListLength'));
+        blocks.push(block('reportListContainsItem'));
+        blocks.push('-');
+        blocks.push(block('doAddToList'));
+        blocks.push(block('doDeleteFromList'));
+        blocks.push(block('doInsertInList'));
+        blocks.push(block('doReplaceInList'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(block('reportMap'));
+            blocks.push('-');
+            blocks.push(block('doForEach'));
+            blocks.push(block('doShowTable'));
+        }
+
+    /////////////////////////////////
+
+        blocks.push('=');
+
+        if (StageMorph.prototype.enableCodeMapping) {
+            blocks.push(block('doMapCodeOrHeader'));
+            blocks.push(block('doMapStringCode'));
+            blocks.push(block('doMapListCode'));
+            blocks.push('-');
+            blocks.push(block('reportMappedCode'));
+            blocks.push('=');
+        }
+
+        button = new PushButtonMorph(
+            null,
+            function () {
+                var ide = myself.parentThatIsA(IDE_Morph),
+                    stage = myself.parentThatIsA(StageMorph);
+                new BlockDialogMorph(
+                    null,
+                    function (definition) {
+                        if (definition.spec !== '') {
+                            if (definition.isGlobal) {
+                                stage.globalBlocks.push(definition);
+                            } else {
+                                myself.customBlocks.push(definition);
+                            }
+                            ide.flushPaletteCache();
+                            ide.refreshPalette();
+                            new BlockEditorMorph(definition, myself).popUp();
+                        }
+                    },
+                    myself
+                ).prompt(
+                    'Make a block',
+                    null,
+                    myself.world()
+                );
+            },
+            'Make a block'
+        );
+        button.userMenu = helpMenu;
+        button.selector = 'addCustomBlock';
+        button.showHelp = BlockMorph.prototype.showHelp;
+        blocks.push(button);
+    }
+    return blocks;
 };
