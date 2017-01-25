@@ -11,7 +11,7 @@
 tempDict = {
 	// UI
 	'Save to Disk':
-		'Auf Festplatte speichern',
+		'Auf Festplatte sichern',
 	'Total Stitches : ':
 		'Anzahl der Stiche : ',
     'Jumps':
@@ -27,7 +27,15 @@ tempDict = {
     'Dimensions : ':
 		'Gr\u00f6\u00dfe : ',
 	'clear':
-		'l\u00f6schen'
+		'l\u00f6schen',
+	'Export as SVG':
+		'Zeichnung als SVG exportieren',
+	'Export as EXP':
+		'Zeichnung als EXP exportieren',
+	'Export current drawing as SVG Vector file':
+		'Exportiert die aktuelle Zeichnung als Vektorgrafik im SVG Format',
+	'Export current drawing as EXP Embroidery file':
+		'Exportiert die aktuelle Zeichnung als Stickmuster im EXP Format',
 };
 
 // Add attributes to original SnapTranslator.dict.de

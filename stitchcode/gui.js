@@ -878,104 +878,14 @@ IDE_Morph.prototype.fixLayout = function (situation) {
 
 // SVG export
 IDE_Morph.prototype.downloadSVG = function() {
-
-	var minX=999999999, maxX=0, minY=999999999, maxY=0;
-	for (var i=0; i<tStitch.stitches.x.length; i++) {
-
-		var x1 = tStitch.stitches.x[i];
-		var y1 = tStitch.stitches.y[i];
-
-		if (x1<minX) minX = x1;
-		if (x1>maxX) maxX = x1;
-
-		if (y1<minY) minY = y1;
-		if (y1>maxY) maxY = y1;
-	}
-
-	var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
-	svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
-	svgStr += "<svg width=\"" + parseInt(maxX-minX) + "\" height=\"" + parseInt(maxY-minY) + "\" viewBox=\"0 -" + parseInt(maxX-minX) + " " + parseInt(maxY-minY) + " 0\"\n";
-    svgStr += " xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n";
-	svgStr += "<title>Embroidery export</title>\n";
-	svgStr += "<path fill=\"none\" stroke=\"black\" d=\"";
-
-  	svgStr += "M "+  (tStitch.stitches.x[0] - minX) + " " + (parseInt(maxY-minY) - (tStitch.stitches.y[0] - minY));
-
-	for (var i=1; i < tStitch.stitches.x.length; i++) {
-
-		if ( tStitch.stitches.jump[i]) {
-			if ( !tStitch.stitches.jump[i-1]) {
-				svgStr += "\" />\n";
-			}
-		} else {
-			if (tStitch.stitches.jump[i-1]&& i>1) {
-				svgStr +="  <path fill=\"none\" stroke=\"black\" d=\"M "+
-					(tStitch.stitches.x[i] + minX) + " " + (parseInt(maxY-minY) - (tStitch.stitches.y[i] - minY));
-			}
-			svgStr += " L "+  (tStitch.stitches.x[i]  - minX) + " " + (parseInt(maxY-minY) - (tStitch.stitches.y[i] - minY));
-		}
-	}
-
-	svgStr += "\" />\n</svg>\n";
-
+    svgStr = this.stage.turtleShepherd.toSVG();
     blob = new Blob([svgStr], {type: 'text/plain;charset=utf-8'});
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.svg');
 };
 
 // EXP export
 IDE_Morph.prototype.downloadEXP = function() {
-	var expArr = [];
-
-	pixels_per_millimeter = 5;
-	scale = 10 / pixels_per_millimeter;
-
-	function move(x, y) {
-		y *= -1;
-		if (x<0) x = x + 256;
-		expArr.push(x);
-		if (y<0) y = y + 256;
-		expArr.push(y);
-
-	}
-
-	for (var i=1; i<tStitch.stitches.x.length; i++) {
-		x1 = tStitch.stitches.x[i] * scale;
-		y1 = tStitch.stitches.y[i] * scale;
-		x0 = tStitch.stitches.x[i-1] * scale;
-		y0 = tStitch.stitches.y[i-1] * scale;
-
-		sum_x = 0;
-		sum_y = 0;
-		dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
-		dsteps = Math.abs(dmax / 127) + 1;
-		if (dsteps == 1) {
-			if (tStitch.stitches.jump[i]) {
-				expArr.push(0x80);
-				expArr.push(0x04);
-			}
-			move((x1 - x0), (y1 - y0));
-		} else {
-			for(j=0;j<dsteps;j++) {
-				if (tStitch.stitches.jump[i])  {
-					expArr.push(0x80);
-					expArr.push(0x04);
-				}
-				if (j < dsteps -1) {
-					move((x1 - x0)/dsteps, (y1 - y0)/dsteps);
-					sum_x += (x1 - x0)/dsteps;
-					sum_y += (y1 - y0)/dsteps;
-				} else {
-					move((x1 - x0) - sum_x, (y1 - y0) - sum_y);
-				}
-			}
-		}
-	}
-
-	expUintArr = new Uint8Array(expArr.length);
-	for (i=0;i<expArr.length;i++) {
-		expUintArr[i] = Math.round(expArr[i]);
-	}
-
+    expUintArr = this.stage.turtleShepherd.toEXP();
     blob = new Blob([expUintArr], {type: 'application/octet-stream'});
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.exp');
 };
@@ -1509,20 +1419,22 @@ IDE_Morph.prototype.projectMenu = function () {
     menu.addItem('Save', "save");
     menu.addItem('Save As...', 'saveProjectsBrowser');
     menu.addItem('Save to Disk', 'saveToDisk');
+    menu.addLine();
+	menu.addItem(
+            'Export as SVG',
+            function() { myself.downloadSVG(); },
+            'Export current drawing as SVG Vector file'
+    );
+    menu.addItem(
+            'Export as EXP',
+            function() { myself.downloadEXP(); },
+            'Export current drawing as EXP Embroidery file'
+    );
 /*
     menu.addLine();
     menu.addItem('Upload stitch file', 'uploadMe','Export stage drawing to stitch file (EXP)..');
     menu.addLine();
-	menu.addItem(
-            'Download as SVG',
-            function() { myself.downloadSVG(); },
-            'download current drawing as SVG file'
-            );
-	menu.addItem(
-            'Download as EXP',
-            function() { myself.downloadEXP(); },
-            'download current drawing as EXP file'
-            );
+
     */
     if (shiftClicked) {
         menu.addItem(
