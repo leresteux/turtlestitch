@@ -11,7 +11,7 @@
 tempDict = {
 	// UI
 	'Save to Disk':
-		'Auf Festplatte sichern',
+		'Sichern auf Festplatte',
 	'Total Stitches : ':
 		'Anzahl der Stiche : ',
     'Jumps':
@@ -29,15 +29,15 @@ tempDict = {
 	'clear':
 		'l\u00f6schen',
 	'Export as SVG':
-		'Als SVG exportieren',
+		'Exportieren als SVG Vektorgrafik',
 	'Export as Melco/EXP':
-		'Als Melco/EXP exportieren',
+		'Exportieren als Melco/EXP',
+	'Export as Tajima/DST':
+		'Exportieren als Tajima/DST',
 	'Export current drawing as SVG Vector file':
 		'Exportiert die aktuelle Zeichnung als Vektorgrafik im SVG Format',
 	'Export current drawing as EXP/Melco Embroidery file':
 		'Exportiert die aktuelle Zeichnung als Stickmuster im EXP/Melco Format',
-	'Export as Tajima/DST':
-		'Als Tajima/DST exportieren',
 	'Export current drawing as DST/Tajima Embroidery file':
 		'Exportiert die aktuelle Zeichnung als Stickmuster im Tajima/DST Format'
 };

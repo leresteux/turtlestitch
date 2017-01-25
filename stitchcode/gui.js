@@ -1407,8 +1407,8 @@ IDE_Morph.prototype.projectMenu = function () {
     }
 
     menu = new MenuMorph(this);
-    //menu.addItem('Project notes...', 'editProjectNotes');
-    //menu.addLine();
+    menu.addItem('Project notes...', 'editProjectNotes');
+    menu.addLine();
     menu.addItem('New', 'createNewProject');
     menu.addItem('Open...', 'openProjectsBrowser');
     menu.addItem(
@@ -1471,6 +1471,8 @@ IDE_Morph.prototype.projectMenu = function () {
     menu.addLine();
 
     */
+
+    menu.addLine();
     if (shiftClicked) {
         menu.addItem(
             'Export all scripts as pic...',
@@ -1479,7 +1481,6 @@ IDE_Morph.prototype.projectMenu = function () {
             new Color(100, 0, 0)
         );
     }
-    menu.addLine();
     menu.addItem(
         shiftClicked ?
                 'Export project as plain text...' : 'Export project...',
@@ -1495,11 +1496,45 @@ IDE_Morph.prototype.projectMenu = function () {
         'show project data as XML\nin a new browser window',
         shiftClicked ? new Color(100, 0, 0) : null
     );
+
+    if (this.stage.globalBlocks.length) {
+        menu.addItem(
+            'Export blocks...',
+            function () {myself.exportGlobalBlocks(); },
+            'show global custom block definitions as XML' +
+                '\nin a new browser window'
+        );
+        menu.addItem(
+            'Unused blocks...',
+            function () {myself.removeUnusedBlocks(); },
+            'find unused global custom blocks' +
+                '\nand remove their definitions'
+        );
+    }
+
     menu.addItem(
-        'Export blocks...',
-        function () {myself.exportGlobalBlocks(); },
-        'show global custom block definitions as XML\nin a new browser window'
+        'Export summary...',
+        function () {myself.exportProjectSummary(); },
+        'open a new browser browser window\n with a summary of this project'
     );
+    if (shiftClicked) {
+        menu.addItem(
+            'Export summary with drop-shadows...',
+            function () {myself.exportProjectSummary(true); },
+            'open a new browser browser window' +
+                '\nwith a summary of this project' +
+                '\nwith drop-shadows on all pictures.' +
+                '\nnot supported by all browsers',
+            new Color(100, 0, 0)
+        );
+        menu.addItem(
+            'Export all scripts as pic...',
+            function () {myself.exportScriptsPicture(); },
+            'show a picture of all scripts\nand block definitions',
+            new Color(100, 0, 0)
+        );
+    }
+
     menu.addLine();
     menu.addItem(
         'Import tools',
