@@ -9,6 +9,18 @@ IDE_Morph.prototype.init = function(isAutoFill) {
     this.padding = 1;
 };
 
+//  change logo
+IDE_Morph.prototype.originalCreateLogo = IDE_Morph.prototype.createLogo;
+IDE_Morph.prototype.createLogo = function () {
+	this.originalCreateLogo();
+	//if (MorphicPreferences.isFlat) {
+	// we are always flat!
+	this.logo.texture = 'stitchcode/turtlestitch_logo.png';
+	this.logo.color = new Color(230, 230, 230);
+	this.logo.drawNew();
+};
+
+
 IDE_Morph.prototype.resourceURLOrig  = IDE_Morph.prototype.resourceURL;
 IDE_Morph.prototype.resourceURL = function () {
     var args = Array.prototype.slice.call(arguments, 0);
@@ -19,18 +31,6 @@ IDE_Morph.prototype.resourceURL = function () {
     }
 };
 
-//  change logo
-IDE_Morph.prototype.originalCreateLogo = IDE_Morph.prototype.createLogo;
-IDE_Morph.prototype.createLogo = function () {
-	this.originalCreateLogo();
-	if (MorphicPreferences.isFlat) {
-		this.logo.texture = 'stitchcode/stitchcode_logo_small.png';
-	} else {
-		this.logo.texture = 'stitchcode/stitchcode_logo_small_black.png';
-	}
-	this.logo.color = new Color(230, 230, 230);
-	this.logo.drawNew();
-};
 
 // Single Sprite mode, no corral and no tabs in the scripting area
 IDE_Morph.prototype.createCorralBar = nop;
