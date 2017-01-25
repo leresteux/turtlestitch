@@ -237,7 +237,6 @@ TurtleShepherd.prototype.toEXP= function() {
     }
 
     expUintArr = new Uint8Array(expArr.length);
-    alert(expUintArr);
     for (i=0;i<expArr.length;i++) {
         expUintArr[i] = Math.round(expArr[i]);
     }

@@ -796,10 +796,26 @@ IDE_Morph.prototype.createStatusDisplay = function () {
             function () {
                 return stage.isFastTracked;
             });
-    toggleTurboButton.columns = 4;
-    toggleTurboButton.newColumn = 1;
+    toggleTurboButton.newLines = 3;
     elements.push(toggleTurboButton);
 
+    var downloadSVGButton = new PushButtonMorph(
+        null,
+        function () { myself.downloadSVG(); },
+        'Export as SVG'
+    );
+    //downloadSVGButton.columns = 4;
+    //downloadSVGButton.newColumn = 1;
+    downloadSVGButton.newLines = 1.7;
+    elements.push(downloadSVGButton);
+
+    var downloadEXPButton = new PushButtonMorph(
+        null,
+        function () { myself.downloadEXP(); },
+        'Export as EXP'
+    );
+    downloadEXPButton.newLines = 1;
+    elements.push(downloadEXPButton);
 
 
 

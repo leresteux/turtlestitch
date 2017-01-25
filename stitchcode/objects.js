@@ -718,7 +718,6 @@ StageMorph.prototype.setScale = function (number) {
 };
 
 
-
 // Contextual menu
 StageMorph.prototype.userMenu = function () {
     var ide = this.parentThatIsA(IDE_Morph),
