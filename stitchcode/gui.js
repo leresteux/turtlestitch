@@ -1513,13 +1513,15 @@ IDE_Morph.prototype.projectMenu = function () {
     );
     menu.addItem(
         'Libraries...',
-        createMediaMenu(
-            'libraries',
-            function loadLib(file, name) {
-                var url = myself.resourceURL('libraries', file);
-                myself.droppedText(myself.getURL(url), name);
-            }
-        ),
+        function() {
+            myself.getURL(
+                myself.resourceURL('libraries', 'LIBRARIES'),
+                function (txt) {
+                    var libraries = myself.parseResourceFile(txt);
+                    new LibraryImportDialogMorph(myself, libraries).popUp();
+                }
+            );
+        },
         'Select categories of additional blocks to add to this project.'
     );
     menu.popup(world, pos);
