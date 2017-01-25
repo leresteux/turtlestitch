@@ -2,9 +2,8 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>TurtleStitch </title>
-		
-		<link rel="shortcut icon" href="stitchcode/favicon-32x32.png" type="image/png">		
+		<title>TurtleStitch v2.0 ALPHA</title>
+		<link rel="shortcut icon" href="stitchcode/favicon-32x32.png" type="image/png" />
 		<script type="text/javascript" src="morphic.js"></script>
 		<script type="text/javascript" src="widgets.js"></script>
 		<script type="text/javascript" src="blocks.js"></script>
@@ -14,35 +13,44 @@
 		<script type="text/javascript" src="paint.js"></script>
 		<script type="text/javascript" src="lists.js"></script>
 		<script type="text/javascript" src="byob.js"></script>
+		<script type="text/javascript" src="tables.js"></script>
 		<script type="text/javascript" src="xml.js"></script>
 		<script type="text/javascript" src="store.js"></script>
 		<script type="text/javascript" src="locale.js"></script>
-		<script type="text/javascript" src="sha512.js"></script>		
+		<script type="text/javascript" src="cloud.js"></script>
+		<script type="text/javascript" src="sha512.js"></script>
+		<script type="text/javascript" src="FileSaver.min.js"></script>
+
+		<!-- turtlestitch requirements -->
 		<script type="text/javascript" src="stitchcode/jquery.js"></script>
-		<!--<script type="text/javascript" src="stitchcode/byob.js"></script>-->
-		<!--<script type="text/javascript" src="stitchcode/blocks.js"></script>-->
-		<script type="text/javascript" src="stitchcode/Filesaver.js"></script>
-		<script type="text/javascript" src="stitchcode/stitchcodeGUI.js"></script>
-		<script type="text/javascript" src="stitchcode/stitchcodeChangeSet.js"></script>
-		<script type="text/javascript" src="stitchcode/cloud.js">d</script>
+		<script type="text/javascript" src="stitchcode/three.js"></script>
+		<script type="text/javascript" src="stitchcode/OrbitControls.js"></script>
+		<script type="text/javascript" src="stitchcode/turtleShepherd.js"></script>
 		
+		<!-- turtlestitch mods -->
+		<script type="text/javascript" src="stitchcode/blocks.js"></script>		
+		<script type="text/javascript" src="stitchcode/objects.js"></script>
+		<script type="text/javascript" src="stitchcode/gui.js"></script>
+		<script type="text/javascript" src="stitchcode/gui-cloud.js"></script>
+		<script type="text/javascript" src="stitchcode/store.js"></script>
+		<script type="text/javascript" src="stitchcode/cloud.js"></script>
+
 		<script type="text/javascript">
 			var world;
 			window.onload = function () {
 				world = new WorldMorph(document.getElementById('world'));
                 world.worldCanvas.focus();
 				new IDE_Morph().openIn(world);
-				setInterval(loop, 1);
+        		loop();
 			};
+
 			function loop() {
+        		requestAnimationFrame(loop);
 				world.doOneCycle();
 			}
 		</script>
 	</head>
 	<body style="margin: 0;">
-		
 		<canvas id="world" tabindex="1" style="position: absolute;"></canvas>
-		<div name="bug" id="bug" style="background:white;font-size:70%;position:absolute;
-			width:100%;height:10%;top:90%;overflow:auto;display:none"></div>
     </body>
 </html>

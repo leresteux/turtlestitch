@@ -1,24 +1,32 @@
+# TurtleStitch
 
-## TurtleStitch
+TurtleStitch is a visual, blocks-based programming environment for turtle graphics with a focus on 
+embroidery file generation. 
 
-is a fork of Snap! focused towards an easy-to-use, educational tool for
-embroidery file generation based on turtle graphics. 
+The generated patterns can be exported as a embroidery file (currently Melco/EXP and Tajima/DST are supported) or SVG vector graphic
 
-http://www.turtlestitch.com
+TurtleStitch is based on [Snap<i>!</i> Build Your Own Blocks](http://snap.berkeley.edu) written by Jens Mönig and Brian Harvey.
+
+It uses webgl ([ThreeJS](http://threejs.org)) as rendering engine for performance as smooth as possible.
 
 
-### License
+## Try it
 
+You can try [latest development version from the git master branch](https://backface.github.io/turtlestitch/)
+
+Check out the platform including a stable version and more infos on:
+
+#http://www.turtlestitch.com
+
+
+## Acknowledgements / License
 
 Snap! Build Your Own Blocks [http://snap.berkeley.edu] is a 
 visual, blocks based programming language inspired by Scratch
 
-written by Jens Mönig and Brian Harvey 
+Copyright (C) 2016 by Jens Mönig and Brian Harvey
 
-Copyright (C) 2015 by Jens Mönig and Brian Harvey
-
-
-This is free software: you can redistribute it and/or modify
+Snap! is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation, either version 3 of
 the License, or (at your option) any later version.

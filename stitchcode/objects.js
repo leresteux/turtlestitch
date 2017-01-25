@@ -1,0 +1,1261 @@
+/* Sprite */
+// modified SpriteMorph turtlestitch functions
+
+
+SpriteMorph.prototype.origInit = SpriteMorph.prototype.init;
+SpriteMorph.prototype.init = function(globals) {
+    this.origInit(globals);
+    this.hide();
+    this.lastJumped = false;
+    this.turtle = null;
+};
+
+
+SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
+    var   stage = this.parentThatIsA(StageMorph),
+    lineMaterial = new THREE.LineDashedMaterial(
+        { color: stage.drawingColor, dashSize: 4, gapSize: 0, linewidth: stage.penSize } );
+
+
+    startPoint = new THREE.Vector3(x1, y1, 0);
+    endPoint = new THREE.Vector3(x2,y2, 0);
+
+    if (this.stitchLines === null) {
+        this.stitchLines = new THREE.Group();
+    }
+
+    stitchLine = {};
+    stitchLine.points = [startPoint];
+    stitchLine.points.push(endPoint);
+    stitchLine.geometry = new THREE.Geometry();
+    stitchLine.geometry.vertices = stitchLine.points;
+    stitchLine.geometry.verticesNeedUpdate = true;
+    stitchLine.line = new THREE.Line(stitchLine.geometry, lineMaterial);
+
+    //stage.myObjects.remove(this.stitchLines);
+    //this.stitchLines.add( stitchLine.line );
+    stage.myStitchLines.add(stitchLine.line);
+
+    this.lastJumped = false;
+    stage.reRender();
+};
+
+SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
+    var   stage = this.parentThatIsA(StageMorph),
+        lineMaterial = new THREE.LineDashedMaterial(
+            { color: 0xff0000, dashSize: 4, gapSize: 4, linewidth: .8 } );
+
+    startPoint = new THREE.Vector3(x1, y1, 0.01);
+    endPoint = new THREE.Vector3(x2,y2, 0.01);
+
+    if (this.jumpLines === null) {
+        this.jumpLines = new THREE.Group();
+    }
+
+    jumpLine = {};
+    jumpLine.points = [startPoint];
+    jumpLine.points.push(endPoint);
+    jumpLine.geometry = new THREE.Geometry();
+    jumpLine.geometry.vertices = jumpLine.points;
+    jumpLine.geometry.verticesNeedUpdate = true;
+    jumpLine.line = new THREE.Line(jumpLine.geometry, lineMaterial);
+    jumpLine.line.visible = stage.renderer.showingJumpLines;
+
+    stage.myJumpLines.add(jumpLine.line);
+
+    this.lastJumped = true;
+    stage.reRender();
+};
+
+SpriteMorph.prototype.addStitchPoint = function(x1, y1) {
+    var stage = this.parentThatIsA(StageMorph);
+
+    var geometry = new THREE.CircleGeometry( 1.2, 6 );
+    geometry.vertices.shift();
+    var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
+    var circle = new THREE.Mesh( geometry, material );
+    circle.translateX(x1);
+    circle.translateY(y1);
+    circle.translateZ(0.01);
+    circle.visible = stage.renderer.showingStitchPoints;
+
+    stage.myStitchPoints.add(circle);
+
+    stage.reRender();
+};
+
+
+SpriteMorph.prototype.origForward = SpriteMorph.prototype.forward;
+SpriteMorph.prototype.forward = function (steps) {
+    var dest,
+        dist = steps * this.parent.scale || 0;
+        stage = this.parentThatIsA(StageMorph);
+
+    oldx = this.xPosition();
+    oldy = this.yPosition();
+    if (dist >= 0) {
+        dest = this.position().distanceAngle(dist, this.heading);
+    } else {
+        dest = this.position().distanceAngle(
+            Math.abs(dist),
+            (this.heading - 180)
+        );
+    }
+    this.setPosition(dest);
+    this.positionTalkBubble();
+
+    stage.turtleShepherd.moveTo(
+        oldx, oldy,
+        this.xPosition(), this.yPosition(),
+        this.isDown );
+
+    if (this.isDown)
+        this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
+    else {
+        this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
+    }
+    this.addStitchPoint(this.xPosition(), this.yPosition());
+    stage.moveTurtle(this.xPosition(), this.yPosition());
+
+    //this.changed();
+};
+
+SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
+SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
+    var stage = this.parentThatIsA(StageMorph);
+    oldx = this.xPosition();
+    oldy = this.yPosition();
+    this.origGotoXY(x, y, justMe);
+    if ( Math.abs(this.xPosition()-oldx)<=1 && Math.abs(this.yPosition()-oldy)<=1 ) {
+		// jump in place - don't add
+    } else {
+        this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
+            oldx, oldy,
+            this.xPosition(), this.yPosition(),
+            this.isDown );
+
+        if (this.isDown)
+            this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
+        else {
+            this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
+        }
+        this.addStitchPoint(this.xPosition(), this.yPosition());
+        stage.moveTurtle(this.xPosition(), this.yPosition());
+	}
+};
+
+SpriteMorph.prototype.origSetHeading = SpriteMorph.prototype.setHeading;
+SpriteMorph.prototype.setHeading = function (degrees) {
+    var stage = this.parentThatIsA(StageMorph);
+    this.origSetHeading(degrees);
+    stage.rotateTurtle(this.heading);
+};
+
+SpriteMorph.prototype.setColor = function (aColor) {
+    var stage = this.parentThatIsA(StageMorph);
+    if (!this.color.eq(aColor)) {
+        this.color = aColor.copy();
+    }
+    stage.setColor(aColor);
+
+    // TO DO: set color in turtleShepherd
+};
+
+SpriteMorph.prototype.setHue = function (num) {
+    var stage = this.parentThatIsA(StageMorph);
+    var hsv = this.color.hsv();
+    hsv[0] = Math.max(Math.min(+num || 0, 100), 0) / 100;
+    hsv[1] = 1; // we gotta fix this at some time
+    this.color.set_hsv.apply(this.color, hsv);
+    stage.setColor(this.color);
+};
+
+SpriteMorph.prototype.setBrightness = function (num) {
+    var stage = this.parentThatIsA(StageMorph);
+    var hsv = this.color.hsv();
+    hsv[1] = 1; // we gotta fix this at some time
+    hsv[2] = Math.max(Math.min(+num || 0, 100), 0) / 100;
+    this.color.set_hsv.apply(this.color, hsv);
+    stage.setColor(this.color);
+};
+
+SpriteMorph.prototype.setSize = function (size) {
+    var stage = this.parentThatIsA(StageMorph);
+    if (!isNaN(size)) {
+        this.size = Math.min(Math.max(+size, 0.0001), 1000);
+    }
+    stage.setPenSize(this.size);
+};
+
+
+SpriteMorph.prototype.drawLine = function (start, dest) {};
+
+SpriteMorph.prototype.origSilentGotoXY = SpriteMorph.prototype.silentGotoXY;
+SpriteMorph.prototype.silentGotoXY = function (x, y, justMe) {
+    this.origSilentGotoXY(x,y,justMe);
+};
+
+SpriteMorph.prototype.origClear = SpriteMorph.prototype.clear;
+SpriteMorph.prototype.clear = function () {
+    this.origClear();
+    this.parentThatIsA(StageMorph).clearAll();
+    this.parentThatIsA(StageMorph).turtleShepherd.clear();
+    this.parentThatIsA(StageMorph).renderer.changed = true  ;
+};
+
+SpriteMorph.prototype.reRender = function () {
+
+    //this.hide();
+    this.changed();
+};
+
+// Single Sprite mode
+
+SpriteMorph.prototype.origDrawNew = SpriteMorph.prototype.drawNew;
+SpriteMorph.prototype.drawNew = function () {
+    this.origDrawNew();
+};
+
+//SpriteMorph.prototype.thumbnail = function (extentPoint) {};
+//SpriteMorph.prototype.drawNew = function () { this.hide() }
+
+// THREE additions
+
+THREE.Object3D.prototype.addLineToPointWithColor = function (point, color, thickness) {
+    return this.addLineFromPointToPointWithColor(new THREE.Vector3(), point, color, thickness)
+};
+
+THREE.Object3D.prototype.addLineFromPointToPointWithColor = function (originPoint, destinationPoint, color, thickness) {
+    geometry = new THREE.Geometry();
+    geometry.vertices.push(originPoint);
+    geometry.vertices.push(destinationPoint);
+    var lineMaterial = new THREE.LineBasicMaterial({ color: color, linewidth: (thickness ? thickness : 1) });
+    var line = new THREE.Line(geometry, lineMaterial);
+    this.add(line);
+    return line;
+};
+
+
+// ########################################################################
+/* STAGE */
+// ########################################################################
+
+
+
+// StageMorph
+
+StageMorph.prototype.originalDestroy = StageMorph.prototype.destroy;
+StageMorph.prototype.destroy = function () {
+    var myself = this;
+    this.clearAll();
+    this.children.forEach(function (eachSprite) {
+        myself.removeChild(eachSprite);
+    });
+    this.originalDestroy();
+};
+
+StageMorph.prototype.originalInit = StageMorph.prototype.init;
+StageMorph.prototype.init = function (globals) {
+    var myself = this;
+
+    this.originalInit(globals);
+    this.initScene();
+    this.initRenderer();
+    this.initCamera();
+
+
+    this.turtleShepherd = new TurtleShepherd();
+
+    this.scene.grid.draw();
+    this.myObjects = new THREE.Object3D();
+    this.myStitchPoints = new THREE.Object3D();
+    this.myStitchLines = new THREE.Object3D();
+    this.myJumpLines = new THREE.Object3D();
+    this.scene.add(this.myObjects);
+    this.scene.add(this.myStitchPoints);
+    this.scene.add(this.myStitchLines);
+    this.scene.add(this.myJumpLines);
+
+    this.initTurtle();
+};
+
+StageMorph.prototype.initScene = function () {
+    var myself = this;
+    this.scene = new THREE.Scene();
+    this.scene.grid = {};
+    this.scene.grid.defaultColor = 0xe0e0e0;
+    this.scene.grid.visible = true;
+    this.scene.grid.interval = new Point(5, 5);
+
+    // Grid
+    this.scene.grid.draw = function () {
+
+        //var color = this.lines ? this.lines[0].material.color : this.defaultColor;
+        var color = 0xf6f6f6;
+        var color2 = 0xe0e0e0;
+
+        if (this.lines) {
+            this.lines.forEach(function (eachLine){
+                myself.scene.remove(eachLine);
+            });
+        }
+
+        this.lines = [];
+
+        limit = this.interval.x * 50;
+
+        for (x = -limit / this.interval.x; x <= limit / this.interval.x; x++) {
+            p1 = new THREE.Vector3(x * this.interval.x, -limit, 0);
+            p2 = new THREE.Vector3(x * this.interval.x, limit, 0);
+            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color);
+            l.visible = this.visible;
+            this.lines.push(l);
+        }
+
+        for (y = -limit / this.interval.y; y <= limit / this.interval.y; y++) {
+            p1 = new THREE.Vector3(-limit, y * this.interval.y, 0);
+            p2 = new THREE.Vector3(limit, y * this.interval.y, 0);
+            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color);
+            l.visible = this.visible;
+            this.lines.push(l);
+        }
+
+        limit = this.interval.x * 200;
+
+        for (x = -limit/10 / this.interval.x; x <= limit/10 / this.interval.x; x++) {
+            p1 = new THREE.Vector3(x * this.interval.x * 10, -limit,0);
+            p2 = new THREE.Vector3(x * this.interval.x* 10, limit,0);
+            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
+            l.visible = this.visible;
+            this.lines.push(l);
+        }
+
+        for (y = -limit/10 / this.interval.y; y <= limit/10 / this.interval.y ; y++) {
+            p1 = new THREE.Vector3(-limit, y * this.interval.y * 10, 0);
+            p2 = new THREE.Vector3(limit, y * this.interval.y * 10, 0);
+            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
+            l.visible = this.visible;
+            this.lines.push(l);
+        }
+
+        myself.reRender();
+    };
+
+    this.scene.grid.setInterval = function (aPoint) {
+        this.interval = aPoint;
+        this.draw();
+    };
+
+    this.scene.grid.setColor = function (color) {
+        this.lines.forEach(function (eachLine) {
+            eachLine.material.color.setHex(color);
+        });
+    };
+
+    this.scene.grid.toggle = function () {
+        var myInnerSelf = this;
+        this.visible = !this.visible;
+        this.lines.forEach(function (line){ line.visible = myInnerSelf.visible; });
+        myself.reRender();
+    };
+
+};
+
+StageMorph.prototype.clearAll = function () {
+    /*for (var i = this.myObjects.children.length - 1; i >= 0; i--) {
+        this.myObjects.remove(this.myObjects.children[i]);
+    }*/
+    for (i = this.myStitchPoints.children.length - 1; i >= 0; i--) {
+        this.myStitchPoints.remove(this.myStitchPoints.children[i]);
+    }
+    for (i = this.myStitchLines.children.length - 1; i >= 0; i--) {
+        this.myStitchLines.remove(this.myStitchLines.children[i]);
+    }
+    for (i = this.myJumpLines.children.length - 1; i >= 0; i--) {
+        this.myJumpLines.remove(this.myJumpLines.children[i]);
+    }
+
+    this.renderer.clear();
+};
+
+StageMorph.prototype.initRenderer = function () {
+    var myself = this;
+
+    this.renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        canvas: this.penTrails()
+    });
+    this.renderer.setClearColor(0xffffff, 1);
+
+    this.renderer.changed = false;
+    this.renderer.showingAxes = true;
+    this.renderer.showingStitchPoints = true;
+    this.renderer.showingJumpLines = true;
+    this.renderer.showingTurtle = true;
+    this.renderer.isParallelProjection = true;
+
+
+    this.renderer.toggleJumpLines = function () {
+        var myInnerSelf = this;
+        this.showingJumpLines = !this.showingJumpLines;
+        myself.myJumpLines.children.forEach(function (eachObject) {
+            eachObject.visible = myInnerSelf.showingJumpLines;
+        });
+        myself.reRender();
+    };
+
+    this.renderer.toggleStitchPoints = function () {
+        var myInnerSelf = this;
+        this.showingStitchPoints = !this.showingStitchPoints;
+        myself.myStitchPoints.children.forEach(function (eachObject) {
+            eachObject.visible = myInnerSelf.showingStitchPoints;
+        });
+        myself.reRender();
+    };
+
+    this.renderer.toggleTurtle = function () {
+        var myInnerSelf = this;
+        this.showingTurtle = !this.showingTurtle;
+        myself.turtle.visible = myInnerSelf.showingTurtle;
+        myself.reRender();
+    };
+
+};
+
+
+StageMorph.prototype.render = function () {
+    this.renderer.render(this.scene, this.camera);
+};
+
+StageMorph.prototype.renderCycle = function () {
+    if (this.renderer.changed) {
+        this.render();
+        this.changed();
+        this.parentThatIsA(IDE_Morph).statusDisplay.refresh();
+        this.renderer.changed = false;
+    }
+};
+
+StageMorph.prototype.reRender = function () {
+    this.renderer.changed = true;
+};
+
+StageMorph.prototype.initCamera = function () {
+    var myself = this,
+        threeLayer;
+
+    if (this.scene.camera) { this.scene.remove(this.camera); }
+
+    var createCamera = function () {
+        threeLayer = document.createElement('div');
+
+        if (myself.renderer.isParallelProjection) {
+            var zoom = myself.camera ? myself.camera.zoomFactor : 82,
+                width = Math.max(myself.width(), 480),
+                height = Math.max(myself.height(), 360);
+
+            myself.camera = new THREE.OrthographicCamera(
+                    width / - zoom,
+                    width / zoom,
+                    height / zoom,
+                    height / - zoom,
+                    0.1,
+                    10000);
+        } else {
+            myself.camera = new THREE.PerspectiveCamera(60, 480/360);
+        }
+
+        // We need to implement zooming ourselves for parallel projection
+
+        myself.camera.zoomIn = function () {
+            this.zoomFactor /= 1.1;
+            this.applyZoom();
+        };
+        myself.camera.zoomOut = function () {
+            this.zoomFactor *= 1.1;
+            this.applyZoom();
+        };
+
+        myself.camera.applyZoom = function () {
+            var zoom = myself.camera ? myself.camera.zoomFactor : 82,
+                width = Math.max(myself.width(), 480),
+                height = Math.max(myself.height(), 360);
+            this.left = width / - zoom;
+            this.right = width / zoom;
+            this.top = height / zoom;
+            this.bottom = height / - zoom;
+            this.updateProjectionMatrix();
+        };
+
+        myself.camera.reset = function () {
+
+            myself.controls = new THREE.OrbitControls(this, threeLayer);
+            myself.controls.addEventListener('change', function (event) { myself.render(); });
+
+            if (myself.renderer.isParallelProjection) {
+                this.zoomFactor = 2;
+                this.applyZoom();
+                this.position.set(0,0,10);
+                //myself.controls.rotateLeft(radians(90));
+            } else {
+                this.position.set(0,0,10);
+            }
+
+            myself.controls.update();
+            myself.reRender();
+        };
+
+        myself.camera.fitScene = function () {
+
+            var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
+                boundingSphere = boundingBox.getBoundingSphere(),
+                center = boundingSphere.center,
+                distance = boundingSphere.radius;
+
+            this.reset();
+
+            this.position.set(center.x, center.y, center.z);
+            this.translateZ(distance * 1.2);
+
+            myself.controls.center.set(center.x, center.y, center.z);
+            myself.controls.dollyOut(1.2);
+            myself.controls.update();
+            myself.reRender();
+        };
+    };
+
+    createCamera();
+    this.scene.add(this.camera);
+    this.camera.reset();
+};
+
+StageMorph.prototype.initTurtle = function() {
+    var myself = this;
+    var geometry = new THREE.Geometry();
+    var material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+
+    geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
+         new THREE.Vector3(-8, 8, 0.02),
+         new THREE.Vector3(-8,-8, 0.02),
+    ];
+    geometry.faces.push(new THREE.Face3(0, 1, 2));
+    geometry.verticesNeedUpdate = true;
+    this.turtle = new THREE.Mesh( geometry, material );
+    this.turtle.visible = this.renderer.showingTurtle;
+    myself.myObjects.add(this.turtle);
+
+    this.drawingColor = new THREE.Color("rgb(0, 0, 0)");
+    this.penSize = 1.2;
+};
+
+StageMorph.prototype.moveTurtle = function(x, y) {
+    this.turtle.position.x = x;
+    this.turtle.position.y = y;
+};
+
+StageMorph.prototype.setColor = function(c) {
+    this.drawingColor =
+        new THREE.Color("rgb(" + Math.round(c.r) + "," + Math.round(c.g) + "," + Math.round(c.b)  + ")");
+};
+
+
+StageMorph.prototype.setPenSize = function(s) {
+    this.penSize = s;
+};
+
+
+
+StageMorph.prototype.rotateTurtle = function(h) {
+    this.turtle.rotation.z = (90 -h) * Math.PI / 180;
+    this.renderer.changed = true;
+};
+
+
+
+StageMorph.prototype.originalStep = StageMorph.prototype.step;
+StageMorph.prototype.step = function () {
+    this.originalStep();
+
+    // update Beetleblocks, if needed
+    this.renderCycle();
+};
+
+StageMorph.prototype.referencePos = null;
+
+StageMorph.prototype.mouseScroll = function (y, x) {
+    if (this.renderer.isParallelProjection) {
+        if (y > 0) {
+            this.camera.zoomOut();
+        } else if (y < 0) {
+            this.camera.zoomIn();
+        }
+    } else {
+        if (y > 0) {
+            this.controls.dollyOut();
+        } else if (y < 0) {
+            this.controls.dollyIn();
+        }
+        this.controls.update();
+    }
+    this.renderer.changed = true;
+};
+
+StageMorph.prototype.mouseDownLeft = function (pos) {
+    this.referencePos = pos;
+};
+
+StageMorph.prototype.mouseDownRight = function (pos) {
+    this.referencePos = pos;
+};
+
+StageMorph.prototype.mouseMove = function (pos, button) {
+
+    if (this.referencePos === null) { return };
+
+    var factor = this.renderer.isParallelProjection ? 65 / this.camera.zoomFactor : this.controls.object.position.length() / 10,
+        deltaX = (pos.x - this.referencePos.x),
+        deltaY = (pos.y - this.referencePos.y);
+
+    this.referencePos = pos;
+
+    if (button === 'right' || this.world().currentKey === 16 || button === 'left') { // shiftClicked
+        this.controls.panLeft(deltaX / this.dimensions.x / this.scale * 15 * factor);
+        this.controls.panUp(deltaY / this.dimensions.y / this.scale * 10 * factor);
+    } else {
+        var horzAngle = deltaX / (this.dimensions.x * this.scale) * 360;
+        var vertAngle = deltaY / (this.dimensions.y * this.scale) * 360;
+        this.controls.rotateLeft(radians(horzAngle));
+        this.controls.rotateUp(radians(vertAngle));
+    }
+
+    this.controls.update();
+    this.reRender();
+};
+
+StageMorph.prototype.mouseLeave = function () {
+    this.referencePos = null;
+};
+
+StageMorph.prototype.originalAdd = StageMorph.prototype.add;
+StageMorph.prototype.add = function (morph) {
+    this.originalAdd(morph);
+    if (morph instanceof SpriteMorph) {
+        this.scene.add(morph.beetle);
+        this.reRender();
+    }
+};
+
+// We'll never need to clear the pen trails in BeetleBlocks, it only causes the renderer to disappear
+StageMorph.prototype.clearPenTrails = nop;
+
+// StageMorph drawing
+StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
+StageMorph.prototype.drawOn = function (aCanvas, aRect) {
+    // If the scale is lower than 1, we reuse the original method,
+    // otherwise we need to modify the renderer dimensions
+    // we do not need to render the original canvas anymore because
+    // we have removed sprites and backgrounds
+
+    var rectangle, area, delta, src, context, w, h, sl, st;
+    if (!this.isVisible) {
+        return null;
+    }
+    /*
+    if (this.scale < 1) {
+        return this.originalDrawOn(aCanvas, aRect);
+    }*/
+
+    rectangle = aRect || this.bounds;
+    area = rectangle.intersect(this.bounds).round();
+    if (area.extent().gt(new Point(0, 0))) {
+        delta = this.position().neg();
+        src = area.copy().translateBy(delta).round();
+        context = aCanvas.getContext('2d');
+        context.globalAlpha = this.alpha;
+
+        sl = src.left();
+        st = src.top();
+        w = Math.min(src.width(), this.image.width - sl);
+        h = Math.min(src.height(), this.image.height - st);
+
+        if (w < 1 || h < 1) {
+            return null;
+        }
+        // we only draw pen trails!
+        context.save();
+        context.clearRect(
+            area.left(),
+            area.top() ,
+            w,
+            h);
+        try {
+            context.drawImage(
+                this.penTrails(),
+                sl,
+                st,
+                w,
+                h,
+                area.left(),
+                area.top(),
+                w,
+                h
+            );
+        } catch (err) { // sometimes triggered only by Firefox
+            console.log(err);
+        }
+        context.restore();
+    }
+};
+
+StageMorph.prototype.originalSetScale = StageMorph.prototype.setScale;
+StageMorph.prototype.setScale = function (number) {
+    this.scaleChanged = true;
+    this.originalSetScale(number);
+    this.camera.aspect = this.extent().x / this.extent().y;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(this.extent().x, this.extent().y);
+    this.renderer.changed = true;
+};
+
+
+// Contextual menu
+StageMorph.prototype.userMenu = function () {
+    var ide = this.parentThatIsA(IDE_Morph),
+        menu = new MenuMorph(this),
+        shiftClicked = this.world().currentKey === 16,
+        myself = this;
+
+    if (ide && ide.isAppMode) {
+        menu.hide();
+        return menu;
+    }
+    menu.addItem(
+            'pic...',
+            function () {
+                window.open(myself.fullImageClassic().toDataURL());
+            },
+            'open a new window\nwith a picture of the scene'
+            );
+    return menu;
+};
+
+// SpriteMorph block templates
+
+SpriteMorph.prototype.blockTemplates = function (category) {
+    var blocks = [], myself = this, varNames, button,
+        cat = category || 'motion', txt,
+        inheritedVars = this.inheritedVariableNames();
+
+    function block(selector) {
+        if (StageMorph.prototype.hiddenPrimitives[selector]) {
+            return null;
+        }
+        var newBlock = SpriteMorph.prototype.blockForSelector(selector, true);
+        newBlock.isTemplate = true;
+        return newBlock;
+    }
+
+    function variableBlock(varName) {
+        var newBlock = SpriteMorph.prototype.variableBlock(varName);
+        newBlock.isDraggable = false;
+        newBlock.isTemplate = true;
+        if (contains(inheritedVars, varName)) {
+            newBlock.ghost();
+        }
+        return newBlock;
+    }
+
+    function watcherToggle(selector) {
+        if (StageMorph.prototype.hiddenPrimitives[selector]) {
+            return null;
+        }
+        var info = SpriteMorph.prototype.blocks[selector];
+        return new ToggleMorph(
+            'checkbox',
+            this,
+            function () {
+                myself.toggleWatcher(
+                    selector,
+                    localize(info.spec),
+                    myself.blockColor[info.category]
+                );
+            },
+            null,
+            function () {
+                return myself.showingWatcher(selector);
+            },
+            null
+        );
+    }
+
+    function variableWatcherToggle(varName) {
+        return new ToggleMorph(
+            'checkbox',
+            this,
+            function () {
+                myself.toggleVariableWatcher(varName);
+            },
+            null,
+            function () {
+                return myself.showingVariableWatcher(varName);
+            },
+            null
+        );
+    }
+
+    function helpMenu() {
+        var menu = new MenuMorph(this);
+        menu.addItem('help...', 'showHelp');
+        return menu;
+    }
+
+    function addVar(pair) {
+        var ide;
+        if (pair) {
+            if (myself.isVariableNameInUse(pair[0], pair[1])) {
+                myself.inform('that name is already in use');
+            } else {
+                ide = myself.parentThatIsA(IDE_Morph);
+                myself.addVariable(pair[0], pair[1]);
+                if (!myself.showingVariableWatcher(pair[0])) {
+                    myself.toggleVariableWatcher(pair[0], pair[1]);
+                }
+                ide.flushBlocksCache('variables'); // b/c of inheritance
+                ide.refreshPalette();
+            }
+        }
+    }
+
+    if (cat === 'motion') {
+
+        blocks.push(block('forward'));
+        blocks.push(block('turn'));
+        blocks.push(block('turnLeft'));
+        blocks.push('-');
+        blocks.push(block('setHeading'));
+        blocks.push(block('doFaceTowards'));
+        blocks.push('-');
+        blocks.push(block('gotoXY'));
+        blocks.push(block('doGotoObject'));
+        blocks.push(block('doGlide'));
+        blocks.push('-');
+        blocks.push(block('changeXPosition'));
+        blocks.push(block('setXPosition'));
+        blocks.push(block('changeYPosition'));
+        blocks.push(block('setYPosition'));
+        blocks.push('-');
+        blocks.push(block('bounceOffEdge'));
+        blocks.push('-');
+        blocks.push(watcherToggle('xPosition'));
+        blocks.push(block('xPosition'));
+        blocks.push(watcherToggle('yPosition'));
+        blocks.push(block('yPosition'));
+        blocks.push(watcherToggle('direction'));
+        blocks.push(block('direction'));
+
+    } else if (cat === 'looks') {
+
+        blocks.push(block('doSwitchToCostume'));
+        blocks.push(block('doWearNextCostume'));
+        blocks.push(watcherToggle('getCostumeIdx'));
+        blocks.push(block('getCostumeIdx'));
+        blocks.push('-');
+        blocks.push(block('doSayFor'));
+        blocks.push(block('bubble'));
+        blocks.push(block('doThinkFor'));
+        blocks.push(block('doThink'));
+        blocks.push('-');
+        blocks.push(block('changeEffect'));
+        blocks.push(block('setEffect'));
+        blocks.push(block('clearEffects'));
+        blocks.push('-');
+        blocks.push(block('changeScale'));
+        blocks.push(block('setScale'));
+        blocks.push(watcherToggle('getScale'));
+        blocks.push(block('getScale'));
+        blocks.push('-');
+        blocks.push(block('show'));
+        blocks.push(block('hide'));
+        blocks.push('-');
+        blocks.push(block('comeToFront'));
+        blocks.push(block('goBack'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(block('reportCostumes'));
+            blocks.push('-');
+            blocks.push(block('log'));
+            blocks.push(block('alert'));
+            blocks.push('-');
+            blocks.push(block('doScreenshot'));
+        }
+
+    /////////////////////////////////
+
+    } else if (cat === 'sound') {
+
+        blocks.push(block('playSound'));
+        blocks.push(block('doPlaySoundUntilDone'));
+        blocks.push(block('doStopAllSounds'));
+        blocks.push('-');
+        blocks.push(block('doRest'));
+        blocks.push('-');
+        blocks.push(block('doPlayNote'));
+        blocks.push('-');
+        blocks.push(block('doChangeTempo'));
+        blocks.push(block('doSetTempo'));
+        blocks.push(watcherToggle('getTempo'));
+        blocks.push(block('getTempo'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(block('reportSounds'));
+        }
+
+    } else if (cat === 'pen') {
+
+        blocks.push(block('clear'));
+        blocks.push('-');
+        blocks.push(block('down'));
+        blocks.push(block('up'));
+        blocks.push('-');
+        blocks.push(block('setColor'));
+        blocks.push(block('setSize'));
+    } else if (cat === 'control') {
+
+        blocks.push(block('receiveGo'));
+        blocks.push(block('receiveKey'));
+        blocks.push(block('receiveInteraction'));
+        blocks.push(block('receiveCondition'));
+        blocks.push(block('receiveMessage'));
+        blocks.push('-');
+        blocks.push(block('doBroadcast'));
+        blocks.push(block('doBroadcastAndWait'));
+        blocks.push(watcherToggle('getLastMessage'));
+        blocks.push(block('getLastMessage'));
+        blocks.push('-');
+        blocks.push(block('doWarp'));
+        blocks.push('-');
+        blocks.push(block('doWait'));
+        blocks.push(block('doWaitUntil'));
+        blocks.push('-');
+        blocks.push(block('doForever'));
+        blocks.push(block('doRepeat'));
+        blocks.push(block('doUntil'));
+        blocks.push('-');
+        blocks.push(block('doIf'));
+        blocks.push(block('doIfElse'));
+        blocks.push('-');
+        blocks.push(block('doReport'));
+        blocks.push('-');
+    /*
+    // old STOP variants, migrated to a newer version, now redundant
+        blocks.push(block('doStopBlock'));
+        blocks.push(block('doStop'));
+        blocks.push(block('doStopAll'));
+    */
+        blocks.push(block('doStopThis'));
+        blocks.push(block('doStopOthers'));
+        blocks.push('-');
+        blocks.push(block('doRun'));
+        blocks.push(block('fork'));
+        blocks.push(block('evaluate'));
+        blocks.push('-');
+    /*
+    // list variants commented out for now (redundant)
+        blocks.push(block('doRunWithInputList'));
+        blocks.push(block('forkWithInputList'));
+        blocks.push(block('evaluateWithInputList'));
+        blocks.push('-');
+    */
+        blocks.push(block('doCallCC'));
+        blocks.push(block('reportCallCC'));
+        blocks.push('-');
+        blocks.push(block('receiveOnClone'));
+        blocks.push(block('createClone'));
+        blocks.push(block('removeClone'));
+        blocks.push('-');
+        blocks.push(block('doPauseAll'));
+
+    } else if (cat === 'sensing') {
+
+        blocks.push(block('reportTouchingObject'));
+        blocks.push(block('reportTouchingColor'));
+        blocks.push(block('reportColorIsTouchingColor'));
+        blocks.push('-');
+        blocks.push(block('doAsk'));
+        blocks.push(watcherToggle('getLastAnswer'));
+        blocks.push(block('getLastAnswer'));
+        blocks.push('-');
+        blocks.push(watcherToggle('reportMouseX'));
+        blocks.push(block('reportMouseX'));
+        blocks.push(watcherToggle('reportMouseY'));
+        blocks.push(block('reportMouseY'));
+        blocks.push(block('reportMouseDown'));
+        blocks.push('-');
+        blocks.push(block('reportKeyPressed'));
+        blocks.push('-');
+        blocks.push(block('reportDistanceTo'));
+        blocks.push('-');
+        blocks.push(block('doResetTimer'));
+        blocks.push(watcherToggle('getTimer'));
+        blocks.push(block('getTimer'));
+        blocks.push('-');
+        blocks.push(block('reportAttributeOf'));
+
+        if (SpriteMorph.prototype.enableFirstClass) {
+            blocks.push(block('reportGet'));
+        }
+        blocks.push('-');
+
+        blocks.push(block('reportURL'));
+        blocks.push('-');
+        blocks.push(block('reportIsFastTracking'));
+        blocks.push(block('doSetFastTracking'));
+        blocks.push('-');
+        blocks.push(block('reportDate'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(watcherToggle('reportThreadCount'));
+            blocks.push(block('reportThreadCount'));
+            blocks.push(block('colorFiltered'));
+            blocks.push(block('reportStackSize'));
+            blocks.push(block('reportFrameCount'));
+        }
+
+    } else if (cat === 'operators') {
+
+        blocks.push(block('reifyScript'));
+        blocks.push(block('reifyReporter'));
+        blocks.push(block('reifyPredicate'));
+        blocks.push('#');
+        blocks.push('-');
+        blocks.push(block('reportSum'));
+        blocks.push(block('reportDifference'));
+        blocks.push(block('reportProduct'));
+        blocks.push(block('reportQuotient'));
+        blocks.push('-');
+        blocks.push(block('reportModulus'));
+        blocks.push(block('reportRound'));
+        blocks.push(block('reportMonadic'));
+        blocks.push(block('reportRandom'));
+        blocks.push('-');
+        blocks.push(block('reportLessThan'));
+        blocks.push(block('reportEquals'));
+        blocks.push(block('reportGreaterThan'));
+        blocks.push('-');
+        blocks.push(block('reportAnd'));
+        blocks.push(block('reportOr'));
+        blocks.push(block('reportNot'));
+        blocks.push(block('reportBoolean'));
+        blocks.push('-');
+        blocks.push(block('reportJoinWords'));
+        blocks.push(block('reportTextSplit'));
+        blocks.push(block('reportLetter'));
+        blocks.push(block('reportStringSize'));
+        blocks.push('-');
+        blocks.push(block('reportUnicode'));
+        blocks.push(block('reportUnicodeAsLetter'));
+        blocks.push('-');
+        blocks.push(block('reportIsA'));
+        blocks.push(block('reportIsIdentical'));
+        blocks.push('-');
+        blocks.push(block('reportJSFunction'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(block('reportTypeOf'));
+            blocks.push(block('reportTextFunction'));
+        }
+
+    /////////////////////////////////
+
+    } else if (cat === 'variables') {
+
+        button = new PushButtonMorph(
+            null,
+            function () {
+                new VariableDialogMorph(
+                    null,
+                    addVar,
+                    myself
+                ).prompt(
+                    'Variable name',
+                    null,
+                    myself.world()
+                );
+            },
+            'Make a variable'
+        );
+        button.userMenu = helpMenu;
+        button.selector = 'addVariable';
+        button.showHelp = BlockMorph.prototype.showHelp;
+        blocks.push(button);
+
+        if (this.deletableVariableNames().length > 0) {
+            button = new PushButtonMorph(
+                null,
+                function () {
+                    var menu = new MenuMorph(
+                        myself.deleteVariable,
+                        null,
+                        myself
+                    );
+                    myself.deletableVariableNames().forEach(function (name) {
+                        menu.addItem(name, name);
+                    });
+                    menu.popUpAtHand(myself.world());
+                },
+                'Delete a variable'
+            );
+            button.userMenu = helpMenu;
+            button.selector = 'deleteVariable';
+            button.showHelp = BlockMorph.prototype.showHelp;
+            blocks.push(button);
+        }
+
+        blocks.push('-');
+
+        varNames = this.variables.allNames();
+        if (varNames.length > 0) {
+            varNames.forEach(function (name) {
+                blocks.push(variableWatcherToggle(name));
+                blocks.push(variableBlock(name));
+            });
+            blocks.push('-');
+        }
+
+        blocks.push(block('doSetVar'));
+        blocks.push(block('doChangeVar'));
+        blocks.push(block('doShowVar'));
+        blocks.push(block('doHideVar'));
+        blocks.push(block('doDeclareVariables'));
+
+    // inheritance:
+
+        if (StageMorph.prototype.enableInheritance) {
+            blocks.push('-');
+            blocks.push(block('doDeleteAttr'));
+        }
+
+    ///////////////////////////////
+
+        blocks.push('=');
+
+        blocks.push(block('reportNewList'));
+        blocks.push('-');
+        blocks.push(block('reportCONS'));
+        blocks.push(block('reportListItem'));
+        blocks.push(block('reportCDR'));
+        blocks.push('-');
+        blocks.push(block('reportListLength'));
+        blocks.push(block('reportListContainsItem'));
+        blocks.push('-');
+        blocks.push(block('doAddToList'));
+        blocks.push(block('doDeleteFromList'));
+        blocks.push(block('doInsertInList'));
+        blocks.push(block('doReplaceInList'));
+
+    // for debugging: ///////////////
+
+        if (this.world().isDevMode) {
+            blocks.push('-');
+            txt = new TextMorph(localize(
+                'development mode \ndebugging primitives:'
+            ));
+            txt.fontSize = 9;
+            txt.setColor(this.paletteTextColor);
+            blocks.push(txt);
+            blocks.push('-');
+            blocks.push(block('reportMap'));
+            blocks.push('-');
+            blocks.push(block('doForEach'));
+            blocks.push(block('doShowTable'));
+        }
+
+    /////////////////////////////////
+
+        blocks.push('=');
+
+        if (StageMorph.prototype.enableCodeMapping) {
+            blocks.push(block('doMapCodeOrHeader'));
+            blocks.push(block('doMapStringCode'));
+            blocks.push(block('doMapListCode'));
+            blocks.push('-');
+            blocks.push(block('reportMappedCode'));
+            blocks.push('=');
+        }
+
+        button = new PushButtonMorph(
+            null,
+            function () {
+                var ide = myself.parentThatIsA(IDE_Morph),
+                    stage = myself.parentThatIsA(StageMorph);
+                new BlockDialogMorph(
+                    null,
+                    function (definition) {
+                        if (definition.spec !== '') {
+                            if (definition.isGlobal) {
+                                stage.globalBlocks.push(definition);
+                            } else {
+                                myself.customBlocks.push(definition);
+                            }
+                            ide.flushPaletteCache();
+                            ide.refreshPalette();
+                            new BlockEditorMorph(definition, myself).popUp();
+                        }
+                    },
+                    myself
+                ).prompt(
+                    'Make a block',
+                    null,
+                    myself.world()
+                );
+            },
+            'Make a block'
+        );
+        button.userMenu = helpMenu;
+        button.selector = 'addCustomBlock';
+        button.showHelp = BlockMorph.prototype.showHelp;
+        blocks.push(button);
+    }
+    return blocks;
+};
