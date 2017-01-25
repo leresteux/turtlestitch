@@ -29,15 +29,15 @@ tempDict = {
 	'clear':
 		'l\u00f6schen',
 	'Export as SVG':
-		'Zeichnung als SVG exportieren',
+		'Als SVG exportieren',
 	'Export as Melco/EXP':
-		'Zeichnung als Melco/EXP exportieren',
+		'Als Melco/EXP exportieren',
 	'Export current drawing as SVG Vector file':
 		'Exportiert die aktuelle Zeichnung als Vektorgrafik im SVG Format',
 	'Export current drawing as EXP/Melco Embroidery file':
 		'Exportiert die aktuelle Zeichnung als Stickmuster im EXP/Melco Format',
 	'Export as Tajima/DST':
-		'Zeichnung als Tajima/DST exportieren',
+		'Als Tajima/DST exportieren',
 	'Export current drawing as DST/Tajima Embroidery file':
 		'Exportiert die aktuelle Zeichnung als Stickmuster im Tajima/DST Format'
 };
