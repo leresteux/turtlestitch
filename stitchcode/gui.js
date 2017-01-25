@@ -812,12 +812,18 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     var downloadEXPButton = new PushButtonMorph(
         null,
         function () { myself.downloadEXP(); },
-        'Export as EXP'
+        'Export as Melco/EXP'
     );
-    downloadEXPButton.newLines = 1;
+    downloadEXPButton.newLines = 1.7;
     elements.push(downloadEXPButton);
 
-
+    var downloadDSTButton = new PushButtonMorph(
+        null,
+        function () { myself.downloadDST(); },
+        'Export as Tajima/DST'
+    );
+    downloadDSTButton.newLines = 1.7;
+    elements.push(downloadDSTButton);
 
     elements.forEach(function(each) { myself.statusDisplay.addElement(each); });
 };
@@ -904,6 +910,13 @@ IDE_Morph.prototype.downloadEXP = function() {
     expUintArr = this.stage.turtleShepherd.toEXP();
     blob = new Blob([expUintArr], {type: 'application/octet-stream'});
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.exp');
+};
+
+// DST export
+IDE_Morph.prototype.downloadDST = function() {
+    expUintArr = this.stage.turtleShepherd.toDST();
+    blob = new Blob([expUintArr], {type: 'application/octet-stream'});
+    saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.dst');
 };
 
 IDE_Morph.prototype.saveToDisk = function() {
@@ -1442,9 +1455,15 @@ IDE_Morph.prototype.projectMenu = function () {
             'Export current drawing as SVG Vector file'
     );
     menu.addItem(
-            'Export as EXP',
+            'Export as Melco/EXP',
             function() { myself.downloadEXP(); },
-            'Export current drawing as EXP Embroidery file'
+            'Export current drawing as EXP/Melco Embroidery file'
+    );
+
+    menu.addItem(
+            'Export as Tajima/DST',
+            function() { myself.downloadDST(); },
+            'Export current drawing as DST/Tajima Embroidery file'
     );
 /*
     menu.addLine();

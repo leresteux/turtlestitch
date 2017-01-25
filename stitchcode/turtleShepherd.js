@@ -187,7 +187,7 @@ TurtleShepherd.prototype.toSVG = function() {
     return svgStr;
 };
 
-TurtleShepherd.prototype.toEXP= function() {
+TurtleShepherd.prototype.toEXP = function() {
     var expArr = [];
     pixels_per_millimeter = 5;
     scale = 10 / pixels_per_millimeter;
@@ -235,6 +235,181 @@ TurtleShepherd.prototype.toEXP= function() {
             }
         }
     }
+
+    expUintArr = new Uint8Array(expArr.length);
+    for (i=0;i<expArr.length;i++) {
+        expUintArr[i] = Math.round(expArr[i]);
+    }
+    return expUintArr;
+};
+
+
+TurtleShepherd.prototype.toDST = function() {
+    var expArr = [];
+
+    pixels_per_millimeter = 5;
+    scale = 10 / pixels_per_millimeter;
+
+    function encodeTajimaStitch(dx, dy, jump) {
+        b1 = 0;
+        b2 = 0;
+        b3 = 0;
+
+        if (dx > 40) {
+                b3 |= 0x04;
+                dx -= 81;
+        }
+
+        if (dx < -40) {
+                b3 |= 0x08;
+                dx += 81;
+        }
+
+        if (dy > 40) {
+                b3 |= 0x20;
+                dy -= 81;
+        }
+
+        if (dy < -40) {
+                b3 |= 0x10;
+                dy += 81;
+        }
+
+        if (dx > 13) {
+                b2 |= 0x04;
+                dx -= 27;
+        }
+
+        if (dx < -13) {
+                b2 |= 0x08;
+                dx += 27;
+        }
+
+        if (dy > 13) {
+                b2 |= 0x20;
+                dy -= 27;
+        }
+
+        if (dy < -13) {
+                b2 |= 0x10;
+                dy += 27;
+        }
+
+        if (dx > 4) {
+                b1 |= 0x04;
+                dx -= 9;
+        }
+
+        if (dx < -4) {
+                b1 |= 0x08;
+                dx += 9;
+        }
+
+        if (dy > 4) {
+                b1 |= 0x20;
+                dy -= 9;
+        }
+
+        if (dy < -4) {
+                b1 |= 0x10;
+                dy += 9;
+        }
+
+        if (dx > 1) {
+                b2 |= 0x01;
+                dx -= 3;
+        }
+
+        if (dx < -1) {
+                b2 |= 0x02;
+                dx += 3;
+        }
+
+        if (dy > 1) {
+                b2 |= 0x80;
+                dy -= 3;
+        }
+
+        if (dy < -1) {
+                b2 |= 0x40;
+                dy += 3;
+        }
+
+        if (dx > 0) {
+                b1 |= 0x01;
+                dx -= 1;
+        }
+
+        if (dx < 0) {
+                b1 |= 0x02;
+                dx += 1;
+        }
+
+        if (dy > 0) {
+                b1 |= 0x80;
+                dy -= 1;
+        }
+
+        if (dy < 0) {
+                b1 |= 0x40;
+                dy += 1;
+        }
+
+        expArr.push(b1);
+        expArr.push(b2);
+        if (jump) {
+            expArr.push(b3 | 0x83);
+        } else {
+            expArr.push(b3 | 0x03);
+        }
+    }
+
+    // Print empty header
+    for (var i=0; i<512; i++) {
+        expArr.push(0x00);
+    }
+
+    for (i=1; i< this.cache.length; i++) {
+        x1 = Math.round(this.cache[i].x * scale);
+        y1 = Math.round(this.cache[i].y * scale);
+        x0 = Math.round(this.cache[i-1].x * scale);
+        y0 = Math.round(this.cache[i-1].y * scale);
+
+        sum_x = 0;
+        sum_y = 0;
+        dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+        dsteps = Math.abs(dmax / 127) + 1;
+        if (dsteps == 1) {
+            encodeTajimaStitch((x1 - x0), (y1 - y0),
+                !this.cache[i].penDown);
+        } else {
+            for(j=0;j<dsteps;j++) {
+                //if (tStitch.stitches.jump[i])  {
+                //	expArr.push(0x80);
+                //	expArr.push(0x04);
+                //}
+                if (j < dsteps -1) {
+                    encodeTajimaStitch(
+                        Math.round((x1 - x0)/dsteps),
+                        Math.round((y1 - y0)/dsteps),
+                        !this.cache[i].penDown
+                    );
+                    sum_x += (x1 - x0)/dsteps;
+                    sum_y += (y1 - y0)/dsteps;
+                } else {
+                    encodeTajimaStitch(
+                        Math.round((x1 - x0) - sum_x),
+                        Math.round((y1 - y0) - sum_y),
+                        !this.cache[i].penDown
+                    );
+                }
+            }
+        }
+    }
+
+    expArr.push(0x00);
+    expArr.push(0x00);
+    expArr.push(0xF3);
 
     expUintArr = new Uint8Array(expArr.length);
     for (i=0;i<expArr.length;i++) {
