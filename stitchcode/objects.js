@@ -383,6 +383,7 @@ StageMorph.prototype.initRenderer = function () {
 
     this.renderer = new THREE.WebGLRenderer({
         antialias: true,
+        alpha: true,
         canvas: this.penTrails()
     });
     this.renderer.setClearColor(0xffffff, 1);
