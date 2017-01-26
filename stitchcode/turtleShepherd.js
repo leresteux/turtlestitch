@@ -110,11 +110,7 @@ TurtleShepherd.prototype.toSVG = function() {
     var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
     svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
     svgStr += '<svg width="' + (this.w) + '" height="' + (this.h) + '"' +
-        ' viewBox="' +
-            (-1 * this.w / 2) + ' ' +
-            (-1 * this.h / 2) + ' ' +
-            (this.w) + ' ' +
-            (this.h) + '"';
+        ' viewBox="0 0 ' + (this.w) + ' ' + (this.h) + '"';
     svgStr += ' xmlns="http://www.w3.org/2000/svg" version="1.1">\n';
     svgStr += '<title>Embroidery export</title>\n';
 
@@ -127,9 +123,9 @@ TurtleShepherd.prototype.toSVG = function() {
             if (!hasFirst) {
                 if (stitch.penDown) {
                     svgStr += '<path fill="none" stroke="black" d="M ' +
-                        (this.initX) +
+                        (this.initX - this.minX) +
                         ' ' +
-                        -(this.initY) ;
+                        (this.maxY - this.initY) ;
                     hasFirst = true;
                     tagOpen = true;
                 } else {
@@ -151,18 +147,18 @@ TurtleShepherd.prototype.toSVG = function() {
                 if (this.cache[i].penDown ) {
                     if (!this.cache[i-1].penDown ) {
                         svgStr +='  <path fill="none" stroke="black" d="M ' +
-                            (this.cache[i-1].x) +
+                            (this.cache[i-1].x - this.minX) +
                             ' ' +
-                            -(this.cache[i-1].y) +
+                            (this.cache[i-1].y - this.minY ) +
                             ' L ' +
-                            (stitch.x) +
+                            (stitch.x - this.minX) +
                             ' ' +
-                            -(stitch.y);
+                            (this.maxY -  stitch.y);
                     }
                     svgStr += ' L ' +
-                        (stitch.x) +
+                        (stitch.x- this.minX) +
                         ' ' +
-                        -(stitch.y);
+                        (this.maxY - stitch.y);
                     tagOpen = true;
                 } else {
                     if (tagOpen) svgStr += '" />\n';
