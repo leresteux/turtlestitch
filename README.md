@@ -7,16 +7,17 @@ The generated patterns can be exported as a embroidery file (currently Melco/EXP
 
 TurtleStitch is based on [Snap<i>!</i> Build Your Own Blocks](http://snap.berkeley.edu) written by Jens Mönig and Brian Harvey.
 
-It uses webgl ([ThreeJS](http://threejs.org)) as rendering engine for performance as smooth as possible.
+It uses webgl [ThreeJS](http://threejs.org) as rendering engine for performance as smooth as possible.
 
 
 ## Try it
 
-You can try [latest development version from the git master branch](https://backface.github.io/turtlestitch/)
+You can try [latest development version from the git master branch](https://backface.github.io/turtlestitch/) via github pages.
 
-Check out the platform including a stable version and more infos on:
+Be sure to check out the platform, including a stable version, gallery, more infos, etc... on
 
-#http://www.turtlestitch.com
+## http://www.turtlestitch.org
+
 
 
 ## Acknowledgements / License
@@ -24,7 +25,7 @@ Check out the platform including a stable version and more infos on:
 Snap! Build Your Own Blocks [http://snap.berkeley.edu] is a 
 visual, blocks based programming language inspired by Scratch
 
-Copyright (C) 2016 by Jens Mönig and Brian Harvey
+Copyright (C) 2017 by Jens Mönig and Brian Harvey
 
 Snap! is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
