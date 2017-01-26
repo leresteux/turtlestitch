@@ -70,6 +70,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 SpriteMorph.prototype.addStitchPoint = function(x1, y1) {
     var stage = this.parentThatIsA(StageMorph);
 
+    /*
     var geometry = new THREE.CircleGeometry( 1.2, 6 );
     geometry.vertices.shift();
     var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
@@ -78,8 +79,29 @@ SpriteMorph.prototype.addStitchPoint = function(x1, y1) {
     circle.translateY(y1);
     circle.translateZ(0.01);
     circle.visible = stage.renderer.showingStitchPoints;
-
     stage.myStitchPoints.add(circle);
+    */
+
+    var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+    var geometry = new THREE.Geometry();
+    geometry.vertices = [
+        new THREE.Vector3(x1-1.5, y1-1.5, 0.01),
+        new THREE.Vector3(x1+1.5, y1+1.5, 0.01),
+    ];
+    line = new THREE.Line(geometry, material);
+    line.visible = stage.renderer.showingStitchPoints;
+    stage.myStitchPoints.add(line);
+
+    geometry = new THREE.Geometry();
+    geometry.vertices = [
+        new THREE.Vector3(x1+1.5, y1-1.5, 0.01),
+        new THREE.Vector3(x1-1.5, y1+1.5, 0.01),
+    ];
+    line = new THREE.Line(geometry, material);
+    line.visible = stage.renderer.showingStitchPoints;
+    stage.myStitchPoints.add(line);
+
+
 
     stage.reRender();
 };
