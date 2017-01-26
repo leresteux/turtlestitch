@@ -540,9 +540,24 @@ StageMorph.prototype.initTurtle = function() {
     ];
     geometry.faces.push(new THREE.Face3(0, 1, 2));
     geometry.verticesNeedUpdate = true;
-    this.turtle = new THREE.Mesh( geometry, material );
+    this.turtle = new THREE.Mesh(new THREE.Geometry(), material);
     this.turtle.visible = this.renderer.showingTurtle;
     myself.myObjects.add(this.turtle);
+
+    if (typeof this.turtle.loaded === 'undefined') {
+        var loader = new THREE.OBJLoader();
+        loader.load('stitchcode/assets/turtle.obj', function (object) {
+            this.turtle = object;
+            object.scale.set(4, 4, 4);
+            object.position.z = 0.03;
+            //object.position.set(0,0, 0.01);
+            object.rotation.x = 90 * Math.PI / 180;
+            object.rotation.y = 270 * Math.PI / 180;
+            myself.turtle.add(object);
+            myself.renderer.changed = true;
+            this.turtle.loaded = true;
+        });
+    }
 
     this.drawingColor = new THREE.Color("rgb(0, 0, 0)");
     this.penSize = 1.2;

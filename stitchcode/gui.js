@@ -777,6 +777,26 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     elements.push(toogleTurtleButton);
     elements.push('-');
 
+    var zoomInButton = new PushButtonMorph(
+            null,
+            function () {
+                stage.camera.zoomOut();
+                stage.renderer.changed = true; },
+            '+'
+            );
+    elements.push(zoomInButton);
+
+    var zoomOutButton = new PushButtonMorph(
+            null,
+            function () {
+                stage.camera.zoomIn();
+                stage.renderer.changed = true;
+            },
+            ' - '
+            );
+    elements.push(zoomOutButton);
+
+
     var resetCameraButton = new PushButtonMorph(
             null,
             function () { stage.camera.reset(); },
