@@ -90,9 +90,12 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
     this.w = this.maxX - this.minX;
     this.h = this.maxY - this.minY;
 
-    this.steps++;
+
     if (!penState)
         this.jumpCount++;
+    else {
+        this.steps++;
+    }
 };
 
 
@@ -100,7 +103,12 @@ TurtleShepherd.prototype.addColorChange= function(color) {
     this.cache.push(
         {
             "cmd":"color",
-            "value":color,
+            "color":{
+                r: Math.round(color.r),
+                g: Math.round(color.g),
+                b: Math.round(color.b),
+                a: Math.round(color.a) || 0
+            },
         }
     );
 };
@@ -117,13 +125,24 @@ TurtleShepherd.prototype.toSVG = function() {
     hasFirst = false;
     tagOpen = false;
     lastStitch = null;
+    color = { r:0, g:0, b:0 };
 
     for (var i=0; i < this.cache.length; i++) {
-        if (this.cache[i].cmd == "move") {
+        if (this.cache[i].cmd == "color") {
+            /*if (tagOpen) svgStr += '" />\n';
+            color = {
+                    r: this.cache[i].color.r,
+                    g: this.cache[i].color.g,
+                    b: this.cache[i].color.b
+                };
+            tagOpen = false;*/
+        } else if (this.cache[i].cmd == "move") {
             stitch = this.cache[i];
             if (!hasFirst) {
                 if (stitch.penDown) {
-                    svgStr += '<path fill="none" stroke="black" d="M ' +
+                    svgStr += '<path fill="none" style="stroke:rgb('+
+                        color.r + ',' + color.g + ',' + color.b +
+                        ')" d="M ' +
                         (this.initX - this.minX) +
                         ' ' +
                         (this.maxY - this.initY) ;
@@ -141,17 +160,18 @@ TurtleShepherd.prototype.toSVG = function() {
                         (stitch.y) +
                         '" />\n' ;
                     */
-                    hasFirst = true;
+                    //hasFirst = true;
                 }
 
             } else {
-
                 if (stitch.penDown ) {
-                    if (!this.cache[i-1].penDown ) {
-                        svgStr +='  <path fill="none" stroke="black" d="M ' +
-                            (this.cache[i-1].x - this.minX) +
+                    if (!lastStich.penDown ) {
+                        svgStr +='  <path fill="none" style="stroke:rgb('+
+                            color.r + ',' + color.g + ',' + color.b +
+                            ')" d="M ' +
+                            (lastStich.x - this.minX) +
                             ' ' +
-                            (this.cache[i-1].y - this.minY ) +
+                            (lastStich.y - this.minY ) +
                             ' L ' +
                             (stitch.x - this.minX) +
                             ' ' +
@@ -190,6 +210,8 @@ TurtleShepherd.prototype.toEXP = function() {
     var expArr = [];
     pixels_per_millimeter = 5;
     scale = 10 / pixels_per_millimeter;
+    lastStitch = null;
+    hasFirst = false;
 
     function move(x, y) {
         y *= -1;
@@ -199,39 +221,50 @@ TurtleShepherd.prototype.toEXP = function() {
         expArr.push(Math.round(y));
     }
 
-    for (var i=1; i < this.cache.length; i++) {
-        if (this.cache[i].cmd == "move") {
-            x1 = Math.round(this.cache[i].x * scale);
-            y1 = -Math.round(this.cache[i].y * scale);
-            x0 = Math.round(this.cache[i-1].x * scale);
-            y0 = -Math.round(this.cache[i-1].y * scale);
+    for (var i=0; i < this.cache.length; i++) {
+        if (this.cache[i].cmd == "color") {
+            //expArr.push(0x01);
+            //expArr.push(0x01);
+        } else if (this.cache[i].cmd == "move") {
+            stitch = this.cache[i];
 
-            sum_x = 0;
-            sum_y = 0;
-            dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
-            dsteps = Math.abs(dmax / 127) + 1;
-            if (dsteps == 1) {
-                if (!this.cache[i].penDown) {
-                    expArr.push(0x80);
-                    expArr.push(0x04);
-                }
-                move(Math.round(x1 - x0), Math.round(y1 - y0));
-            } else {
-                for(j=0;j<dsteps;j++) {
-                    if (!this.cache[i].penDown) {
-                        expArr.push(0x80);
-                        expArr.push(0x04);
+            if (hasFirst) {
+                x1 = Math.round(stitch.x * scale);
+                y1 = -Math.round(stitch.y * scale);
+                x0 = Math.round(lastStitch.x * scale);
+                y0 = -Math.round(lastStitch.y * scale);
+
+                sum_x = 0;
+                sum_y = 0;
+                dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+                dsteps = Math.abs(dmax / 127) + 1;
+                if (dsteps == 1) {
+                    if (!stitch.penDown) {
+                        //ignore color
+                        //expArr.push(0x80);
+                        //expArr.push(0x04);
                     }
-                    if (j < dsteps -1) {
-                        move((x1 - x0)/dsteps, (y1 - y0)/dsteps);
-                        sum_x += (x1 - x0)/dsteps;
-                        sum_y += (y1 - y0)/dsteps;
-                    } else {
-                        move(Math.round((x1 - x0) - sum_x),
-                            Math.round((y1 - y0) - sum_y));
+                    move(Math.round(x1 - x0), Math.round(y1 - y0));
+                } else {
+                    for(j=0;j<dsteps;j++) {
+                        if (!stitch.penDown) {
+                            expArr.push(0x80);
+                            expArr.push(0x04);
+                        }
+                        if (j < dsteps -1) {
+                            move((x1 - x0)/dsteps, (y1 - y0)/dsteps);
+                            sum_x += (x1 - x0)/dsteps;
+                            sum_y += (y1 - y0)/dsteps;
+                        } else {
+                            move(Math.round((x1 - x0) - sum_x),
+                                Math.round((y1 - y0) - sum_y));
+                        }
                     }
                 }
+
             }
+            lastStitch = stitch;
+            hasFirst = true;
         }
     }
 
@@ -245,7 +278,8 @@ TurtleShepherd.prototype.toEXP = function() {
 
 TurtleShepherd.prototype.toDST = function() {
     var expArr = [];
-
+    lastStitch = null;
+    hasFirst = false;
     pixels_per_millimeter = 5;
     scale = 10 / pixels_per_millimeter;
 
@@ -368,41 +402,52 @@ TurtleShepherd.prototype.toDST = function() {
         expArr.push(0x00);
     }
 
-    for (i=1; i< this.cache.length; i++) {
-        x1 = Math.round(this.cache[i].x * scale);
-        y1 = Math.round(this.cache[i].y * scale);
-        x0 = Math.round(this.cache[i-1].x * scale);
-        y0 = Math.round(this.cache[i-1].y * scale);
+    for (i=0; i < this.cache.length; i++) {
+        if (this.cache[i].cmd == "color") {
+            //expArr.push(0x01);
+            //expArr.push(0x01);
+        } else if (this.cache[i].cmd == "move") {
+            stitch = this.cache[i];
 
-        sum_x = 0;
-        sum_y = 0;
-        dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
-        dsteps = Math.abs(dmax / 127) + 1;
-        if (dsteps == 1) {
-            encodeTajimaStitch((x1 - x0), (y1 - y0),
-                !this.cache[i].penDown);
-        } else {
-            for(j=0;j<dsteps;j++) {
-                //if (tStitch.stitches.jump[i])  {
-                //	expArr.push(0x80);
-                //	expArr.push(0x04);
-                //}
-                if (j < dsteps -1) {
-                    encodeTajimaStitch(
-                        Math.round((x1 - x0)/dsteps),
-                        Math.round((y1 - y0)/dsteps),
-                        !this.cache[i].penDown
-                    );
-                    sum_x += (x1 - x0)/dsteps;
-                    sum_y += (y1 - y0)/dsteps;
+            if (hasFirst) {
+                x1 = Math.round(stitch.x * scale);
+                y1 = Math.round(stitch.y * scale);
+                x0 = Math.round(lastStitch.x * scale);
+                y0 = Math.round(lastStitch.y * scale);
+
+                sum_x = 0;
+                sum_y = 0;
+                dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+                dsteps = Math.abs(dmax / 127) + 1;
+                if (dsteps == 1) {
+                    encodeTajimaStitch((x1 - x0), (y1 - y0),
+                        !stitch.penDown);
                 } else {
-                    encodeTajimaStitch(
-                        Math.round((x1 - x0) - sum_x),
-                        Math.round((y1 - y0) - sum_y),
-                        !this.cache[i].penDown
-                    );
+                    for(j=0;j<dsteps;j++) {
+                        //if (tStitch.stitches.jump[i])  {
+                        //	expArr.push(0x80);
+                        //	expArr.push(0x04);
+                        //}
+                        if (j < dsteps -1) {
+                            encodeTajimaStitch(
+                                Math.round((x1 - x0)/dsteps),
+                                Math.round((y1 - y0)/dsteps),
+                                !stitch.penDown
+                            );
+                            sum_x += (x1 - x0)/dsteps;
+                            sum_y += (y1 - y0)/dsteps;
+                        } else {
+                            encodeTajimaStitch(
+                                Math.round((x1 - x0) - sum_x),
+                                Math.round((y1 - y0) - sum_y),
+                                !stitch.penDown
+                            );
+                        }
+                    }
                 }
             }
+            lastStitch = stitch;
+            hasFirst = true;
         }
     }
 

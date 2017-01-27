@@ -13,8 +13,14 @@ SpriteMorph.prototype.init = function(globals) {
 
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
     var stage = this.parentThatIsA(StageMorph);
-    var material = new THREE.MeshBasicMaterial(
-        { color: 0x000000, side:THREE.DoubleSide, opacity: 1  } );
+    var material = new THREE.MeshBasicMaterial({
+        color: new THREE.Color("rgb("+
+            Math.round(stage.drawingColor.r) + "," +
+            Math.round(stage.drawingColor.g) + "," +
+            Math.round(stage.drawingColor.b)  + ")" ),
+        side:THREE.DoubleSide,
+        opacity: 1
+    });
     var geometry = new THREE.Geometry();
 
     if (this.stitchLines === null) {
@@ -212,26 +218,26 @@ SpriteMorph.prototype.setColor = function (aColor) {
         this.color = aColor.copy();
     }
     stage.setColor(aColor);
+    stage.turtleShepherd.addColorChange(aColor);
+
 
     // TO DO: set color in turtleShepherd
 };
 
+SpriteMorph.prototype.origSetHue = SpriteMorph.prototype.setHue;
 SpriteMorph.prototype.setHue = function (num) {
     var stage = this.parentThatIsA(StageMorph);
-    var hsv = this.color.hsv();
-    hsv[0] = Math.max(Math.min(+num || 0, 100), 0) / 100;
-    hsv[1] = 1; // we gotta fix this at some time
-    this.color.set_hsv.apply(this.color, hsv);
+    this.origSetHue(num);
     stage.setColor(this.color);
+    stage.turtleShepherd.addColorChange(this.color);
 };
 
+SpriteMorph.prototype.origSetBrightness = SpriteMorph.prototype.setBrightness;
 SpriteMorph.prototype.setBrightness = function (num) {
     var stage = this.parentThatIsA(StageMorph);
-    var hsv = this.color.hsv();
-    hsv[1] = 1; // we gotta fix this at some time
-    hsv[2] = Math.max(Math.min(+num || 0, 100), 0) / 100;
-    this.color.set_hsv.apply(this.color, hsv);
+    this.origSetBrightness(num);
     stage.setColor(this.color);
+    stage.turtleShepherd.addColorChange(this.color);
 };
 
 SpriteMorph.prototype.setSize = function (size) {
@@ -615,7 +621,7 @@ StageMorph.prototype.initTurtle = function() {
         });
     }
 
-    this.drawingColor = new THREE.Color("rgb(0, 0, 0)");
+    this.drawingColor = new Color(0,0,0);
     this.penSize = 0.8;
 };
 
@@ -625,8 +631,7 @@ StageMorph.prototype.moveTurtle = function(x, y) {
 };
 
 StageMorph.prototype.setColor = function(c) {
-    this.drawingColor =
-        new THREE.Color("rgb(" + Math.round(c.r) + "," + Math.round(c.g) + "," + Math.round(c.b)  + ")");
+    this.drawingColor = c;
 };
 
 StageMorph.prototype.setPenSize = function(s) {
