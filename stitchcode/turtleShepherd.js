@@ -116,6 +116,7 @@ TurtleShepherd.prototype.toSVG = function() {
 
     hasFirst = false;
     tagOpen = false;
+    lastStitch = null;
 
     for (var i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "move") {
@@ -142,9 +143,10 @@ TurtleShepherd.prototype.toSVG = function() {
                     */
                     hasFirst = true;
                 }
+
             } else {
 
-                if (this.cache[i].penDown ) {
+                if (stitch.penDown ) {
                     if (!this.cache[i-1].penDown ) {
                         svgStr +='  <path fill="none" stroke="black" d="M ' +
                             (this.cache[i-1].x - this.minX) +
@@ -176,6 +178,7 @@ TurtleShepherd.prototype.toSVG = function() {
                     */
                 }
             }
+            lastStich = stitch;
         }
     }
     if (tagOpen) svgStr += '" />\n';
