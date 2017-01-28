@@ -691,7 +691,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     space.newLines = 0.5;
     elements.push(space);
 
-    elements.push('Total Stitches : ');
+    elements.push(' Total Stitches : ');
     element = new StringMorph();
     element.update = function () {
         this.text = (stage.turtleShepherd.getStepCount()).toString()+ "        ";
@@ -842,8 +842,18 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         function () { myself.downloadDST(); },
         'Export as Tajima/DST'
     );
-    downloadDSTButton.newLines = 1.7;
+    downloadDSTButton.newLines = 2.7;
     elements.push(downloadDSTButton);
+
+
+
+    elements.push(' RENDERER: ');
+    element = new StringMorph();
+    element.update = function () {
+        this.text = stage.renderer_status_msg;
+    };
+    elements.push(element);
+    elements.push('  ');
 
     elements.forEach(function(each) { myself.statusDisplay.addElement(each); });
 };

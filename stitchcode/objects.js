@@ -442,11 +442,20 @@ StageMorph.prototype.clearAll = function () {
 StageMorph.prototype.initRenderer = function () {
     var myself = this;
 
-    this.renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-        canvas: this.penTrails()
-    });
+
+    if (Detector.webgl) {
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            canvas: this.penTrails()
+        });
+        this.renderer_status_msg = "webgl enabled";
+
+    } else {
+        this.renderer = new THREE.CanvasRenderer(
+            {canvas: this.penTrails()});
+        this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
+    }
     this.renderer.setClearColor(0xffffff, 1);
 
     this.renderer.changed = false;

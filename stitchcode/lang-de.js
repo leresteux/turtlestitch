@@ -12,8 +12,8 @@ tempDict = {
 	// UI
 	'Save to Disk':
 		'Sichern auf Festplatte',
-	'Total Stitches : ':
-		'Anzahl der Stiche : ',
+	' Total Stitches : ':
+		' Anzahl der Stiche : ',
     'Jumps':
 		'Sprungstiche',
 	'Jumps : ':
