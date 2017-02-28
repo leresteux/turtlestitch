@@ -716,6 +716,25 @@ StageMorph.prototype.mouseLeave = function () {
     this.referencePos = null;
 };
 
+// StageMorph Mouse Coordinates
+
+StageMorph.prototype.reportMouseX = function () {
+    var world = this.world();
+    if (world) {
+        return ((world.hand.position().x - this.center().x) / this.scale)  / this.camera.zoomFactor * 2 + this.controls.center.x;
+    }
+    return 0;
+};
+
+StageMorph.prototype.reportMouseY = function () {
+    var world = this.world();
+    if (world) {
+        return ((this.center().y - world.hand.position().y) / this.scale)  / this.camera.zoomFactor * 2 + this.controls.center.y;
+    }
+    return 0;
+};
+
+
 StageMorph.prototype.originalAdd = StageMorph.prototype.add;
 StageMorph.prototype.add = function (morph) {
     this.originalAdd(morph);
