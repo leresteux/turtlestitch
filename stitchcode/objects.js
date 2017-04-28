@@ -770,6 +770,13 @@ StageMorph.prototype.add = function (morph) {
 // We'll never need to clear the pen trails in BeetleBlocks, it only causes the renderer to disappear
 StageMorph.prototype.clearPenTrails = nop;
 
+StageMorph.prototype.penTrails = function () {
+    if (!this.trailsCanvas) {
+        this.trailsCanvas = newCanvas(this.dimensions, true);
+    }
+    return this.trailsCanvas;
+};
+
 // StageMorph drawing
 StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
 StageMorph.prototype.drawOn = function (aCanvas, aRect) {
