@@ -58,7 +58,7 @@ BeetleCloud.prototype.get = function (path, callBack, errorCall, errorMsg) {
         };
         request.send();
     } catch (err) {
-        errorCall.call(this, err.toString(), 'BeetleCloud');
+        errorCall.call(this, err.toString(), 'TurtleCloud');
     }
 
 };
@@ -87,13 +87,13 @@ BeetleCloud.prototype.post = function (path, body, callBack, errorCall, errorMsg
                         errorCall.call(
                             this,
                             response.error,
-                            'BeetleCloud'
+                            'TurtleCloud'
                         );
                     } else {
                         callBack.call(
                             null,
                             response.text,
-                            'BeetleCloud'
+                            'TurtleCloud'
                         );
                     }
                 } else {
@@ -107,7 +107,7 @@ BeetleCloud.prototype.post = function (path, body, callBack, errorCall, errorMsg
         };
         request.send(body);
     } catch (err) {
-        errorCall.call(this, err.toString(), 'BeetleCloud');
+        errorCall.call(this, err.toString(), 'TurtleCloud');
     }
 
 };
@@ -145,7 +145,7 @@ BeetleCloud.prototype.shareProject = function (shareOrNot, projectName, callBack
                             errorCall, // error callback
                             (shareOrNot ? 'S' : 'Uns') + 'haring failed'); // error message
                 } else {
-                    errorCall.call(this, 'You are not logged in', 'BeetleCloud');
+                    errorCall.call(this, 'You are not logged in', 'TurtleCloud');
                 }
             },
             errorCall
@@ -185,7 +185,7 @@ BeetleCloud.prototype.saveProject = function (ide, callBack, errorCall) {
                             )
 
                 } else {
-                    errorCall.call(this, 'You are not logged in', 'BeetleCloud');
+                    errorCall.call(this, 'You are not logged in', 'TurtleCloud');
                     return;
                 }
             }
@@ -218,7 +218,7 @@ BeetleCloud.prototype.fetchProject = function (projectName, callBack, errorCall,
             function (user) {
                 var username = publicUsername || user.username;
                 if (!username) {
-                    errorCall.call(this, 'Project could not be fetched', 'BeetleCloud');
+                    errorCall.call(this, 'Project could not be fetched', 'TurtleCloud');
                     return;
                 } else {
                     myself.get(
@@ -242,7 +242,7 @@ BeetleCloud.prototype.deleteProject = function (projectName, callBack, errorCall
     this.checkCredentials(
             function (user) {
                 if (!user.username) {
-                    errorCall.call(this, 'You are not logged in', 'BeetleCloud');
+                    errorCall.call(this, 'You are not logged in', 'TurtleCloud');
                     return;
                 } else {
                     myself.get(
@@ -267,7 +267,7 @@ BeetleCloud.prototype.getProjectList = function (callBack, errorCall) {
     this.checkCredentials(
             function (user) {
                 if (!user.username) {
-                    errorCall.call(this, 'You are not logged in', 'BeetleCloud');
+                    errorCall.call(this, 'You are not logged in', 'TurtleCloud');
                     return;
                 } else {
                     myself.get(
@@ -368,7 +368,7 @@ BeetleCloud.prototype.get = function (path, callBack, errorCall, errorMsg) {
         };
         request.send();
     } catch (err) {
-        errorCall.call(this, err.toString(), 'BeetleCloud');
+        errorCall.call(this, err.toString(), 'TurtleCloud');
     }
 
 };
@@ -397,13 +397,13 @@ BeetleCloud.prototype.post = function (path, body, callBack, errorCall, errorMsg
                         errorCall.call(
                             this,
                             response.error,
-                            'BeetleCloud'
+                            'TurtleCloud'
                         );
                     } else {
                         callBack.call(
                             null,
                             response.text,
-                            'BeetleCloud'
+                            'TurtleCloud'
                         );
                     }
                 } else {
@@ -417,7 +417,7 @@ BeetleCloud.prototype.post = function (path, body, callBack, errorCall, errorMsg
         };
         request.send(body);
     } catch (err) {
-        errorCall.call(this, err.toString(), 'BeetleCloud');
+        errorCall.call(this, err.toString(), 'TurtleCloud');
     }
 
 };
@@ -455,7 +455,7 @@ BeetleCloud.prototype.shareProject = function (shareOrNot, projectName, callBack
                             errorCall, // error callback
                             (shareOrNot ? 'S' : 'Uns') + 'haring failed'); // error message
                 } else {
-                    errorCall.call(this, 'You are not logged in', 'BeetleCloud');
+                    errorCall.call(this, 'You are not logged in', 'TurtleCloud');
                 }
             },
             errorCall
@@ -495,7 +495,7 @@ BeetleCloud.prototype.saveProject = function (ide, callBack, errorCall) {
                             )
 
                 } else {
-                    errorCall.call(this, 'You are not logged in', 'BeetleCloud');
+                    errorCall.call(this, 'You are not logged in', 'TurtleCloud');
                     return;
                 }
             }
@@ -528,7 +528,7 @@ BeetleCloud.prototype.fetchProject = function (projectName, callBack, errorCall,
             function (user) {
                 var username = publicUsername || user.username;
                 if (!username) {
-                    errorCall.call(this, 'Project could not be fetched', 'BeetleCloud');
+                    errorCall.call(this, 'Project could not be fetched', 'TurtleCloud');
                     return;
                 } else {
                     myself.get(
@@ -552,7 +552,7 @@ BeetleCloud.prototype.deleteProject = function (projectName, callBack, errorCall
     this.checkCredentials(
             function (user) {
                 if (!user.username) {
-                    errorCall.call(this, 'You are not logged in', 'BeetleCloud');
+                    errorCall.call(this, 'You are not logged in', 'TurtleCloud');
                     return;
                 } else {
                     myself.get(
@@ -577,7 +577,7 @@ BeetleCloud.prototype.getProjectList = function (callBack, errorCall) {
     this.checkCredentials(
             function (user) {
                 if (!user.username) {
-                    errorCall.call(this, 'You are not logged in', 'BeetleCloud');
+                    errorCall.call(this, 'You are not logged in', 'TurtleCloud');
                     return;
                 } else {
                     myself.get(
