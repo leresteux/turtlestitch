@@ -868,6 +868,36 @@ StageMorph.prototype.userMenu = function () {
     return menu;
 };
 
+SpriteMorph.prototype.resetAll = function () {
+
+    var myself = this;
+
+	myself.gotoXY(0,0);
+	myself.setHeading(90);
+    myself.clear();
+}
+
+
+// Block specs
+
+SpriteMorph.prototype.originalInitBlocks = SpriteMorph.prototype.initBlocks;
+SpriteMorph.prototype.initBlocks = function () {
+
+    var myself = this;
+    this.originalInitBlocks();
+
+    // control
+    this.blocks.resetAll =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        spec: 'reset',
+        category: 'control'
+    };
+};
+
+SpriteMorph.prototype.initBlocks();
+
 // SpriteMorph block templates
 
 SpriteMorph.prototype.blockTemplates = function (category) {
@@ -1077,6 +1107,8 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setSize'));
     } else if (cat === 'control') {
 
+		blocks.push(block('resetAll'));
+		blocks.push('-');
         blocks.push(block('receiveGo'));
         blocks.push(block('receiveKey'));
         blocks.push(block('receiveInteraction'));
