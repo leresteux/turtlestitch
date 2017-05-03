@@ -439,7 +439,7 @@ BeetleCloud.prototype.checkCredentials = function (callback, errorCallback) {
 };
 
 BeetleCloud.prototype.logout = function (callBack, errorCall) {
-    this.get('/users/logout', callBack, errorCall, 'logout failed');
+    this.get('/users/logout', callBack, errorCall, 'logout failed'); 
 };
 
 BeetleCloud.prototype.shareProject = function (shareOrNot, projectName, callBack, errorCall) {
