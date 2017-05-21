@@ -1024,7 +1024,19 @@ ProjectDialogMorph.prototype.rawOpenCloudProject = function (proj) {
 };
 
 
+// gui.js
 
+IDE_Morph.prototype.cloudMenu = function () {
+    var menu,
+        myself = this,
+        world = this.world(),
+        pos = this.controlBar.cloudButton.bottomLeft(),
+        shiftClicked = (world.currentKey === 16);
+
+    menu = new MenuMorph(this);
+        menu.popup(world, pos); 
+   
+};
 
 // store.js
 
