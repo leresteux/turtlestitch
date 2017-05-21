@@ -476,7 +476,6 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         elements = [
         this.logo,
         this.controlBar.projectButton,
-        this.controlBar.cloudButton,
         this.controlBar.settingsButton,
         this.controlBar.stageSizeButton,
         //this.controlBar.largeStageSizeButton,
