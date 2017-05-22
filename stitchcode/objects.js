@@ -386,8 +386,14 @@ StageMorph.prototype.initScene = function () {
 
         this.lines = [];
 
-        limit = this.interval.x * 50;
-
+		c = 2.54;
+		if (myself.turtleShepherd.isMetric()) {
+			this.interval = new Point(5, 5);
+			limit = this.interval.x * 50;
+		} else {
+			this.interval = new Point(Math.round(5 * c), Math.round(5 * c));
+			limit = Math.round(this.interval.x * 50 * c);
+		}
         for (x = -limit / this.interval.x; x <= limit / this.interval.x; x++) {
             p1 = new THREE.Vector3(x * this.interval.x, -limit, 0);
             p2 = new THREE.Vector3(x * this.interval.x, limit, 0);
@@ -404,7 +410,11 @@ StageMorph.prototype.initScene = function () {
             this.lines.push(l);
         }
 
-        limit = this.interval.x * 200;
+		if (myself.turtleShepherd.isMetric())
+			limit = this.interval.x * 200;
+		else
+			limit = Math.round(this.interval.x * 200 * c);
+
 
         for (x = -limit/10 / this.interval.x; x <= limit/10 / this.interval.x; x++) {
             p1 = new THREE.Vector3(x * this.interval.x * 10, -limit,0);

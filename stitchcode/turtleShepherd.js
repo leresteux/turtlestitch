@@ -15,7 +15,9 @@ TurtleShepherd.prototype.init = function() {
     this.showStitches = false;
     this.showGrid = false;
     this.showTurtle = false;
+    this.metric = true;
 };
+
 
 TurtleShepherd.prototype.clear = function() {
     this.cache = [];
@@ -33,6 +35,20 @@ TurtleShepherd.prototype.clear = function() {
     this.jumpCount = 0;
 };
 
+
+TurtleShepherd.prototype.toggleMetric = function() {
+    return this.metric = !this.metric;
+};
+
+TurtleShepherd.prototype.setMetric = function(b) {
+    this.metric = b;
+};
+
+TurtleShepherd.prototype.isMetric = function() {
+    return this.metric;
+};
+
+
 TurtleShepherd.prototype.hasSteps = function() {
     return this.steps > 0;
 };
@@ -45,9 +61,17 @@ TurtleShepherd.prototype.getJumpCount = function() {
 };
 
 TurtleShepherd.prototype.getDimensions = function() {
-    w= ((this.maxX - this.minX)/5).toFixed(2).toString();
-    h= ((this.maxY - this.minY)/5).toFixed(2).toString();
-    return w + " x " + h + " mm";
+	
+	if (this.metric) {
+		c = 1;
+		unit = "mm";
+	} else { 
+		c = 0.03937;
+		unit = "in";
+	}
+    w= ((this.maxX - this.minX)/5 * c).toFixed(2).toString();
+    h= ((this.maxY - this.minY)/5 * c).toFixed(2).toString();
+	return w + " x " + h + " " + unit;
 };
 
 

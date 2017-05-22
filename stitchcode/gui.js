@@ -789,8 +789,24 @@ IDE_Morph.prototype.createStatusDisplay = function () {
             function () {
                 return stage.isFastTracked;
             });
-    toggleTurboButton.newLines = 3;
+    toggleTurboButton.columns = 4;
+    toggleTurboButton.newColumn = 3;
     elements.push(toggleTurboButton);
+    
+    var toggleUnitButton = new ToggleMorph(
+            'checkbox',
+            null,
+            function () {
+                stage.turtleShepherd.toggleMetric();
+                stage.scene.grid.draw();
+                stage.renderer.changed = true;
+            },
+            'Imperial units',
+            function () {
+                return !stage.turtleShepherd.isMetric();
+            });
+    toggleUnitButton.newLines = 3;
+    elements.push(toggleUnitButton);    
 
     var downloadSVGButton = new PushButtonMorph(
         null,
