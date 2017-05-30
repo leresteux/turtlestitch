@@ -7,6 +7,8 @@ IDE_Morph.prototype.originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(isAutoFill) {
     this.originalInit();
     this.padding = 1;
+//    this.isAnimating = false;
+
 };
 
 //  change logo
@@ -1964,4 +1966,46 @@ StageHandleMorph.prototype.fixLayout = function () {
     this.setRight(ide.stage.left());
 
     if (ide) {ide.add(this); } // come to front
+};
+
+
+IDE_Morph.prototype.setStageExtent = function (aPoint) {
+    var myself = this,
+        world = this.world(),
+        ext = aPoint.max(new Point(480, 180));
+
+    function zoom() {
+        myself.step = function () {
+            var delta = ext.subtract(
+                StageMorph.prototype.dimensions
+            ).divideBy(2);
+            if (delta.abs().lt(new Point(5, 5))) {
+                StageMorph.prototype.dimensions = ext;
+                delete myself.step;
+            } else {
+                StageMorph.prototype.dimensions =
+                    StageMorph.prototype.dimensions.add(delta);
+            }
+            myself.stage.setExtent(StageMorph.prototype.dimensions);
+            myself.stage.clearPenTrails();
+            myself.fixLayout();
+            this.setExtent(world.extent());
+            this.stage.initCamera();
+        };
+    }
+
+    this.stageRatio = 1;
+    this.isSmallStage = false;
+    this.controlBar.stageSizeButton.refresh();
+    this.setExtent(world.extent());
+    if (this.isAnimating) {
+        zoom();
+    } else {
+        StageMorph.prototype.dimensions = ext;
+        this.stage.setExtent(StageMorph.prototype.dimensions);
+        this.stage.clearPenTrails();
+        this.fixLayout();
+        this.setExtent(world.extent());
+    }
+    this.stage.initCamera();
 };

@@ -581,7 +581,7 @@ StageMorph.prototype.initCamera = function () {
         };
 
         myself.camera.applyZoom = function () {
-            var zoom = myself.camera ? myself.camera.zoomFactor : 82,
+            var zoom = myself.camera ? myself.camera.zoomFactor : 2,
                 width = Math.max(myself.width(), 480),
                 height = Math.max(myself.height(), 360);
             this.left = width / - zoom;
@@ -597,7 +597,7 @@ StageMorph.prototype.initCamera = function () {
             myself.controls.addEventListener('change', function (event) { myself.render(); });
 
             if (myself.renderer.isParallelProjection) {
-                this.zoomFactor = 2.2;
+                this.zoomFactor = 1.7;
                 this.applyZoom();
                 this.position.set(0,0,10);
                 //myself.controls.rotateLeft(radians(90));
