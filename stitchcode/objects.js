@@ -1437,3 +1437,33 @@ SpriteMorph.prototype.blockTemplates = function (category) {
     }
     return blocks;
 };
+
+SpriteMorph.prototype.bounceOffEdge = function () {
+    // taking nested parts into account
+    var stage = this.parentThatIsA(StageMorph),
+        fb = this.nestingBounds(),
+        dirX,
+        dirY;
+
+    if (!stage) {return null; }
+    if (stage.bounds.containsRectangle(fb)) {return null; }
+
+    dirX = Math.cos(radians(this.heading - 90));
+    dirY = -(Math.sin(radians(this.heading - 90)));
+
+    if (fb.left() < stage.left()) {
+        dirX = Math.abs(dirX);
+    }
+    if (fb.right() > stage.right()) {
+        dirX = -(Math.abs(dirX));
+    }
+    if (fb.top() < stage.top()) {
+        dirY = -(Math.abs(dirY));
+    }
+    if (fb.bottom() > stage.bottom()) {
+        dirY = Math.abs(dirY);
+    }
+
+    this.setHeading(degrees(Math.atan2(-dirY, dirX)) + 90);
+
+};
