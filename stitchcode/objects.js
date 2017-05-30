@@ -45,7 +45,15 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
     stage.myStitchLines.add(line);
     */
 
-    var material = new THREE.LineBasicMaterial( { color: 0x000000 } );
+    //var material = new THREE.LineBasicMaterial( { color: 0x000000 } );
+	var material = new THREE.MeshBasicMaterial({
+        color: new THREE.Color("rgb("+
+            Math.round(stage.drawingColor.r) + "," +
+            Math.round(stage.drawingColor.g) + "," +
+            Math.round(stage.drawingColor.b)  + ")" ),
+        side:THREE.DoubleSide,
+        opacity: 1
+    });    
     var geometry = new THREE.Geometry();
     geometry.vertices = [
         new THREE.Vector3(x1, y1, 0.0),

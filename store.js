@@ -1456,6 +1456,7 @@ SnapSerializer.prototype.openProject = function (project, ide) {
     //})
 
     ide.world().keyboardReceiver = project.stage;
+    ide.stage.initCamera();
 };
 
 // SnapSerializer XML-representation of objects:
