@@ -63,12 +63,14 @@ TurtleShepherd.prototype.getJumpCount = function() {
 TurtleShepherd.prototype.getDimensions = function() {
 	
 	if (this.metric) {
-		c = 1;
-		unit = "mm";
+		//c = 1;
+		//unit = "mm";
+		c = 0.1
+		unit = "cm";
 	} else { 
 		c = 0.03937;
 		unit = "in";
-	}
+	} 
     w= ((this.maxX - this.minX)/5 * c).toFixed(2).toString();
     h= ((this.maxY - this.minY)/5 * c).toFixed(2).toString();
 	return w + " x " + h + " " + unit;
