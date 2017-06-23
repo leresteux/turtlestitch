@@ -940,6 +940,7 @@ IDE_Morph.prototype.downloadDST = function() {
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.dst');
 };
 
+/*
 IDE_Morph.prototype.saveToDisk = function() {
     var myself = this;
 	if (!this.projectName) {
@@ -972,7 +973,7 @@ IDE_Morph.prototype.saveProjectToDisk = function() {
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch_project') + '.xml');
 };
 
-
+*/
 
 IDE_Morph.prototype.setProjectName = function (string) {
     this.projectName = string.replace(/['"]/g, ''); // filter quotation marks
@@ -1468,7 +1469,7 @@ IDE_Morph.prototype.projectMenu = function () {
     menu.addLine();
     menu.addItem('Save', "save");
     menu.addItem('Save As...', 'saveProjectsBrowser');
-    menu.addItem('Save to Disk', 'saveToDisk');
+    //menu.addItem('Save to Disk', 'saveToDisk');
     menu.addLine();
 	menu.addItem(
             'Export as SVG',
