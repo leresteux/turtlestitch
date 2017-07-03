@@ -211,6 +211,30 @@ SpriteMorph.prototype.forward = function (steps) {
     //this.changed();
 };
 
+SpriteMorph.prototype.forwardByNr = function (totalsteps, nr_steps) {
+    stepsize = totalsteps / nr_steps;
+    rest = totalsteps - Math.floor(nr_steps * stepsize);
+    for(i=0;i<nr_steps;i++) {
+		this.forward(stepsize);
+	}
+	if (rest > 1) {
+		this.forward(rest);
+	}
+	
+};
+
+SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
+    nr_steps = totalsteps / stepsize;
+    rest = totalsteps - Math.floor(nr_steps * stepsize);
+    for(i=0;i<nr_steps;i++) {
+		this.forward(stepsize);
+	}
+	if (rest > 1) {
+		this.forward(rest);
+	}
+	
+};
+
 SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
 SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
     var stage = this.parentThatIsA(StageMorph);
@@ -912,6 +936,27 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'reset',
         category: 'control'
     };
+    
+    // control
+    this.blocks.forwardBy =
+    {
+		only: SpriteMorph,
+        type: 'command',        
+        category: 'motion',
+        spec: 'move %n steps by %n steps',
+        defaults: [100,10]
+    };    
+    
+    // control
+    this.blocks.forwardByNr =
+    {
+		only: SpriteMorph,
+        type: 'command',        
+        category: 'motion',
+        spec: 'move %n steps in %n',
+        defaults: [100,10]
+    };      
+
 };
 
 SpriteMorph.prototype.initBlocks();
@@ -1006,6 +1051,9 @@ SpriteMorph.prototype.blockTemplates = function (category) {
     if (cat === 'motion') {
 
         blocks.push(block('forward'));
+        blocks.push(block('forwardBy'));
+        blocks.push(block('forwardByNr'));
+        blocks.push('-');
         blocks.push(block('turn'));
         blocks.push(block('turnLeft'));
         blocks.push('-');
