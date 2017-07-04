@@ -212,15 +212,10 @@ SpriteMorph.prototype.forward = function (steps) {
 };
 
 SpriteMorph.prototype.forwardByNr = function (totalsteps, nr_steps) {
-    stepsize = Math.floor(totalsteps / nr_steps);
-    rest = totalsteps - (nr_steps * stepsize);
+    stepsize = totalsteps / nr_steps;
     for(i=0;i<nr_steps;i++) {
 		this.forward(stepsize);
 	}
-	if (rest > 1) {
-		this.forward(rest);
-	}
-	
 };
 
 SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
@@ -229,7 +224,7 @@ SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
     for(i=0;i<nr_steps;i++) {
 		this.forward(stepsize);
 	}
-	if (rest > 1) {
+	if (rest > 0) {
 		this.forward(rest);
 	}
 	
