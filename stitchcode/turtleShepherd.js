@@ -263,8 +263,9 @@ TurtleShepherd.prototype.toEXP = function() {
                 sum_x = 0;
                 sum_y = 0;
                 dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
-                dsteps = Math.abs(dmax / 127) + 1;
-                if (dsteps == 1) {
+				dsteps = Math.abs(dmax / 127);
+                
+                if (dsteps <= 1) {
                     if (!stitch.penDown) {
                         //ignore color
                         //expArr.push(0x80);
@@ -427,12 +428,13 @@ TurtleShepherd.prototype.toDST = function() {
     for (var i=0; i<512; i++) {
         expArr.push(0x00);
     }
-
+	
     for (i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "color") {
             //expArr.push(0x01);
             //expArr.push(0x01);
         } else if (this.cache[i].cmd == "move") {
+			
             stitch = this.cache[i];
 
             if (hasFirst) {
@@ -443,9 +445,10 @@ TurtleShepherd.prototype.toDST = function() {
 
                 sum_x = 0;
                 sum_y = 0;
-                dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
-                dsteps = Math.abs(dmax / 127) + 1;
-                if (dsteps == 1) {
+                dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));                
+                dsteps = Math.abs(dmax / 127);
+                
+                if (dsteps <= 1) {
                     encodeTajimaStitch((x1 - x0), (y1 - y0),
                         !stitch.penDown);
                 } else {
