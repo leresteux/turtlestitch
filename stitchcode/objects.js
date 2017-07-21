@@ -8,6 +8,7 @@ SpriteMorph.prototype.init = function(globals) {
     this.hide();
     this.lastJumped = false;
     this.turtle = null;
+    this.isDown = true;
 };
 
 
