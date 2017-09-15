@@ -76,6 +76,17 @@ TurtleShepherd.prototype.getDimensions = function() {
 	return w + " x " + h + " " + unit;
 };
 
+TurtleShepherd.prototype.getMetricWidth = function() {
+	c = 0.1
+	return ((this.maxX - this.minX)/5 * c).toFixed(2).toString();
+};
+
+
+TurtleShepherd.prototype.getMetricHeight = function() {
+	c = 0.1
+	return((this.maxY - this.minY)/5 * c).toFixed(2).toString();
+};
+
 
 TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 
@@ -310,6 +321,7 @@ TurtleShepherd.prototype.toDST = function() {
     pixels_per_millimeter = 5;
     scale = 10 / pixels_per_millimeter;
 
+
     function encodeTajimaStitch(dx, dy, jump) {
         b1 = 0;
         b2 = 0;
@@ -424,10 +436,46 @@ TurtleShepherd.prototype.toDST = function() {
         }
     }
 
+    function writeHeader(str, length, padWithSpace=false) {
+		for(var i = 0; i<length-2; i++) {
+			if (i < str.length) {
+				expArr.push("0xF1" + str[i].charCodeAt(0).toString(16));
+			} else {
+				if (padWithSpace) {
+					expArr.push(0x20);
+				} else {
+					expArr.push(0x00);
+				}
+			}
+		}
+		expArr.push(0x0A);
+		expArr.push(0x1A);
+	}
+
+	writeHeader("LA:turtlestitch", 20, true);
+	writeHeader("ST:" + this.steps.toString(), 11);
+	writeHeader("CO:1", 7);
+	writeHeader("+X:" + this.getMetricWidth(), 9);
+	writeHeader("-X:0", 9);
+	writeHeader("+Y:" + this.getMetricHeight(), 9);
+	writeHeader("-Y:0", 9);
+	writeHeader("AX:0", 10);
+	writeHeader("AY:0", 10);
+	writeHeader("MX:0", 10);
+	writeHeader("MY:0", 10);
+	writeHeader("PD:0", 10);
+
+	expArr.push(0x1a);
+	expArr.push(0x00);
+	expArr.push(0x00);
+	expArr.push(0x00);
+
+
     // Print empty header
-    for (var i=0; i<512; i++) {
-        expArr.push(0x00);
+    for (var i=0; i<384; i++) {
+        expArr.push(0x20);
     }
+
 	
     for (i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "color") {
@@ -446,7 +494,7 @@ TurtleShepherd.prototype.toDST = function() {
                 sum_x = 0;
                 sum_y = 0;
                 dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));                
-                dsteps = Math.abs(dmax / 127);
+                dsteps = Math.abs(dmax / 121);
                 
                 if (dsteps <= 1) {
                     encodeTajimaStitch((x1 - x0), (y1 - y0),
@@ -471,6 +519,7 @@ TurtleShepherd.prototype.toDST = function() {
                                 Math.round((y1 - y0) - sum_y),
                                 !stitch.penDown
                             );
+							encodeTajimaStitch(0,0,false);
                         }
                     }
                 }
