@@ -455,15 +455,15 @@ TurtleShepherd.prototype.toDST = function() {
 	writeHeader("LA:turtlestitch", 20, true);
 	writeHeader("ST:" + this.steps.toString(), 11);
 	writeHeader("CO:1", 7);
-	writeHeader("+X:" + this.getMetricWidth(), 9);
+	writeHeader("+X:" + Math.round(this.getMetricWidth()*10), 9);
 	writeHeader("-X:0", 9);
-	writeHeader("+Y:" + this.getMetricHeight(), 9);
+	writeHeader("+Y:" + Math.round(this.getMetricHeight()*10), 9);
 	writeHeader("-Y:0", 9);
 	writeHeader("AX:0", 10);
 	writeHeader("AY:0", 10);
 	writeHeader("MX:0", 10);
 	writeHeader("MY:0", 10);
-	writeHeader("PD:0", 10);
+	writeHeader("PD:******", 10);
 
 	expArr.push(0x1a);
 	expArr.push(0x00);
