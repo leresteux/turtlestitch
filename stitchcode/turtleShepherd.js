@@ -16,6 +16,7 @@ TurtleShepherd.prototype.init = function() {
     this.showGrid = false;
     this.showTurtle = false;
     this.metric = true;
+    this.pixels_per_millimeter = 5;
 };
 
 
@@ -71,8 +72,8 @@ TurtleShepherd.prototype.getDimensions = function() {
 		c = 0.03937;
 		unit = "in";
 	} 
-    w= ((this.maxX - this.minX)/5 * c).toFixed(2).toString();
-    h= ((this.maxY - this.minY)/5 * c).toFixed(2).toString();
+    w= ((this.maxX - this.minX)/ this.pixels_per_millimeter * c).toFixed(2).toString();
+    h= ((this.maxY - this.minY)/ this.pixels_per_millimeter * c).toFixed(2).toString();
 	return w + " x " + h + " " + unit;
 };
 
@@ -245,7 +246,7 @@ TurtleShepherd.prototype.toSVG = function() {
 
 TurtleShepherd.prototype.toEXP = function() {
     var expArr = [];
-    pixels_per_millimeter = 5;
+    pixels_per_millimeter = this.pixels_per_millimeter;
     scale = 10 / pixels_per_millimeter;
     lastStitch = null;
     hasFirst = false;
@@ -318,7 +319,7 @@ TurtleShepherd.prototype.toDST = function() {
     var expArr = [];
     lastStitch = null;
     hasFirst = false;
-    pixels_per_millimeter = 5;
+    pixels_per_millimeter = this.pixels_per_millimeter;
     scale = 10 / pixels_per_millimeter;
 
 
@@ -455,12 +456,21 @@ TurtleShepherd.prototype.toDST = function() {
 	writeHeader("LA:turtlestitch", 20, true);
 	writeHeader("ST:" + this.steps.toString(), 11);
 	writeHeader("CO:1", 7);
-	writeHeader("+X:" + Math.round(this.getMetricWidth()*10), 9);
-	writeHeader("-X:0", 9);
-	writeHeader("+Y:" + Math.round(this.getMetricHeight()*10), 9);
-	writeHeader("-Y:0", 9);
-	writeHeader("AX:0", 10);
-	writeHeader("AY:0", 10);
+	writeHeader("+X:" +  Math.round(this.maxX / this.pixels_per_millimeter), 9); // Math.round(this.getMetricWidth()*10), 9);
+	writeHeader("-X:" + Math.round(this.minX / this.pixels_per_millimeter), 9);
+	writeHeader("+Y:" + Math.round(this.maxY/ this.pixels_per_millimeter), 9); //Math.round(this.getMetricHeight()*10), 9);
+	writeHeader("-Y:" + Math.round(this.minY / this.pixels_per_millimeter), 9);
+	
+	needle_end_x = 0;
+	needle_end_y = 0;
+	for (i=0; i < this.cache.length; i++) {
+		if (this.cache[i].cmd == "move")
+			needle_end_x = this.cache[i].x;
+			needle_end_y = this.cache[i].y;
+	}
+	
+	writeHeader("AX:+" + Math.round(needle_end_x / this.pixels_per_millimeter), 10);
+	writeHeader("AY:+" + Math.round(needle_end_y / this.pixels_per_millimeter), 10);
 	writeHeader("MX:0", 10);
 	writeHeader("MY:0", 10);
 	writeHeader("PD:******", 10);
@@ -475,7 +485,6 @@ TurtleShepherd.prototype.toDST = function() {
     for (var i=0; i<384; i++) {
         expArr.push(0x20);
     }
-
 	
     for (i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "color") {
