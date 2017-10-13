@@ -837,6 +837,15 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     elements.push(downloadDSTButton);
 
 
+    var uploadOrderButton = new PushButtonMorph(
+        null,
+        function () { myself.uploadOrder(); },
+        'Upload an Order'
+    );
+    
+    uploadOrderButton.newLines = 2.7;
+    elements.push(uploadOrderButton);
+    
 
     elements.push(' RENDERER: ');
     element = new StringMorph();
@@ -2010,3 +2019,290 @@ IDE_Morph.prototype.setStageExtent = function (aPoint) {
     }
     this.stage.initCamera();
 };
+
+
+DialogBoxMorph.prototype.promptOrder = function (
+    title,
+    tosURL,
+    tosLabel,
+    prvURL,
+    prvLabel,
+    PUBCheckBoxLabel,
+    TOSCheckBoxLabel,
+    world,
+    pic,
+    msg
+) {
+    var usr = new InputFieldMorph(),
+        bmn,
+        agreeTOS = true,
+        agreePUB = true,
+        chk_tos,
+        chk_pub,
+        mCol = new AlignmentMorph('column', 1),
+        yCol = new AlignmentMorph('column', 1),
+        lnk = new AlignmentMorph('row', 1),
+        bdy = new AlignmentMorph('column', this.padding),
+        myself = this;
+
+    function labelText(string) {
+        return new TextMorph(
+            localize(string),
+            10,
+            null, // style
+            false, // bold
+            null, // italic
+            null, // alignment
+            null, // width
+            null, // font name
+            MorphicPreferences.isFlat ? null : new Point(1, 1),
+            new Color(255, 255, 255) // shadowColor
+        );
+    }
+
+    function linkButton(label, url) {
+        var btn = new PushButtonMorph(
+            myself,
+            function () {
+                window.open(url);
+            },
+            '  ' + localize(label) + '  '
+        );
+        btn.fontSize = 10;
+        btn.corner = myself.buttonCorner;
+        btn.edge = myself.buttonEdge;
+        btn.outline = myself.buttonOutline;
+        btn.outlineColor = myself.buttonOutlineColor;
+        btn.outlineGradient = myself.buttonOutlineGradient;
+        btn.padding = myself.buttonPadding;
+        btn.contrast = myself.buttonContrast;
+        btn.drawNew();
+        btn.fixLayout();
+        return btn;
+    }
+
+
+    bdy.setColor(this.color);
+
+    mCol.alignment = 'left';
+    mCol.setColor(this.color);
+    yCol.alignment = 'left';
+    yCol.setColor(this.color);
+
+
+    if (msg) {
+        bdy.add(labelText(msg));
+    }
+
+    if (tosURL || prvURL) {
+        bdy.add(lnk);
+    }
+    if (tosURL) {
+        lnk.add(linkButton(tosLabel, tosURL));
+    }
+    if (prvURL) {
+        lnk.add(linkButton(prvLabel, prvURL));
+    }
+
+    if (PUBCheckBoxLabel) {
+        chk_pub = new ToggleMorph(
+            'checkbox',
+            this,
+            function () {agreePUB = !agreePUB; }, // action,
+            PUBCheckBoxLabel,
+            function () {return agreePUB; } //query
+        );
+        chk_pub.edge = this.buttonEdge / 2;
+        chk_pub.outline = this.buttonOutline / 2;
+        chk_pub.outlineColor = this.buttonOutlineColor;
+        chk_pub.outlineGradient = this.buttonOutlineGradient;
+        chk_pub.contrast = this.buttonContrast;
+        chk_pub.drawNew();
+        chk_pub.fixLayout();
+        bdy.add(chk_pub);
+    }
+    
+    if (TOSCheckBoxLabel) {
+        chk_tos = new ToggleMorph(
+            'checkbox',
+            this,
+            function () {agreeTOS = !agreeTOS; }, // action,
+            TOSCheckBoxLabel,
+            function () {return agreeTOS; } //query
+        );
+        chk_tos.edge = this.buttonEdge / 2;
+        chk_tos.outline = this.buttonOutline / 2;
+        chk_tos.outlineColor = this.buttonOutlineColor;
+        chk_tos.outlineGradient = this.buttonOutlineGradient;
+        chk_tos.contrast = this.buttonContrast;
+        chk_tos.drawNew();
+        chk_tos.fixLayout();
+        bdy.add(chk_tos);
+    }
+
+   
+    mCol.fixLayout();
+    yCol.fixLayout();
+    lnk.fixLayout();
+    bdy.fixLayout();
+
+    this.labelString = title;
+    this.createLabel();
+    if (pic) {this.setPicture(pic); }
+
+    this.addBody(bdy);
+
+    mCol.drawNew();
+    yCol.drawNew();
+    bdy.fixLayout();
+
+    this.addButton('ok', 'OK');
+    this.addButton('cancel', 'Cancel');
+    this.fixLayout();
+    this.drawNew();
+    this.fixLayout();
+
+    function validInputs() {
+           
+        function indicate(morph, string) {
+            var bubble = new SpeechBubbleMorph(localize(string));
+            bubble.isPointingRight = false;
+            bubble.drawNew();
+            bubble.popUp(
+                world,
+                morph.leftCenter().subtract(new Point(bubble.width() + 2, 0))
+            );
+            if (morph.edit) {
+                morph.edit();
+            }
+        }
+
+
+		if (!agreeTOS) {
+			indicate(chk_tos, 'please agree to\nthe TOS');
+			return false;
+		}
+		return true;
+    }
+
+    this.accept = function () {
+        if (validInputs()) {
+            DialogBoxMorph.prototype.accept.call(myself);
+        }
+    };
+
+
+    this.getInput = function () {
+        return {
+            choice_pub: agreePUB
+        };
+    };
+
+    this.reactToChoice = function () {
+    };
+
+    this.reactToChoice(); // initialize e-mail label
+
+    if (!this.key) {
+        this.key = 'order';
+    }
+
+    this.popUp(world);
+};
+
+
+IDE_Morph.prototype.uploadOrder = function () {
+    var myself = this,
+        world = this.world();
+
+	if (myself.stage.turtleShepherd.hasSteps()) {
+		new DialogBoxMorph(
+			this,
+			function(userdata) {
+				expUintArr = this.stage.turtleShepherd.toDST();
+				blob = new Blob([expUintArr], {type: 'application/octet-stream'});
+			
+				var fd = new FormData;
+				var name = (this.projectName ? this.projectName : 'turtlestitch')
+				fd.append('public', userdata.choice_pub);
+				fd.append('filename', name + ".dst");
+				fd.append('projectname', name);		
+				fd.append('source', 'turtlestitch');	
+				fd.append('url', window.location.href);
+				fd.append('dstfile', blob, name + ".dst");
+			
+				var request = new XMLHttpRequest();
+
+				request.onreadystatechange = function () {
+					if (request.readyState === 4) {
+						if (request.responseText) {
+							var response = JSON.parse(request.responseText);
+							if (!response.error) {
+								console.log(response);
+								window.open(response.url);
+							} else {
+								new  DialogBoxMorph().inform(
+									'Upload Error',
+									'Sorry. Ehere was an Error during upload',
+									world);
+								}
+						} else {
+							new  DialogBoxMorph().inform(
+								'Upload Error',
+								'Sorry. Ehere was an Error during upload',
+								world);
+						}
+					}
+				};
+
+				url = 'http://shop.stitchcode.localhost/ext.php';
+				//url = url + ((/\?x=/).test(url) ? "&" : "?") + (new Date()).getTime();
+				request.open('POST', url, true);		
+				//request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				request.send(fd);
+				
+	  /*
+			
+				var request = new XMLHttpRequest(),
+					params = {
+						"dst":blob
+						};
+
+				$.post(
+					"http://shop.stitchcode.localhost/ext.php",
+					data = params,
+					successCallback = function (data) {
+						alert(data);
+						if (data.slice(0,2) == "OK") {
+							fid = data.slice(3);
+							window.open(fid, 'TurtleStitch file preview');
+						} else {
+							new  DialogBoxMorph().inform(
+								'Upload Error',
+								'Sorry! Upload failed for an unknown reason',
+								world);
+						}
+					});
+	*/				
+			}, // fntion
+			this
+		).promptOrder(
+			'Upload Order',
+			'http://snap.berkeley.edu/tos.html',
+			'Terms of Service...',
+			'http://snap.berkeley.edu/privacy.html',
+			'Privacy...',
+			'Upload project as public (domain)',
+			'I have read and agree\nto the Terms of Service',
+			world,
+			new SymbolMorph("turtle"), //icon
+			null // msg
+		);
+	} else {
+		new  DialogBoxMorph().inform(
+			'Upload Error',
+			'No stitches to upload, please (re)generate a drawing first!',
+			world);
+	}
+};
+
