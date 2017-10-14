@@ -2230,26 +2230,38 @@ IDE_Morph.prototype.uploadOrder = function () {
 				fd.append('source', 'turtlestitch');	
 				fd.append('url', window.location.href);
 				fd.append('dstfile', blob, name + ".dst");
+				if (SnapCloud.username)
+					fd.append('username', SnapCloud.username);
 			
 				var request = new XMLHttpRequest();
 
 				request.onreadystatechange = function () {
 					if (request.readyState === 4) {
 						if (request.responseText) {
-							var response = JSON.parse(request.responseText);
-							if (!response.error) {
-								console.log(response);
-								window.open(response.url);
-							} else {
+							try {
+								var response = JSON.parse(request.responseText);
+								if (!response.error) {
+									new  DialogBoxMorph().informWithLink(
+									'Upload success',
+									'Your embroidery was successully uploaded.\n\n Procceed to order opening a new window.\n' 
+									+ 'If it does not open automatically, click here:' ,
+									response.url,
+									world);
+									window.open(response.url);
+								} 								
+							} catch(e) {
 								new  DialogBoxMorph().inform(
 									'Upload Error',
-									'Sorry. Ehere was an Error during upload',
+									'Sorry. There was an Error during upload: \n' + request.responseText,
 									world);
-								}
+							}
+														
+
 						} else {
 							new  DialogBoxMorph().inform(
 								'Upload Error',
-								'Sorry. Ehere was an Error during upload',
+								'Sorry. There was an Error during upload: \n' 
+								+ request.status + ' - ' + request.statusText,
 								world);
 						}
 					}
@@ -2304,5 +2316,76 @@ IDE_Morph.prototype.uploadOrder = function () {
 			'No stitches to upload, please (re)generate a drawing first!',
 			world);
 	}
+};
+
+DialogBoxMorph.prototype.informWithLink = function (
+    title,
+    textString,
+    url,
+    world,
+    pic
+) {
+	var lnk = new AlignmentMorph('row', 1);
+    var txt = new TextMorph(
+			textString,
+			this.fontSize,
+			this.fontStyle,
+			true,
+			false,
+			'center',
+			null,
+			null,
+			MorphicPreferences.isFlat ? null : new Point(1, 1),
+			new Color(255, 255, 255)
+		),
+	  bdy = new AlignmentMorph('column', this.padding),
+      myself = this;
+    
+	function linkButton(label, url) {
+        var btn = new PushButtonMorph(
+            myself,
+            function () {
+                window.open(url);
+            },
+            '  ' + localize(label) + '  '
+        );
+        btn.fontSize = 10;
+        btn.corner = myself.buttonCorner;
+        btn.edge = myself.buttonEdge;
+        btn.outline = myself.buttonOutline;
+        btn.outlineColor = myself.buttonOutlineColor;
+        btn.outlineGradient = myself.buttonOutlineGradient;
+        btn.padding = myself.buttonPadding;
+        btn.contrast = myself.buttonContrast;
+        btn.drawNew();
+        btn.fixLayout();
+        return btn;
+    }    
+
+    if (!this.key) {
+        this.key = 'inform' + title + textString;
+    }
+
+    this.labelString = title;
+    this.createLabel();
+    if (pic) {this.setPicture(pic); }
+
+    if (textString) {
+         bdy.add(txt)
+    }
+	   
+    if (url) {
+		lnk.add(linkButton(url, url));
+		bdy.add(lnk);
+	}
+
+	bdy.fixLayout();
+
+	this.addBody(bdy);
+	
+    this.addButton('ok', 'OK');
+    this.drawNew();
+    this.fixLayout();
+    this.popUp(world);
 };
 

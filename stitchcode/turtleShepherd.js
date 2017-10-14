@@ -151,6 +151,67 @@ TurtleShepherd.prototype.addColorChange= function(color) {
     );
 };
 
+/*
+TurtleShepherd.prototype.flatten = function(max_length) {
+	new_cache = [];
+	hasFirst = false;
+	lastStitch = null;
+	
+	for (var i=0; i < this.cache.length; i++) {
+        if (this.cache[i].cmd == "color") {
+            new_cache.push(this.cache[i]);
+        } else if (this.cache[i].cmd == "move") {
+            stitch = this.cache[i];
+
+            if (hasFirst) {
+                x1 = Math.round(stitch.x * scale);
+                y1 = -Math.round(stitch.y * scale);
+                x0 = Math.round(lastStitch.x * scale);
+                y0 = -Math.round(lastStitch.y * scale);
+
+                sum_x = 0;
+                sum_y = 0;
+                dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+				dsteps = Math.abs(dmax / 127);
+                
+                if (dsteps <= 1) {
+                    new_cache.push(this.cache[i]);
+                } else {
+                    for(j=0;j<dsteps;j++) {
+                        if (j < dsteps -1) {
+                            new_cache.push(
+								{
+									"cmd":"move",
+									"x":Math.round((x1 - x0)/dsteps),
+									"y":Math.round((y1 - y0)/dsteps),
+									"penDown":penState,
+								}
+							);                            
+                            sum_x += (x1 - x0)/dsteps;
+                            sum_y += (y1 - y0)/dsteps;
+                        } else {
+							new_cache.push(
+								{
+									"cmd":"move",
+									"x":Math.round((x1 - x0) - sum_x),
+									"y":Math.round((y1 - y0) - sum_y),
+									"penDown":penState,
+								}
+							);    
+                        }
+                    }
+                }
+
+            }
+            lastStitch = stitch;
+            hasFirst = true;
+        }	
+	}
+	this.cache = new_cache;
+}
+*/
+
+
 TurtleShepherd.prototype.toSVG = function() {
 
     var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
@@ -321,7 +382,8 @@ TurtleShepherd.prototype.toDST = function() {
     hasFirst = false;
     pixels_per_millimeter = this.pixels_per_millimeter;
     scale = 10 / pixels_per_millimeter;
-
+	count_stitches = 0;
+	count_jumps = 0;
 
     function encodeTajimaStitch(dx, dy, jump) {
         b1 = 0;
@@ -456,10 +518,10 @@ TurtleShepherd.prototype.toDST = function() {
 	writeHeader("LA:turtlestitch", 20, true);
 	writeHeader("ST:" + this.steps.toString(), 11);
 	writeHeader("CO:1", 7);
-	writeHeader("+X:" +  Math.round(this.maxX / this.pixels_per_millimeter), 9); // Math.round(this.getMetricWidth()*10), 9);
-	writeHeader("-X:" + Math.round(this.minX / this.pixels_per_millimeter), 9);
-	writeHeader("+Y:" + Math.round(this.maxY/ this.pixels_per_millimeter), 9); //Math.round(this.getMetricHeight()*10), 9);
-	writeHeader("-Y:" + Math.round(this.minY / this.pixels_per_millimeter), 9);
+	writeHeader("+X:" +  Math.round(this.maxX / this.pixels_per_millimeter) * 10, 9); // Math.round(this.getMetricWidth()*10), 9);
+	writeHeader("-X:" + Math.round(this.minX / this.pixels_per_millimeter) * 10, 9);
+	writeHeader("+Y:" + Math.round(this.maxY/ this.pixels_per_millimeter) * 10, 9); //Math.round(this.getMetricHeight()*10), 9);
+	writeHeader("-Y:" + Math.round(this.minY / this.pixels_per_millimeter) * 10, 9);
 	
 	needle_end_x = 0;
 	needle_end_y = 0;
@@ -469,8 +531,8 @@ TurtleShepherd.prototype.toDST = function() {
 			needle_end_y = this.cache[i].y;
 	}
 	
-	writeHeader("AX:+" + Math.round(needle_end_x / this.pixels_per_millimeter), 10);
-	writeHeader("AY:+" + Math.round(needle_end_y / this.pixels_per_millimeter), 10);
+	writeHeader("AX:+" + Math.round(needle_end_x / this.pixels_per_millimeter) * 10, 10);
+	writeHeader("AY:+" + Math.round(needle_end_y / this.pixels_per_millimeter) * 10, 10);
 	writeHeader("MX:0", 10);
 	writeHeader("MY:0", 10);
 	writeHeader("PD:******", 10);
@@ -508,6 +570,7 @@ TurtleShepherd.prototype.toDST = function() {
                 if (dsteps <= 1) {
                     encodeTajimaStitch((x1 - x0), (y1 - y0),
                         !stitch.penDown);
+                    count_stitches++;
                 } else {
                     for(j=0;j<dsteps;j++) {
                         //if (tStitch.stitches.jump[i])  {
@@ -520,6 +583,7 @@ TurtleShepherd.prototype.toDST = function() {
                                 Math.round((y1 - y0)/dsteps),
                                 !stitch.penDown
                             );
+                            count_stitches++;
                             sum_x += (x1 - x0)/dsteps;
                             sum_y += (y1 - y0)/dsteps;
                         } else {
@@ -528,11 +592,15 @@ TurtleShepherd.prototype.toDST = function() {
                                 Math.round((y1 - y0) - sum_y),
                                 !stitch.penDown
                             );
-							encodeTajimaStitch(0,0,false);
+                            count_stitches++;
+							//encodeTajimaStitch(0,0,false);
                         }
                     }
                 }
-            }
+            } else {
+				encodeTajimaStitch(stitch.x,stitch.y,false);
+                count_stitches++;
+			}
             lastStitch = stitch;
             hasFirst = true;
         }
@@ -541,6 +609,16 @@ TurtleShepherd.prototype.toDST = function() {
     expArr.push(0x00);
     expArr.push(0x00);
     expArr.push(0xF3);
+    
+    str = count_stitches.toString();
+    
+	for(var i = 0; i<9; i++) {
+		if (i < str.length) {
+			expArr[20+i] = "0xF1" + str[i].charCodeAt(0).toString(16);
+		} else {
+			expArr[20+i] = 0x00;
+		}
+	}
 
     expUintArr = new Uint8Array(expArr.length);
     for (i=0;i<expArr.length;i++) {
