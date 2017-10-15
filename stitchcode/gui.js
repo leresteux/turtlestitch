@@ -978,41 +978,6 @@ IDE_Morph.prototype.downloadDST = function() {
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.dst');
 };
 
-/*
-IDE_Morph.prototype.saveToDisk = function() {
-    var myself = this;
-	if (!this.projectName) {
-		 myself.prompt('Save as ...', function (name) {
-					myself.setProjectName(name);
-					myself.saveProjectToDisk();
-				}, null, 'upload');
-	} else {
-		myself.saveProjectToDisk();
-	}
-};
-
-IDE_Morph.prototype.saveProjectToDisk = function() {
-    var myself = this,
-		data,
-        blob;
-
-
-    if (Process.prototype.isCatchingErrors) {
-        try {
-            data = this.serializer.serialize(this.stage);
-        } catch (err) {
-            this.showMessage('Saving failed: ' + err);
-        }
-    } else {
-        data = this.serializer.serialize(this.stage);
-    }
-
-    blob = new Blob([data], {type: 'text/xml;charset=utf-8'});
-    saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch_project') + '.xml');
-};
-
-*/
-
 IDE_Morph.prototype.setProjectName = function (string) {
     this.projectName = string.replace(/['"]/g, ''); // filter quotation marks
     this.hasChangedMedia = true;
