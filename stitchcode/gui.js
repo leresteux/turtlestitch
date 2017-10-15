@@ -702,7 +702,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     element.update = function () {
         this.text = "" + (stage.turtleShepherd.getTooLongStr());
     };
-    element.columns = 3;
+    element.columns = 2;
     element.newColumn = 1;    
     elements.push(element);       
  
@@ -713,7 +713,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     element.update = function () {
         this.text = "" + (stage.turtleShepherd.getDensityWarningStr());
     };
-    element.columns = 3;
+    element.columns = 2;
     element.newColumn = 2; 
     elements.push(element);
 
