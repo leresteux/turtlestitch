@@ -1977,6 +1977,7 @@ DialogBoxMorph.prototype.promptOrder = function (
 IDE_Morph.prototype.uploadOrder = function () {
     var myself = this,
         world = this.world();
+    var SHOP_URL = 'http://shop.stitchcode.localhost/ext.php';    
 
 	if (myself.stage.turtleShepherd.hasSteps()) {
 		new DialogBoxMorph(
@@ -2030,10 +2031,8 @@ IDE_Morph.prototype.uploadOrder = function () {
 					}
 				};
 
-				url = 'http://shop.stitchcode.localhost/ext.php';
 				//url = url + ((/\?x=/).test(url) ? "&" : "?") + (new Date()).getTime();
-				request.open('POST', url, true);		
-				//request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+				request.open('POST', SHOP_URL, true);		
 				request.send(fd);
 			}, // fntion
 			this
@@ -2046,7 +2045,7 @@ IDE_Morph.prototype.uploadOrder = function () {
 			'Upload project as public (domain)',
 			'I have read and agree\nto the Terms of Service',
 			world,
-			new SymbolMorph("turtle"), //icon
+			null, //new SymbolMorph("turtle"), //icon
 			null // msg
 		);
 	} else {
