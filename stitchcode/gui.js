@@ -667,33 +667,62 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     elements.push(space);
 
     elements.push(' Total Stitches : ');
-    element = new StringMorph();
+    element = new StringMorph();    
     element.update = function () {
         this.text = (stage.turtleShepherd.getStepCount()).toString()+ "        ";
     };
+    element.columns = 3;
+    element.newColumn = 1;      
     elements.push(element);
 
-    elements.push('      ');
 
     elements.push('Jumps : ');
     element = new StringMorph();
     element.update = function () {
         this.text = (stage.turtleShepherd.getJumpCount()).toString()+ "        ";
     };
+    element.columns = 3;
+    element.newColumn = 2;  
     elements.push(element);
-    elements.push('  ');
 
     elements.push('Dimensions : ');
     element = new StringMorph();
     element.update = function () {
         this.text = (stage.turtleShepherd.getDimensions());
     };
-
+	element.newLines = 1;  
+    elements.push(element);
     element.newLines = 1;
+    elements.push('-');
+    
+    // too long
+    elements.push('  ');
+    element = new StringMorph();
+    element.color = new Color(255, 0, 0);
+    element.update = function () {
+        this.text = "" + (stage.turtleShepherd.getTooLongStr());
+    };
+    element.columns = 3;
+    element.newColumn = 1;    
+    elements.push(element);       
+ 
+     // density warning
+    elements.push('');
+    element = new StringMorph();
+    element.color = new Color(255, 0, 0);
+    element.update = function () {
+        this.text = "" + (stage.turtleShepherd.getDensityWarningStr());
+    };
+    element.columns = 3;
+    element.newColumn = 2; 
     elements.push(element);
 
-
-    elements.push('-');
+     // density warning
+    elements.push('');
+    element = new StringMorph("");
+    element.newLines = 2;
+    elements.push(element);
+    
 
     var toogleShowStitchPointsButton = new ToggleMorph(
             'checkbox',
@@ -748,7 +777,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
                 return stage.renderer.showingTurtle;
             });
 
-    toogleTurtleButton.newLines = 2;
+    toogleTurtleButton.newLines = 1;
     elements.push(toogleTurtleButton);
     elements.push('-');
 

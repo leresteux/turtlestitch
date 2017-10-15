@@ -17,6 +17,8 @@ TurtleShepherd.prototype.init = function() {
     this.showTurtle = false;
     this.metric = true;
     this.pixels_per_millimeter = 5;
+    this.maxLength = 121;
+    this.calcTooLong = true;
 };
 
 
@@ -34,6 +36,9 @@ TurtleShepherd.prototype.clear = function() {
     this.steps = 0;
     this.stitchCount = 0;
     this.jumpCount = 0;
+    this.density = {};
+    this.tooLongCount = 0;
+    this.densityWarning = false;
 };
 
 
@@ -57,8 +62,30 @@ TurtleShepherd.prototype.hasSteps = function() {
 TurtleShepherd.prototype.getStepCount = function() {
     return this.steps;
 };
+
 TurtleShepherd.prototype.getJumpCount = function() {
     return this.jumpCount;
+};
+
+TurtleShepherd.prototype.getTooLongCount = function() {
+    return this.tooLongCount;
+};
+
+TurtleShepherd.prototype.getTooLongStr = function() {
+    if (this.tooLongCount > 1)
+		return this.tooLongCount +  " are too long!"
+	else if (this.tooLongCount == 1)
+		return this.tooLongCount +  " is too long!"
+	else
+		return "";
+};
+
+
+TurtleShepherd.prototype.getDensityWarningStr = function() {
+    if (this.densityWarning)
+		return "Density Warning!";
+	else
+		return "";
 };
 
 TurtleShepherd.prototype.getDimensions = function() {
@@ -79,13 +106,13 @@ TurtleShepherd.prototype.getDimensions = function() {
 
 TurtleShepherd.prototype.getMetricWidth = function() {
 	c = 0.1
-	return ((this.maxX - this.minX)/5 * c).toFixed(2).toString();
+	return ((this.maxX - this.minX)/ this.pixels_per_millimeter * c).toFixed(2).toString();
 };
 
 
 TurtleShepherd.prototype.getMetricHeight = function() {
 	c = 0.1
-	return((this.maxY - this.minY)/5 * c).toFixed(2).toString();
+	return((this.maxY - this.minY)/ this.pixels_per_millimeter * c).toFixed(2).toString();
 };
 
 
@@ -109,12 +136,25 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
                 "penDown":penState,
             }
         );
+        this.density[Math.round(x1) + "x" + Math.round(y1)] = 1;
+
     } else {
         if (x2 < this.minX) this.minX = x2;
         if (x2 > this.maxX) this.maxX = x2;
 
         if (y2 < this.minY) this.minY  = y2;
         if (y2 > this.maxY) this.maxY  = y2;
+        
+        var d = Math.round(x2) + "x" + Math.round(y2);
+        if (this.density[d]) {
+			this.density[d] += 1;
+			if (this.density[d] >= 10) 
+				this.densityWarning = true;
+		} else  {
+			this.density[d] = 1;
+		}	
+		 
+        console.log(this.density);
     }
     this.cache.push(
         {
@@ -127,8 +167,16 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 
     this.w = this.maxX - this.minX;
     this.h = this.maxY - this.minY;
-
-
+    
+    if ( this.calcTooLong) {
+     if ( (Math.max(	
+			Math.abs(x2 - x1), Math.abs(y2 - y1)
+			) / this.pixels_per_millimeter * 10) / this.maxLength > 1
+		)
+        this.tooLongCount += 1;
+	}
+	
+	
     if (!penState)
         this.jumpCount++;
     else {
