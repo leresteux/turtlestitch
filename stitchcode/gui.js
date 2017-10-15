@@ -873,12 +873,15 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     var uploadOrderButton = new PushButtonMorph(
         null,
         function () { myself.uploadOrder(); },
-        'Upload an Order'
+        'Upload and Order!'
     );
     
-    uploadOrderButton.newLines = 2.7;
-    elements.push(uploadOrderButton);
-    
+    host = window.location.hostname;
+    if (host.endsWith("localhost") || host.endsWith("m.ash.to") || host.endsWith("turtlestitch.org")) {
+		uploadOrderButton.newLines = 2.7;
+		elements.push(uploadOrderButton);
+	}
+
     /*
     elements.push(' RENDERER: ');
     element = new StringMorph();
@@ -2032,30 +2035,6 @@ IDE_Morph.prototype.uploadOrder = function () {
 				request.open('POST', url, true);		
 				//request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				request.send(fd);
-				
-	  /*
-			
-				var request = new XMLHttpRequest(),
-					params = {
-						"dst":blob
-						};
-
-				$.post(
-					"http://shop.stitchcode.localhost/ext.php",
-					data = params,
-					successCallback = function (data) {
-						alert(data);
-						if (data.slice(0,2) == "OK") {
-							fid = data.slice(3);
-							window.open(fid, 'TurtleStitch file preview');
-						} else {
-							new  DialogBoxMorph().inform(
-								'Upload Error',
-								'Sorry! Upload failed for an unknown reason',
-								world);
-						}
-					});
-	*/				
 			}, // fntion
 			this
 		).promptOrder(
