@@ -1647,8 +1647,8 @@ IDE_Morph.prototype.snapMenu = function () {
         'Download source',
         function () {
             window.open(
-                'http://snap.berkeley.edu/snapsource/snap.zip',
-                'SnapSource'
+                'https://github.com/backface/turtlestitch',
+                'Turtlestitchsource'
             );
         }
     );
