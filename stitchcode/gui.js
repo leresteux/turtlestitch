@@ -9,7 +9,7 @@ IDE_Morph.prototype.init = function(isAutoFill) {
     this.padding = 1;
 	this.droppedText(
 		this.getURL(this.resourceURL('stitchcode/embroidery-library.xml')),
-		'tools'
+		'Embroidery tools'
 	);    
 //    this.isAnimating = false;
 
