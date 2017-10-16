@@ -1977,14 +1977,22 @@ DialogBoxMorph.prototype.promptOrder = function (
 IDE_Morph.prototype.uploadOrder = function () {
     var myself = this,
         world = this.world();
-    var SHOP_URL = 'http://shop.stitchcode.localhost/ext.php';    
+        
+        
+    if (host.endsWith("localhost")) {
+		 SHOP_URL = 'http://shop.stitchcode.localhost/ext.php'; 
+	} else {
+		SHOP_URL = 'http://shop.stitchcode.com/ext.php';  
+	}  
 
 	if (myself.stage.turtleShepherd.hasSteps()) {
 		new DialogBoxMorph(
 			this,
 			function(userdata) {
 				expUintArr = this.stage.turtleShepherd.toDST();
-				blob = new Blob([expUintArr], {type: 'application/octet-stream'});
+				blob_dst = new Blob([expUintArr], {type: 'application/octet-stream'});
+				expUintArr = this.stage.turtleShepherd.toEXP();
+				blob_exp = new Blob([expUintArr], {type: 'application/octet-stream'});				
 			
 				var fd = new FormData;
 				var name = (this.projectName ? this.projectName : 'turtlestitch')
@@ -1993,7 +2001,8 @@ IDE_Morph.prototype.uploadOrder = function () {
 				fd.append('projectname', name);		
 				fd.append('source', 'turtlestitch');	
 				fd.append('url', window.location.href);
-				fd.append('dstfile', blob, name + ".dst");
+				fd.append('dstfile', blob_dst, name + ".dst");
+				fd.append('expfile', blob_exp, name + ".exp");
 				if (SnapCloud.username)
 					fd.append('username', SnapCloud.username);
 			
@@ -2024,7 +2033,8 @@ IDE_Morph.prototype.uploadOrder = function () {
 						} else {
 							new  DialogBoxMorph().inform(
 								'Upload Error',
-								'Sorry. There was an Error during upload: \n' 
+								'Sorry. There was an Error during upload: \n'
+								+ request.responseText + "\n"
 								+ request.status + ' - ' + request.statusText,
 								world);
 						}
