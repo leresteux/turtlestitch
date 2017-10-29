@@ -12,8 +12,9 @@ tempDict = {
 	// UI
 	'Save to Disk':
 		'Sichern auf Festplatte',
-	' Total Stitches : ':
-		' Anzahl der Stiche : ',
+
+	' Stitches : ':
+		' Stiche : ',
     'Jumps':
 		'Sprungstiche',
 	'Jumps : ':
@@ -24,10 +25,15 @@ tempDict = {
 		'Raster',
 	'Reset View':
 		'Anzeige zur\u00fccksetzen',
-    'Dimensions : ':
+    'Size : ':
 		'Gr\u00f6\u00dfe : ',
 	'clear':
 		'l\u00f6schen',
+    'Imperial units':
+		'Ang/Amerik. Einheiten',
+    'Turtle':
+		'Schildkr\u00f6te',
+
 	'Export as SVG':
 		'Exportieren als SVG Vektorgrafik',
 	'Export as Melco/EXP':
@@ -39,7 +45,13 @@ tempDict = {
 	'Export current drawing as EXP/Melco Embroidery file':
 		'Exportiert die aktuelle Zeichnung als Stickmuster im EXP/Melco Format',
 	'Export current drawing as DST/Tajima Embroidery file':
-		'Exportiert die aktuelle Zeichnung als Stickmuster im Tajima/DST Format'
+		'Exportiert die aktuelle Zeichnung als Stickmuster im Tajima/DST Format',
+
+	'move %n steps by %n steps':
+		'gehe %n Schritte in %n er Schritten',
+	'move %n steps in %n':
+		'gehe %n Schritte in %n Stichen',
+
 };
 
 // Add attributes to original SnapTranslator.dict.de
