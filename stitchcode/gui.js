@@ -7,10 +7,12 @@ IDE_Morph.prototype.originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(isAutoFill) {
     this.originalInit();
     this.padding = 1;
+/*    
 	this.droppedText(
 		this.getURL(this.resourceURL('stitchcode/embroidery-library.xml')),
 		'Embroidery tools'
 	);    
+*/
 //    this.isAnimating = false;
 
 };
@@ -26,6 +28,85 @@ IDE_Morph.prototype.createLogo = function () {
 	this.logo.drawNew();
 };
 
+IDE_Morph.prototype.createPalette = function (forSearching) {
+    // assumes that the logo pane has already been created
+    // needs the categories pane for layout
+    var myself = this;
+
+    if (this.palette) {
+        this.palette.destroy();
+    }
+
+    if (forSearching) {
+        this.palette = new ScrollFrameMorph(
+            null,
+            null,
+            this.currentSprite.sliderColor
+        );
+
+        // search toolbar (floating cancel button):
+        /* commented out for now
+        this.palette.toolBar = new PushButtonMorph(
+            this,
+            function () {
+                myself.refreshPalette();
+                myself.palette.adjustScrollBars();
+            },
+            new SymbolMorph("magnifierOutline", 16)
+        );
+        this.palette.toolBar.alpha = 0.2;
+        this.palette.toolBar.padding = 1;
+        // this.palette.toolBar.hint = 'Cancel';
+        this.palette.toolBar.labelShadowColor = new Color(140, 140, 140);
+        this.palette.toolBar.drawNew();
+        this.palette.toolBar.fixLayout();
+        this.palette.add(this.palette.toolBar);
+	    */
+    } else {
+        this.palette = this.currentSprite.palette(this.currentCategory);
+    }
+    this.palette.isDraggable = false;
+    this.palette.acceptsDrops = true;
+    this.palette.enableAutoScrolling = false;
+    this.palette.contents.acceptsDrops = false;
+
+    this.palette.reactToDropOf = function (droppedMorph, hand) {
+        if (droppedMorph instanceof DialogBoxMorph) {
+            myself.world().add(droppedMorph);
+        } else if (droppedMorph instanceof SpriteMorph) {
+            myself.removeSprite(droppedMorph);
+        } else if (droppedMorph instanceof SpriteIconMorph) {
+            droppedMorph.destroy();
+            myself.removeSprite(droppedMorph.object);
+        } else if (droppedMorph instanceof CostumeIconMorph) {
+            myself.currentSprite.wearCostume(null);
+            droppedMorph.perish();
+        } else if (droppedMorph instanceof BlockMorph) {
+            myself.stage.threads.stopAllForBlock(droppedMorph);
+            if (hand && hand.grabOrigin.origin instanceof ScriptsMorph) {
+                hand.grabOrigin.origin.clearDropInfo();
+                hand.grabOrigin.origin.lastDroppedBlock = droppedMorph;
+                hand.grabOrigin.origin.recordDrop(hand.grabOrigin);
+            }
+            droppedMorph.perish();
+        } else {
+            droppedMorph.perish();
+        }
+    };
+
+    this.palette.contents.reactToDropOf = function (droppedMorph) {
+        // for "undrop" operation
+        if (droppedMorph instanceof BlockMorph) {
+            droppedMorph.destroy();
+        }
+    };
+
+    this.palette.setWidth(this.logo.width());
+    this.add(this.palette);
+    return this.palette;
+};
+
+
 
 IDE_Morph.prototype.resourceURLOrig  = IDE_Morph.prototype.resourceURL;
 IDE_Morph.prototype.resourceURL = function () {
@@ -36,7 +117,6 @@ IDE_Morph.prototype.resourceURL = function () {
         return args.join('/');
     }
 };
-
 
 // Single Sprite mode, no corral and no tabs in the scripting area
 IDE_Morph.prototype.createCorralBar = nop;
@@ -56,6 +136,7 @@ IDE_Morph.prototype.buildPanes = function () {
     this.createStatusDisplay();
     this.createStageHandle();
     this.createPaletteHandle();
+    
 };
 
 IDE_Morph.prototype.origSetStageExtent = IDE_Morph.prototype.setStageExtent;
@@ -107,6 +188,7 @@ IDE_Morph.prototype.createControlBar = function () {
         startButton,
         projectButton,
         settingsButton,
+        steppingButton,
         stageSizeButton,
         //largeStageSizeButton,
         appModeButton,
@@ -197,6 +279,40 @@ IDE_Morph.prototype.createControlBar = function () {
     this.controlBar.add(appModeButton);
     this.controlBar.appModeButton = appModeButton; // for refreshing
 
+
+    //steppingButton
+    button = new ToggleButtonMorph(
+        null, //colors,
+        myself, // the IDE is the target
+        'toggleSingleStepping',
+        [
+            new SymbolMorph('footprints', 16),
+            new SymbolMorph('footprints', 16)
+        ],
+        function () {  // query
+            return Process.prototype.enableSingleStepping;
+        }
+    );
+    
+    button.corner = 12;
+    button.color = colors[0];
+    button.highlightColor = colors[1];
+    button.pressColor = new Color(153, 255, 213);
+//    button.pressColor = colors[2];
+    button.labelMinExtent = new Point(36, 18);
+    button.padding = 0;
+    button.labelShadowOffset = new Point(-1, -1);
+    button.labelShadowColor = colors[1];
+    button.labelColor = this.buttonLabelColor;
+    button.contrast = this.buttonContrast;
+    button.drawNew();
+    button.hint = 'Visible stepping';
+    button.fixLayout();
+    button.refresh();
+    steppingButton = button;
+    this.controlBar.add(steppingButton);
+    this.controlBar.steppingButton = steppingButton; // for refreshing
+        
     /*
     // upload StitchButton
     button = new PushButtonMorph(
@@ -404,6 +520,9 @@ IDE_Morph.prototype.createControlBar = function () {
         slider.setCenter(myself.controlBar.center());
         slider.setRight(stageSizeButton.left() - padding);
 
+        steppingButton.setCenter(myself.controlBar.center());
+        steppingButton.setRight(slider.left() - padding);
+        
         settingsButton.setCenter(myself.controlBar.center());
         settingsButton.setLeft(this.left());
 
@@ -484,6 +603,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         this.controlBar.projectButton,
         this.controlBar.settingsButton,
         this.controlBar.stageSizeButton,
+        this.controlBar.steppingButton,
         //this.controlBar.largeStageSizeButton,
         this.spriteEditor,
         //this.paletteHandle,
