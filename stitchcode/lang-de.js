@@ -33,6 +33,13 @@ tempDict = {
 		'Ang/Amerik. Einheiten',
     'Turtle':
 		'Schildkr\u00f6te',
+    'Login':
+		'Anmelden',
+    'Create an account':
+		'Benutzerkonto anlegen',
+    'Reset Password...':
+		'Passwort zur\u00fccksetzen',
+
 
 	'Export as SVG':
 		'Exportieren als SVG Vektorgrafik',
