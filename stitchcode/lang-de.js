@@ -52,6 +52,9 @@ tempDict = {
 	'move %n steps in %n':
 		'gehe %n Schritte in %n Stichen',
 
+    'Upload and Order!':
+		'Bestellen',
+		
 };
 
 // Add attributes to original SnapTranslator.dict.de
