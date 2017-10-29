@@ -1047,8 +1047,8 @@ SpriteMorph.prototype.blockTemplates = function (category) {
     if (cat === 'motion') {
 
         blocks.push(block('forward'));
-        blocks.push(block('forwardBy'));
         blocks.push(block('forwardByNr'));
+        blocks.push(block('forwardBy'));      
         blocks.push('-');
         blocks.push(block('turn'));
         blocks.push(block('turnLeft'));
