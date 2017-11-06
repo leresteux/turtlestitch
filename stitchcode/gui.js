@@ -1,3 +1,7 @@
+// get debug mode
+url = new URL(window.location.href);
+searchParams = new URLSearchParams(url.search);
+var DEBUG = (searchParams.get("debug") == "true")
 
 // Force flat design
 IDE_Morph.prototype.setDefaultDesign = IDE_Morph.prototype.setFlatDesign;
@@ -7,12 +11,10 @@ IDE_Morph.prototype.originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(isAutoFill) {
     this.originalInit();
     this.padding = 1;
-   
 	this.droppedText(
 		this.getURL(this.resourceURL('stitchcode/embroidery-library.xml')),
 		'Embroidery tools'
 	);    
-
 //    this.isAnimating = false;
 
 };
@@ -279,7 +281,6 @@ IDE_Morph.prototype.createControlBar = function () {
     this.controlBar.add(appModeButton);
     this.controlBar.appModeButton = appModeButton; // for refreshing
 
-
     //steppingButton
     button = new ToggleButtonMorph(
         null, //colors,
@@ -293,7 +294,7 @@ IDE_Morph.prototype.createControlBar = function () {
             return Process.prototype.enableSingleStepping;
         }
     );
-    
+
     button.corner = 12;
     button.color = colors[0];
     button.highlightColor = colors[1];
@@ -312,31 +313,7 @@ IDE_Morph.prototype.createControlBar = function () {
     steppingButton = button;
     this.controlBar.add(steppingButton);
     this.controlBar.steppingButton = steppingButton; // for refreshing
-        
-    /*
-    // upload StitchButton
-    button = new PushButtonMorph(
-        this,
-        'uploadMe',
-        new SymbolMorph('arrowUp', 14)
-    );
-    button.corner = 12;
-    button.color = colors[0];
-    button.highlightColor = colors[1];
-    button.pressColor = colors[2];
-    button.labelMinExtent = new Point(36, 18);
-    button.padding = 0;
-    button.labelShadowOffset = new Point(-1, -1);
-    button.labelShadowColor = colors[1];
-    button.labelColor =  this.buttonLabelColor;
-    button.contrast = this.buttonContrast;
-    button.drawNew();
-    // button.hint = 'stop\nevery-\nthing';
-    button.fixLayout();
-    upstitchButton = button;
-    this.controlBar.add(upstitchButton);
-    */
-
+    
     // stopButton
     button = new ToggleButtonMorph(
         null, // colors
@@ -522,7 +499,7 @@ IDE_Morph.prototype.createControlBar = function () {
 
         steppingButton.setCenter(myself.controlBar.center());
         steppingButton.setRight(slider.left() - padding);
-        
+
         settingsButton.setCenter(myself.controlBar.center());
         settingsButton.setLeft(this.left());
 
@@ -989,29 +966,22 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     downloadDSTButton.newLines = 2.7;
     elements.push(downloadDSTButton);
 
+    if (DEBUG) {
+		elements.push(' DEBUG MODE: true');
+		element = new StringMorph("");
 
-    var uploadOrderButton = new PushButtonMorph(
-        null,
-        function () { myself.uploadOrder(); },
-        'Upload and Order!'
-    );
-    
-    host = window.location.hostname;
-    if (host.endsWith("localhost") || host.endsWith("m.ash.to") || host.endsWith("turtlestitch.org")) {
-		uploadOrderButton.newLines = 2.7;
-		elements.push(uploadOrderButton);
+		element.newLines = 1.2;
+		elements.push(element);
+		elements.push(' RENDERER: ');
+		element = new StringMorph();
+		element.update = function () {
+			this.text = stage.renderer_status_msg;
+		};
+		element.newLines = 1;
+		elements.push(element);
+		elements.push('  ');
 	}
 
-    /*
-    elements.push(' RENDERER: ');
-    element = new StringMorph();
-    element.update = function () {
-        this.text = stage.renderer_status_msg;
-    };
-    elements.push(element);
-    elements.push('  ');
-	*/
-    
     elements.forEach(function(each) { myself.statusDisplay.addElement(each); });
 };
 
@@ -1519,12 +1489,14 @@ IDE_Morph.prototype.projectMenu = function () {
             function() { myself.downloadDST(); },
             'Export current drawing as DST/Tajima Embroidery file'
     );
-/*
-    menu.addLine();
-    menu.addItem('Upload stitch file', 'uploadMe','Export stage drawing to stitch file (EXP)..');
-    menu.addLine();
 
-    */
+    if (DEBUG) {
+		menu.addItem(
+				'Export to Embroidery service',
+				function() { myself.uploadOrder(); },
+				'Export to stitchcode.com\'s embroidery service'
+		);
+	}
 
     menu.addLine();
     if (shiftClicked) {
@@ -2097,9 +2069,8 @@ DialogBoxMorph.prototype.promptOrder = function (
 IDE_Morph.prototype.uploadOrder = function () {
     var myself = this,
         world = this.world();
-        
-        
-    if (host.endsWith("localhost")) {
+
+    if (window.location.hostname.endsWith("localhost")) {
 		 SHOP_URL = 'http://shop.stitchcode.localhost/ext.php'; 
 	} else {
 		SHOP_URL = 'http://shop.stitchcode.com/ext.php';  
@@ -2170,8 +2141,8 @@ IDE_Morph.prototype.uploadOrder = function () {
 			'Upload Order',
 			'http://snap.berkeley.edu/tos.html',
 			'Terms of Service...',
-			'http://snap.berkeley.edu/privacy.html',
-			'Privacy...',
+			'',
+			'',
 			'Upload project as public (domain)',
 			'I have read and agree\nto the Terms of Service',
 			world,

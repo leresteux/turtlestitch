@@ -12,7 +12,6 @@ tempDict = {
 	// UI
 	'Save to Disk':
 		'Sichern auf Festplatte',
-
 	' Stitches : ':
 		' Stiche : ',
     'Jumps':
@@ -39,8 +38,6 @@ tempDict = {
 		'Benutzerkonto anlegen',
     'Reset Password...':
 		'Passwort zur\u00fccksetzen',
-
-
 	'Export as SVG':
 		'Exportieren als SVG Vektorgrafik',
 	'Export as Melco/EXP':
@@ -53,15 +50,20 @@ tempDict = {
 		'Exportiert die aktuelle Zeichnung als Stickmuster im EXP/Melco Format',
 	'Export current drawing as DST/Tajima Embroidery file':
 		'Exportiert die aktuelle Zeichnung als Stickmuster im Tajima/DST Format',
+	'Export to Embroidery service':
+		'Exportieren zum Ausstickservice',
+	'Export to stitchcode.com\'s embroidery service':
+		'Exportiert die aktuelle Zeichnung zum stitchcode.com Ausstickservice',
 
 	'move %n steps by %n steps':
 		'gehe %n Schritte in %n er Schritten',
 	'move %n steps in %n':
 		'gehe %n Schritte in %n Stichen',
 
-    'Upload and Order!':
-		'Bestellen',
-		
+	' are too long! (will get clamped)':
+		'sind zu lang! (werden geklammert)',
+	' is too long! (will get clamped)':
+		'Stich ist zu lang! (wird geklammert)',
 };
 
 // Add attributes to original SnapTranslator.dict.de
