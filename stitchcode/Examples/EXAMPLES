@@ -1,5 +1,8 @@
-1_stitching_a_line.xml	Stitching a Line
-2_stitching_a_circle.xml Stitching a Circel
-dragon_curve_iterative.xml	Dragon Curve (iterative)
-dragon_curve_recursive.xml	Dragon Curve (recursive)
-spiral.xml	Spiral
+Drawing a Line.xml	1. Stitching a Line   
+Drawing a Circle.xml	2. Stitching a Circle  
+Pinwheel with Square-block.xml	3. Pinwheel (Custom block)
+Spiral using For-block.xml	4. Spiral (For block)
+Triangle Variable.xml	5. Triangle (Variables)
+Random stitch length - explosion.xml	6. Random Stich Length
+Dragon_curve_iterative.xml	7. Dragon Curve (iterative)
+Dragon_curve_recursive.xml	8. Dragon Curve (recursive)
