@@ -121,6 +121,10 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
     x = Math.round(x);
     y = Math.round(y);
 
+    // ignore jump stitches withouth any previous stitches
+    if (this.steps === 0 && !penState)
+		return
+
     if (this.steps === 0) {
         this.initX = x1;
         this.initY = y1;
@@ -171,9 +175,6 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 
     this.w = this.maxX - this.minX;
     this.h = this.maxY - this.minY;
-    
-    
-	
 	
     if (!penState)
         this.jumpCount++;

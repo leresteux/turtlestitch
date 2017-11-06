@@ -162,6 +162,9 @@ IDE_Morph.prototype.rawOpenProjectString = function (str) {
     this.stage.clearAll();
     this.stage.rotateTurtle(this.stage.children[0].heading);
     this.createStatusDisplay();
+    // clear stitch cache now (loading projects sends turtle move commands!)
+    this.stage.clearAll();
+    this.stage.turtleShepherd.clear();
     this.stage.reRender();
 };
 
