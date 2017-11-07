@@ -157,7 +157,7 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 		} else  {
 			this.density[d] = 1;
 		}	
-		if ( this.calcTooLong) {
+		if ( this.calcTooLong && penState) {
 			if ( (Math.max(	
 				Math.abs(x2 - x1), Math.abs(y2 - y1)
 				) / this.pixels_per_millimeter * 10) / this.maxLength > 1)
