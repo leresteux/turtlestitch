@@ -73,28 +73,6 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
     if (this.jumpLines === null) {
         this.jumpLines = new THREE.Group();
     }
-
-	/*
-    var material = new THREE.MeshBasicMaterial(
-        { color: 0xff0000, side:THREE.DoubleSide, opacity: 0.8  } );
-    var geometry = new THREE.Geometry();
-    normal = new THREE.Vector3( -(y2-y1), (x2-x1), 0);
-    normal = normal.normalize();
-    var s = stage.penSize / 2;
-    material.transparent = true;
-    geometry.vertices = [
-        new THREE.Vector3(x1 + normal.x * s, y1 + normal.y * s, 0.0),
-        new THREE.Vector3(x2 + normal.x * s, y2 + normal.y * s, 0.0),
-        new THREE.Vector3(x2 - normal.x * s, y2 - normal.y * s, 0.0),
-        new THREE.Vector3(x1 - normal.x * s, y1 - normal.y * s, 0.0),
-        new THREE.Vector3(x1 + normal.x * s, y1 + normal.y * s, 0.0),
-    ];
-    geometry.faces.push(new THREE.Face3(0, 1, 2));
-    geometry.faces.push(new THREE.Face3(0, 2, 3));
-    line = new THREE.Mesh(geometry, material);
-    line.visible = stage.renderer.showingJumpLines;
-    stage.myJumpLines.add(line);
-    * */
     
     var material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
     var geometry = new THREE.Geometry();
@@ -111,37 +89,6 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 
 SpriteMorph.prototype.addStitchPoint = function(x1, y1, x2, y2) {
     var stage = this.parentThatIsA(StageMorph);
-
-    /*
-    var geometry = new THREE.CircleGeometry( 1.2, 6 );
-    geometry.vertices.shift();
-    var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
-    var circle = new THREE.Mesh( geometry, material );
-    circle.translateX(x1);
-    circle.translateY(y1);
-    circle.translateZ(0.01);
-    circle.visible = stage.renderer.showingStitchPoints;
-    stage.myStitchPoints.add(circle);
-    */
-
-    /*
-    var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
-    var geometry = new THREE.Geometry();
-    geometry.vertices = [
-        new THREE.Vector3(x1-1.5, y1-1.5, 0.01),
-        new THREE.Vector3(x1+1.5, y1+1.5, 0.01),
-    ];
-    line = new THREE.Line(geometry, material);
-    line.visible = stage.renderer.showingStitchPoints;
-    stage.myStitchPoints.add(line);
-
-    geometry = new THREE.Geometry();
-    geometry.vertices = [
-        new THREE.Vector3(x1+1.5, y1-1.5, 0.01),
-        new THREE.Vector3(x1-1.5, y1+1.5, 0.01),
-    ];
-    line = new THREE.Line(geometry, material);
-    */
 
     var material = new THREE.MeshBasicMaterial(
         { color: 0x0000ff, side:THREE.DoubleSide, opacity: 1  } );
@@ -176,6 +123,22 @@ SpriteMorph.prototype.addStitchPoint = function(x1, y1, x2, y2) {
     stage.reRender();
 };
 
+SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
+    var stage = this.parentThatIsA(StageMorph);
+    
+    var geometry = new THREE.CircleGeometry( 3, 6 );
+    geometry.vertices.shift();
+    var material = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity:1} );
+    var circle = new THREE.Mesh( geometry, material );
+    circle.translateX(x1);
+    circle.translateY(y1);
+    circle.translateZ(0.03);
+    circle.visible = true;
+    stage.myDensityPoints.add(circle);
+  
+    stage.reRender();
+};
+
 
 SpriteMorph.prototype.origForward = SpriteMorph.prototype.forward;
 SpriteMorph.prototype.forward = function (steps) {
@@ -196,11 +159,14 @@ SpriteMorph.prototype.forward = function (steps) {
     this.setPosition(dest);
     this.positionTalkBubble();
 
-    stage.turtleShepherd.moveTo(
+    warn = stage.turtleShepherd.moveTo(
         oldx, oldy,
         this.xPosition(), this.yPosition(),
         this.isDown );
-
+    if (warn) {
+		this.addDensityPoint(this.xPosition(), this.yPosition());
+	}
+	
     if (this.isDown)
         this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
     else {
@@ -381,10 +347,12 @@ StageMorph.prototype.init = function (globals) {
     this.scene.grid.draw();
     this.myObjects = new THREE.Object3D();
     this.myStitchPoints = new THREE.Object3D();
+    this.myDensityPoints = new THREE.Object3D();
     this.myStitchLines = new THREE.Object3D();
     this.myJumpLines = new THREE.Object3D();
     this.scene.add(this.myObjects);
     this.scene.add(this.myStitchPoints);
+    this.scene.add(this.myDensityPoints);
     this.scene.add(this.myStitchLines);
     this.scene.add(this.myJumpLines);
 
@@ -489,6 +457,9 @@ StageMorph.prototype.clearAll = function () {
     }*/
     for (i = this.myStitchPoints.children.length - 1; i >= 0; i--) {
         this.myStitchPoints.remove(this.myStitchPoints.children[i]);
+    }
+    for (i = this.myDensityPoints.children.length - 1; i >= 0; i--) {
+        this.myDensityPoints.remove(this.myDensityPoints.children[i]);
     }
     for (i = this.myStitchLines.children.length - 1; i >= 0; i--) {
         this.myStitchLines.remove(this.myStitchLines.children[i]);
@@ -664,7 +635,7 @@ StageMorph.prototype.initCamera = function () {
 StageMorph.prototype.initTurtle = function() {
     var myself = this;
     var geometry = new THREE.Geometry();
-    var material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+    var material = new THREE.MeshBasicMaterial( { color: 0x000000, opacity:0.8 } );
 
     geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
          new THREE.Vector3(-8, 8, 0.02),
@@ -681,7 +652,7 @@ StageMorph.prototype.initTurtle = function() {
         loader.load('stitchcode/assets/turtle.obj', function (object) {
             this.turtle = object;
             object.scale.set(4, 4, 4);
-            object.position.z = 0.03;
+            object.position.z = 0.02;
             //object.position.set(0,0, 0.01);
             object.rotation.x = 90 * Math.PI / 180;
             object.rotation.y = 270 * Math.PI / 180;

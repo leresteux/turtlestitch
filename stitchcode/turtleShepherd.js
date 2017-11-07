@@ -120,6 +120,7 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 
     x = Math.round(x);
     y = Math.round(y);
+    warn = false;
 
     // ignore jump stitches withouth any previous stitches
     if (this.steps === 0 && !penState)
@@ -152,8 +153,11 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
         var d = Math.round(x2) + "x" + Math.round(y2);
         if (this.density[d]) {
 			this.density[d] += 1;
-			if (this.density[d] > this.densityMax) 
+			if (this.density[d] > this.densityMax) {
 				this.densityWarning = true;
+				if (this.density[d] <= this.densityMax+1) 
+					warn = true;
+			}
 		} else  {
 			this.density[d] = 1;
 		}	
@@ -181,6 +185,13 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
     else {
         this.steps++;
     }
+    
+    if (warn) {
+		warn = false;
+		return [x2, y2];
+	} else {
+		return false;
+	}
 };
 
 
