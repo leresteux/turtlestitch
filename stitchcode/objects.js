@@ -145,6 +145,7 @@ SpriteMorph.prototype.forward = function (steps) {
     var dest,
         dist = steps * this.parent.scale || 0;
         stage = this.parentThatIsA(StageMorph);
+        warn = false;
 
     oldx = this.xPosition();
     oldy = this.yPosition();
@@ -163,6 +164,7 @@ SpriteMorph.prototype.forward = function (steps) {
         oldx, oldy,
         this.xPosition(), this.yPosition(),
         this.isDown );
+
     if (warn) {
 		this.addDensityPoint(this.xPosition(), this.yPosition());
 	}
@@ -200,6 +202,7 @@ SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
 SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
 SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
     var stage = this.parentThatIsA(StageMorph);
+    warn = false;
     oldx = this.xPosition();
     oldy = this.yPosition();
     this.origGotoXY(x, y, justMe);
@@ -207,14 +210,17 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
 		// jump in place - don't add / ignore
 		console.log("jump in place - don't add / ignore");
     } else {
-        this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
+        warn = this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
             oldx, oldy,
             this.xPosition(), this.yPosition(),
             this.isDown );
 
-        if (this.isDown)
+        if (this.isDown) {
             this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
-        else {
+			if (warn) {
+				this.addDensityPoint(this.xPosition(), this.yPosition());
+			}
+        } else {
             this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
         }
         this.addStitchPoint(oldx, oldy, this.xPosition(), this.yPosition());
