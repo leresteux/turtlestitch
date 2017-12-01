@@ -728,6 +728,3 @@ IDE_Morph.prototype.cloudMenu = function () {
    
 };
 
-// store.js
-
-SnapSerializer.prototype.thumbnailSize = new Point(480, 360);
