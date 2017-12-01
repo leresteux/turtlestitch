@@ -1,8 +1,8 @@
 
 core embroidery:
 * multi color support
+* font/write block
 * pen/down visualizer (default down?)
- 
 
 UI
 * dynamic zoom/pan camera operation blocks
