@@ -694,7 +694,7 @@ StageMorph.prototype.originalStep = StageMorph.prototype.step;
 StageMorph.prototype.step = function () {
     this.originalStep();
 
-    // update Beetleblocks, if needed
+    // update, if needed
     this.renderCycle();
 };
 
