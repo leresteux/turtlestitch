@@ -773,16 +773,6 @@ StageMorph.prototype.reportMouseY = function () {
 };
 
 
-StageMorph.prototype.originalAdd = StageMorph.prototype.add;
-StageMorph.prototype.add = function (morph) {
-    this.originalAdd(morph);
-    if (morph instanceof SpriteMorph) {
-        this.scene.add(morph.beetle);
-        this.reRender();
-    }
-};
-
-// We'll never need to clear the pen trails in BeetleBlocks, it only causes the renderer to disappear
 StageMorph.prototype.clearPenTrails = nop;
 
 StageMorph.prototype.penTrails = function () {
