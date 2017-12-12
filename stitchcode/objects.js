@@ -200,13 +200,13 @@ SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
 };
 
 SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
-SpriteMorph.prototype.gotoXY = function (x, y, justMe) {
+SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
     var stage = this.parentThatIsA(StageMorph);
     warn = false;
     oldx = this.xPosition();
     oldy = this.yPosition();
     this.origGotoXY(x, y, justMe);
-    if ( Math.abs(this.xPosition()-oldx)<=0.01 && Math.abs(this.yPosition()-oldy)<=0.01 ) {
+    if ( (Math.abs(this.xPosition()-oldx)<=0.01 && Math.abs(this.yPosition()-oldy)<=0.01) || noShadow ) {
 		// jump in place - don't add / ignore
 		console.log("jump in place - don't add / ignore");
     } else {
