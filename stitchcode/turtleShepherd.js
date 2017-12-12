@@ -656,7 +656,7 @@ TurtleShepherd.prototype.toDST = function() {
                     }
                 }
             } else {
-				encodeTajimaStitch(stitch.x,stitch.y,false);
+				encodeTajimaStitch(Math.round(stitch.x), Math.round(stitch.y) ,false);
                 count_stitches++;
 			}
             lastStitch = stitch;
