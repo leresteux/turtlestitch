@@ -2231,3 +2231,7 @@ DialogBoxMorph.prototype.informWithLink = function (
     this.popUp(world);
 };
 
+
+IDE_Morph.prototype.toggleStageSize = function (isSmall, forcedRatio) {
+
+};
