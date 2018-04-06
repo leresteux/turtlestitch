@@ -28,7 +28,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
         side:THREE.DoubleSide,
         opacity: 1
     });
-    var geometry = new THREE.Geometry();* 
+    var geometry = new THREE.Geometry();*
     normal = new THREE.Vector3( -(y2-y1), (x2-x1), 0);
     normal = normal.normalize();
     var s = stage.penSize / 2;
@@ -54,7 +54,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
             Math.round(stage.drawingColor.b)  + ")" ),
         side:THREE.DoubleSide,
         opacity: 1
-    });    
+    });
     var geometry = new THREE.Geometry();
     geometry.vertices = [
         new THREE.Vector3(x1, y1, 0.0),
@@ -73,7 +73,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
     if (this.jumpLines === null) {
         this.jumpLines = new THREE.Group();
     }
-    
+
     var material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
     var geometry = new THREE.Geometry();
     geometry.vertices = [
@@ -81,7 +81,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
         new THREE.Vector3(x2, y2, 0.0),
     ];
     line = new THREE.Line(geometry, material);
-    stage.myJumpLines.add(line);    
+    stage.myJumpLines.add(line);
 
     this.lastJumped = true;
     stage.reRender();
@@ -125,7 +125,7 @@ SpriteMorph.prototype.addStitchPoint = function(x1, y1, x2, y2) {
 
 SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
     var stage = this.parentThatIsA(StageMorph);
-    
+
     var geometry = new THREE.CircleGeometry( 3, 6 );
     geometry.vertices.shift();
     var material = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity:1} );
@@ -135,7 +135,7 @@ SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
     circle.translateZ(0.03);
     circle.visible = true;
     stage.myDensityPoints.add(circle);
-  
+
     stage.reRender();
 };
 
@@ -168,7 +168,7 @@ SpriteMorph.prototype.forward = function (steps) {
     if (warn) {
 		this.addDensityPoint(this.xPosition(), this.yPosition());
 	}
-	
+
     if (this.isDown)
         this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
     else {
@@ -196,7 +196,7 @@ SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
 	if (rest > 0) {
 		this.forward(rest);
 	}
-	
+
 };
 
 SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
@@ -226,6 +226,47 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
         this.addStitchPoint(oldx, oldy, this.xPosition(), this.yPosition());
         stage.moveTurtle(this.xPosition(), this.yPosition());
 	}
+};
+
+SpriteMorph.prototype.gotoXYBy = function (x, y, stepsize) {
+    var stage = this.parentThatIsA(StageMorph);
+    var dest;
+
+    if (!stage) {return; }
+
+    x = !isFinite(+x) ? 0 : +x;
+    y = !isFinite(+y) ? 0 : +y;
+
+    var dest = new Point(x, y).subtract(
+                  new Point(this.xPosition(), this.yPosition()));
+
+    var a = (x - this.xPosition());
+    var b = (y - this.yPosition());
+    var dist = Math.sqrt(a*a + b*b);
+    if (a == 0 && b == 0)
+      dist = 0;
+
+    if (dist > 0) {
+      var steps = Math.floor(dist / stepsize);
+      var rest = dist - (steps * stepsize);
+
+      var deltaX = (x - this.xPosition()) * this.parent.scale;
+      var deltaY = (y - this.yPosition()) * this.parent.scale;
+      var angle = Math.abs(deltaX) < 0.001 ? (deltaY < 0 ? 90 : 270)
+                  : Math.round(
+                  (deltaX >= 0 ? 0 : 180)
+                      - (Math.atan(deltaY / deltaX) * 57.2957795131)
+              );
+      this.setHeading(angle + 90);
+
+      for(i=0; i < steps; i++) {
+        this.forward(stepsize);
+      }
+      if (rest > 0) {
+        this.gotoXY(x,y);
+
+      }
+    }
 };
 
 SpriteMorph.prototype.origSetHeading = SpriteMorph.prototype.setHeading;
@@ -899,26 +940,36 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'reset',
         category: 'control'
     };
-    
+
     // control
     this.blocks.forwardBy =
     {
 		only: SpriteMorph,
-        type: 'command',        
+        type: 'command',
         category: 'motion',
         spec: 'move %n steps by %n steps',
         defaults: [100,10]
-    };    
-    
+    };
+
     // control
     this.blocks.forwardByNr =
     {
 		only: SpriteMorph,
-        type: 'command',        
+        type: 'command',
         category: 'motion',
         spec: 'move %n steps in %n',
         defaults: [100,10]
-    };      
+    };
+
+    // control
+    this.blocks.gotoXYBy =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'motion',
+        spec: 'goto x: %n y: %n by: %n',
+        defaults: [0, 0, 10]
+    };
 
 };
 
@@ -1015,7 +1066,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 
         blocks.push(block('forward'));
         blocks.push(block('forwardByNr'));
-        blocks.push(block('forwardBy'));      
+        blocks.push(block('forwardBy'));
         blocks.push('-');
         blocks.push(block('turn'));
         blocks.push(block('turnLeft'));
@@ -1024,6 +1075,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('doFaceTowards'));
         blocks.push('-');
         blocks.push(block('gotoXY'));
+        blocks.push(block('gotoXYBy'));
         blocks.push(block('doGotoObject'));
         blocks.push(block('doGlide'));
         blocks.push('-');
