@@ -1,0 +1,13 @@
+Turtlestitch history
+---------------------
+
+180902
+------
+* fix translation error when loading project: add (empty) translations files to stitchcode
+* fix chinese translation file (from snap)
+
+
+180917
+------
+* change CSV reading algorithm (works with google sheets)
+
