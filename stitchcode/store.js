@@ -14,9 +14,7 @@ SnapSerializer.prototype.openProject = function (project, ide) {
     ide.origCreator = project.origCreator || '';
     ide.creator = project.creator || '';
     ide.remixHistory = project.remixHistorycreat || '';
-
-    console.log("name: " + ide.projectName + ", creator: " + ide.creator + ", origName: " + ide.origName + ", origCreator: " + ide.origCreator);
-    
+    //console.log("name: " + ide.projectName + ", creator: " + ide.creator + ", origName: " + ide.origName + ", origCreator: " + ide.origCreator);    
     if (ide.globalVariables) {
         ide.globalVariables = project.globalVariables;
     }

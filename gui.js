@@ -4825,7 +4825,6 @@ IDE_Morph.prototype.setLanguage = function (lang, callback) {
         myself.reflectLanguage(lang, callback);
     };
     document.head.appendChild(translation);
-    console.log(translation)
     translation.src = src;
 };
 
