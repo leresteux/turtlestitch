@@ -169,7 +169,7 @@ BeetleCloud.prototype.saveProject = function (ide, callBack, errorCall) {
                         throw new Error('Serialization of program data failed:\n' + err);
                     }
 
-                    ide.showMessage('Uploading project...'); 
+                    ide.showMessage(pdata); 
 
                     //(path, body, callBack, errorCall, errorMsg)
                     myself.post(
@@ -269,6 +269,7 @@ BeetleCloud.prototype.getProjectList = function (callBack, errorCall) {
                 if (!user.username) {
                     errorCall.call(this, 'You are not logged in', 'TurtleCloud');
                     return;
+
                 } else {
                     myself.get(
                             '/users/'
@@ -727,4 +728,3 @@ IDE_Morph.prototype.cloudMenu = function () {
         menu.popup(world, pos); 
    
 };
-

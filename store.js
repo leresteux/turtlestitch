@@ -352,6 +352,7 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
 
     this.objects = {};
     project.name = model.project.attributes.name;
+
     if (!project.name) {
         nameID = 1;
         while (
@@ -396,7 +397,7 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
             if (project.stage.trailsCanvas) { // work-around a bug in FF
                 normalizeCanvas(project.stage.trailsCanvas);
                 var context = project.stage.trailsCanvas.getContext('2d');
-                context.drawImage(project.pentrails, 0, 0);
+                if (context) context.drawImage(project.pentrails, 0, 0);
                 project.stage.changed();
             }
         };
