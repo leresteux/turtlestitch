@@ -352,10 +352,6 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
 
     this.objects = {};
     project.name = model.project.attributes.name;
-    project.origName = model.project.childNamed('origName') ? model.project.childNamed('origName').contents : ""
-    project.creator =  model.project.childNamed('creator') ? model.project.childNamed('creator').contents : ""
-    project.origCreator =  model.project.childNamed('origCreator') ? model.project.childNamed('origCreator').contents : ""
-    project.remixHistory =  model.project.childNamed('origCreator') ? model.project.childNamed('origCreator').contents : ""
 
     if (!project.name) {
         nameID = 1;
