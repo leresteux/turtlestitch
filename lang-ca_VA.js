@@ -1,12 +1,12 @@
 /*
 
-    lang-ro.js
+    lang-ca-valencia.js
 
-    Romanian translation for SNAP!
+    Valencian translation for SNAP!
 
-    written by Jens Mönig & Cristian Macarascu
+    written by Jens Mönig
 
-    Copyright (C) 2015 by Jens Mönig & Cristian Macarascu
+    Copyright (C) 2016 by Jens Mönig
 
     This file is part of Snap!.
 
@@ -166,7 +166,7 @@
 
 /*global SnapTranslator*/
 
-SnapTranslator.dict.ro = {
+SnapTranslator.dict.ca_VA = {
 
 /*
     Special characters: (see <http://0xcc.net/jsescape/>)
@@ -179,78 +179,79 @@ SnapTranslator.dict.ro = {
 
     // translations meta information
     'language_name':
-        'Romanian', // the name as it should appear in the language menu
+        'Català - Valencià', // the name as it should appear in the language menu
     'language_translator':
-        'Cristian Macarascu', // your name for the Translators tab
+        'Bernat Romagosa Carrasquer, Joan Guillén i Pelegay, Pilar Embid', // your name for the Translators tab
     'translator_e-mail':
-        '', // optional
+        'bernat@snap4arduino.rocks, jguille2@xtec.cat, embid_mar@gva.es', // optional
     'last_changed':
-        '2015-10-24', // this, too, will appear in the Translators tab
+        '2018-02-08', // this, too, will appear in the Translators tab
 
     // GUI
     // control bar:
     'untitled':
-        'fara nume',
+        'Sense títol',
     'development mode':
-        'modul dezvoltare',
+        'mode de desenvolupament',
 
     // categories:
     'Motion':
-        'Miscare',
+        'Moviment',
     'Looks':
-        'Infatisare',
+        'Aparença',
     'Sound':
-        'Sunet',
+        'So',
     'Pen':
-        'Scriere',
+        'Llapis',
     'Control':
         'Control',
     'Sensing':
-        'Interactiune',
+        'Sensors',
     'Operators':
-        'Operatori',
+        'Operadors',
     'Variables':
-        'Variabile',
+        'Variables',
     'Lists':
-        'Liste',
+        'Llistes',
     'Other':
-        'Altele',
+        'Altres',
 
     // editor:
     'draggable':
-        'poate fi mutat',
+        'arrossegable',
 
     // tabs:
     'Scripts':
-        'Scripturi',
+        'Programes',
     'Costumes':
-        'Costume',
+        'Vestits',
     'Sounds':
-        'Sunete',
+        'Sons',
 
     // names:
     'Sprite':
-        'Animatie',
+        'Objecte',
     'Stage':
-        'Scena',
+        'Escenari',
 
     // rotation styles:
     'don\'t rotate':
-        'fara rotire',
+        'no gira',
     'can rotate':
-        'rotire libera',
+        'pot girar',
     'only face left/right':
-        'doar stanga/dreapta',
+        'només mira a esquerra/dreta',
 
     // new sprite button:
     'add a new sprite':
-        'adauga o noua animatie',
+        'afig un nou objecte',
 
     // tab help
     'costumes tab help':
-        'ajutor pentru costume',
+        'podeu importar una imatge des d\'un altre lloc web o des del\n'
+            + 'vostre ordinador arrossegant-la fins ací',
     'import a sound from your computer\nby dragging it into here':
-        'adauga un sunet tragandu-l aici',
+        'podeu importar un so des del vostre ordinador\narrossegant-lo fins ací',
 
     // primitive blocks:
 
@@ -286,903 +287,943 @@ SnapTranslator.dict.ro = {
 
     // motion:
     'Stage selected:\nno motion primitives':
-        'Scena selectata:\nfara primitive de miscare',
+        'Escenari seleccionat:\nno hi ha primitives de moviment\n'
+            + 'disponibles',
 
     'move %n steps':
-        'inainteaza %n pasi',
+        'mou-te %n passos',
     'turn %clockwise %n degrees':
-        'roteste %clockwise %n grade',
+        'gira %clockwise %n graus',
     'turn %counterclockwise %n degrees':
-        'roteste %counterclockwise %n grade',
+        'gira %counterclockwise %n graus',
     'point in direction %dir':
-        'arata spre directia %dir',
+        'apunta en direcció %dir',
     'point towards %dst':
-        'arata spre %dst',
+        'apunta cap a %dst',
     'go to x: %n y: %n':
-        'mergi la x: %n y: %n',
+        'vés a x: %n y: %n',
     'go to %dst':
-        'mergi la %dst',
+        'vés a %dst',
     'glide %n secs to x: %n y: %n':
-        'mergi in %n secunde la x: %n y: %n',
+        'llisca en %n segons fins a x: %n y: %n',
     'change x by %n':
-        'modifica x cu %n',
+        'suma %n a x',
     'set x to %n':
-        'schimba x in %n',
+        'assigna el valor %n a x',
     'change y by %n':
-        'modifica y cu %n',
+        'suma %n a y',
     'set y to %n':
-        'schimba y in %n',
+        'assigna el valor %n a y',
     'if on edge, bounce':
-        'daca esti pe margine, sari',
+        'rebota en tocar una vora',
     'x position':
-        'pozitia x',
+        'posició x',
     'y position':
-        'pozitia y',
+        'posició y',
     'direction':
-        'directia',
+        'direcció',
 
     // looks:
     'switch to costume %cst':
-        'schimba-te in costumul %cst',
+        'canvia el vestit a %cst',
     'next costume':
-        'urmatorul costum',
+        'següent vestit',
     'costume #':
-        'costumul nr',
+        'número de vestit',
     'say %s for %n secs':
-        'spune %s pentru %n secunde',
+        'digues %s durant %n segons',
     'say %s':
-        'spune %s',
+        'digues %s',
     'think %s for %n secs':
-        'gandeste %s pentru %n secunde',
+        'pensa %s durant %n segons',
     'think %s':
-        'gandeste %s',
+        'pensa %s',
     'Hello!':
-        'Salut!',
+        'Hola!',
     'Hmm...':
-        'Hmmm...',
+        'Hmm...',
     'change %eff effect by %n':
-        'modifica efectul %eff cu %n',
+        'augmenta l\'efecte %eff en %n',
     'set %eff effect to %n':
-        'schimba efectul %eff in %n',
+        'fixa l\'efecte %eff a %n',
     'clear graphic effects':
-        'anuleaza efectele grafice',
+        'suprimeix els efectes gràfics',
     'change size by %n':
-        'modifica marimea cu %n',
+        'augmenta %n la mida',
     'set size to %n %':
-        'schimba marimea la %n %',
+        'fixa la mida a %n %',
     'size':
-        'marime',
+        'mida',
     'show':
-        'afiseaza',
+        'mostra',
     'hide':
-        'ascunde',
+        'amaga',
     'go to front':
-        'adu in fata',
+        'vés al front',
     'go back %n layers':
-        'muta spre spate %n niveluri',
+        'vés %n capes darrere',
 
     'development mode \ndebugging primitives:':
-        'Modul dezvoltare \nprimitive de debug:',
+        'mode de desenvolupament \nprimitives de depuració',
     'console log %mult%s':
-        'jurnal consola: %mult%',
+        'registre per consola: %mult%s',
     'alert %mult%s':
-        'anunta %mult%',
+        'avís: %mult%s',
 
     // sound:
     'play sound %snd':
-        'scoate sunetul %snd',
+        'toca el so %snd',
     'play sound %snd until done':
-        'scoate sunetul %snd pana termini',
+        'toca el so %snd fins que acabe',
     'stop all sounds':
-        'opreste toate sunetele',
+        'para tots els sons',
     'rest for %n beats':
-        'pauza pentru %n masuri',
+        'fes silenci durant %n temps',
     'play note %n for %n beats':
-        'canta nota %n pentru %n masuri',
+        'toca la nota %n durant %n temps',
     'change tempo by %n':
-        'modifica tempoul cu %n',
+        'augmenta el tempo en %n',
     'set tempo to %n bpm':
-        'schimba tempoul in %n bpm',
+        'fixa el tempo a %n',
     'tempo':
         'tempo',
 
     // pen:
     'clear':
-        'sterge',
+        'neteja',
     'pen down':
-        'stiloul jos',
+        'baixa el llapis',
     'pen up':
-        'stiloul sus',
+        'puja el llapis',
     'set pen color to %clr':
-        'schimba culoarea stiloului in %clr',
+        'fixa el color del llapis a %clr',
     'change pen color by %n':
-        'modifica culoarea stiloului cu %n',
+        'augmenta en %n el color del llapis',
     'set pen color to %n':
-        'schimba culoarea stiloului in  %n',
+        'fixa el color del llapis a %n',
     'change pen shade by %n':
-        'modifica umbra stiloului cu %n',
+        'augmenta en %n la intensitat del llapis',
     'set pen shade to %n':
-        'schimba umbra stiloului in %n',
+        'fixa la intensitat del llapis a %n',
     'change pen size by %n':
-        'modifica grosimea penitei cu %n',
+        'augmenta en %n la mida del llapis',
     'set pen size to %n':
-        'schimba grosimea penitei in %n',
+        'fixa la mida del llapis en %n',
     'stamp':
-        'stampila',
+        'estampa',
+    'fill':
+        'ompli',
 
     // control:
     'when %greenflag clicked':
-        'cand se apasa %greenflag',
+        'Quan la %greenflag es prema',
     'when %keyHat key pressed':
-        'cand se apasa tasta %keyHat',
+        'Quan la tecla %keyHat es prema',
     'when I am %interaction':
-        'cand sunt %interaction',
+        'Quan %interaction aquest personatge',
     'clicked':
-        'apasat',
+        'es clique',
     'pressed':
-        'tinut apasat',
+        'es prema',
     'dropped':
-        'eliberat',
+        'es deixe anar',
     'mouse-entered':
-        'in contact cu mouse-ul',
+        'el ratolí toque',
     'mouse-departed':
-        'indepratat de langa mouse',
+        'el ratolí isca d\'',
+    'when %b':
+        'quan %b',
     'when I receive %msgHat':
-        'cand primesc %msgHat',
+        'Quan reba %msgHat',
     'broadcast %msg':
-        'trimite mesajul %msg tuturor',
+        'Envia a tots %msg',
     'broadcast %msg and wait':
-        'trimite mesajul %msg tuturor si asteapta',
+        'Envia a tots %msg i espera',
     'Message name':
-        'Mesaj',
+        'Nom del missatge',
     'message':
-        'mesaj',
+        'missatge',
     'any message':
-        'orice mesaj',
+        'qualsevol missatge',
     'wait %n secs':
-        'asteapta %n secunde',
+        'espera %n segons',
     'wait until %b':
-        'asteapta pana cand %b',
+        'espera fins %b',
     'forever %c':
-        'la infinit %c',
+        'per sempre %c',
     'repeat %n %c':
-        'repeta de %n ori %c',
+        'repeteix %n vegades %c',
     'repeat until %b %c':
-        'repeta pana cand %b %c',
+        'repeteix fins %b %c',
     'if %b %c':
-        'daca %b fa %c',
+        'si %b llavors %c',
     'if %b %c else %c':
-        'daca %b fa %c altfel fa %c',
+        'si %b llavors %c si no %c',
     'report %s':
-        'anunta %s',
+        'retorna %s',
     'stop %stopChoices':
-        'opreste %stopChoices',
+        'para %stopChoices',
     'all':
-        'toate',
+        'tot',
     'this script':
-        'acest script',
+        'aquest programa',
     'this block':
-        'acest bloc',
+        'aquest bloc',
     'stop %stopOthersChoices':
-        'opreste %stopOthersChoices',
+        'para %stopOthersChoices',
     'all but this script':
-        'toate scripturile, mai putin pe acesta',
+        'tot excepte aquest programa',
     'other scripts in sprite':
-        'toate scripturile din animatie',
+        'els altres programes d\'aquest objecte',
     'pause all %pause':
-        'pune pauza pentru %pause',
+        'posa-ho tot en pausa %pause',
     'run %cmdRing %inputs':
-        'ruleaza %cmdRing cu %inputs',
+        'executa %cmdRing %inputs',
     'launch %cmdRing %inputs':
-        'porneste %cmdRing cu %inputs',
+        'llança %cmdRing %inputs',
     'call %repRing %inputs':
-        'apeleaza %repRing cu %inputs',
+        'crida %repRing %inputs',
     'run %cmdRing w/continuation':
-        'ruleaza %cmdRing cu Continuation',
+        'executa %cmdRing amb continuació',
     'call %cmdRing w/continuation':
-        'apeleaza %cmdRing cu Continuation',
+        'crida %cmdRing amb continuació',
     'warp %c':
-        'warp %c',
+        'executa tot d\'una %c',
     'when I start as a clone':
-        'cand sunt pornit ca o clona',
+        'quan una còpia meua comence',
     'create a clone of %cln':
-        'creaza o clona a %cln',
+        'crea un clon de %cln',
     'myself':
-        'eu insumi',
+        'mi mateix',
     'delete this clone':
-        'sterge aceasta clona',
+        'esborra aquest clon',
 
     // sensing:
     'touching %col ?':
-        'atinge %col ?',
+        'tocant %col ?',
     'touching %clr ?':
-        'atinge %clr ?',
+        'tocant el color %clr ?',
     'color %clr is touching %clr ?':
-        'culoarea %clr atinge %clr ?',
+        'color %clr sobre %clr ?',
     'ask %s and wait':
-        'intreaba %s si asteapta',
+        'pregunta %s i espera',
     'what\'s your name?':
-        'care e numele tau?',
+        'Com et dius?',
     'answer':
-        'raspuns',
+        'resposta',
     'mouse x':
-        'pozitia x a mouseului',
+        'ratolí x',
     'mouse y':
-        'pozitia y a mouseului',
+        'ratolí y',
     'mouse down?':
-        'este mouseul apasat?',
+        'ratolí clicat?',
     'key %key pressed?':
-        'este tasta %key apasata?',
+        'tecla %key premuda?',
     'distance to %dst':
-        'distanta pana la %dst',
+        'distància a %dst',
     'reset timer':
-        'restarteaza cronometrul',
+        'reinicia el cronòmetre',
     'timer':
-        'cronometrul',
+        'cronòmetre',
     '%att of %spr':
-        '%att al %spr',
+        '%att de %spr',
+    'my %get':
+        'atribut %get',
     'http:// %s':
         'http:// %s',
     'turbo mode?':
-        'modul turbo?',
+        'mode turbo?',
     'set turbo mode to %b':
-        'seteaza modul turbo la %b',
+        'posa el mode turbo a %b',
 
     'filtered for %clr':
-        'filtrat pentru %clr',
+        'filtrat per a %clr',
     'stack size':
-        'marimea stivei',
+        'mida de la pila',
     'frames':
-        'cadre',
+        'frames',
 
     // operators:
     '%n mod %n':
-        '%n modulo %n',
+        'residu de dividir %n entre %n',
     'round %n':
-        '%n rotunjit',
+        'arredoneix %n',
     '%fun of %n':
-        '%fun din %n',
+        '%fun de %n',
     'pick random %n to %n':
-        'alege aleator de la %n la %n',
+        'nombre a l\'atzar entre %n i %n',
     '%b and %b':
-        '%b si %b',
+        '%b i %b',
     '%b or %b':
-        '%b sau %b',
+        '%b o %b',
     'not %b':
-        'not %b',
+        'no %b',
     'true':
-        'adevarat',
+        'cert',
     'false':
         'fals',
     'join %words':
-        'lipeste %words',
+        'unir %words',
     'split %s by %delim':
-        'desparte %s folosind %delim',
+        'divideix %s per %delim',
     'hello':
-        'salut',
+        'hola',
     'world':
-        'lume',
+        'món',
     'letter %idx of %s':
-        'litera %idx din %s',
+        'lletra %idx de %s',
     'length of %s':
-        'lungimea lui %s',
+        'longitud de %s',
     'unicode of %s':
-        'codul Unicode al %s',
+        'valor Unicode de %s',
     'unicode %n as letter':
-        'codul Unicode %n ca litera',
+        'lletra amb valor Unicode %n',
     'is %s a %typ ?':
-        'este %s un/o %typ ?',
+        'és %s un %typ ?',
     'is %s identical to %s ?':
-        'este %s identic cu %s ?',
+        'és %s idèntic a %s ?',
 
     'type of %s':
-        'tipul lui %s',
+        'tipus de %s',
 
     // variables:
     'Make a variable':
-        'creaza o variabila',
+        'Crea una variable',
     'Variable name':
-        'numele variabilei',
+        'Nom de variable',
     'Script variable name':
-        'variabila script ',
+        'Nom de la variable de programa',
     'Delete a variable':
-        'sterge o variabila',
+        'Esborra una variable',
 
     'set %var to %s':
-        'schimba %var in %s',
+        'assigna a %var el valor %s',
     'change %var by %n':
-        'modifica %var cu %n',
+        'augmenta %var en %n',
     'show variable %var':
-        'afiseaza variabila %var',
+        'mostra la variable %var',
     'hide variable %var':
-        'ascunde variabila %var',
+        'amaga la variable %var',
     'script variables %scriptVars':
-        'variabilele script %scriptVars',
+        'variables de programa %scriptVars',
 
     // lists:
     'list %exp':
-        'lista %exp',
+        'llista %exp',
     '%s in front of %l':
-        '%s in fata %l',
+        'afig %s davant de %l',
     'item %idx of %l':
-        'elementul %idx din %l',
+        'element %idx de %l',
     'all but first of %l':
-        'toate, mai putin primul din %l',
+        '%l sense el primer element',
     'length of %l':
-        'lungimea %l',
+        'longitud de %l',
     '%l contains %s':
-        '%l contine %s',
+        '%l conté %s',
     'thing':
-        'lucru',
+        'cosa',
     'add %s to %l':
-        'adauga %s la %l',
+        'afig %s a %l',
     'delete %ida of %l':
-        'sterge %ida din %l',
+        'esborra %ida de %l',
     'insert %s at %idx of %l':
-        'adauga %s la pozitia %idx in %l',
+        'insereix %s a la posició %idx de %l',
     'replace item %idx of %l with %s':
-        'inlocuieste elementul %idx din %l cu %s',
+        'substitueix l\'element %idx de %l per %s',
 
     // other
     'Make a block':
-        'creaza bloc',
+        'Crea un bloc',
 
     // menus
     // snap menu
     'About...':
-        'Despre Snap!...',
+        'Sobre l\'Snap!',
     'Reference manual':
-        'Manual utilizator',
+        'Manual de referència',
     'Snap! website':
-        'Siteul Snap!',
+        'Web de l\'Snap!',
     'Download source':
-        'Descarca codul sursa',
+        'Descarrega el codi font',
     'Switch back to user mode':
-        'Treci in modul utilizator',
+        'Torna a mode d\'usuari',
     'disable deep-Morphic\ncontext menus\nand show user-friendly ones':
-        'Afiseaza meniuri simplificate in locul celor morfice',
+        'canvia els menús contextuals\nprimitius de Morphic\nper menús més amigables',
     'Switch to dev mode':
-        'Treci in modul dezvoltator',
+        'Canvia a mode desenvolupador',
     'enable Morphic\ncontext menus\nand inspectors,\nnot user-friendly!':
-        'Afiseaza meniuri morfice in locul celor simplificate',
+        'habilita els menús\ncontextuals de\nMorphic i inspectors,\nmode expert!',
 
     // project menu
     'Project notes...':
-        'Note de proiect...',
+        'Notes del projecte...',
     'New':
         'Nou',
     'Open...':
-        'Deschide...',
+        'Obri...',
     'Save':
-        'Salveaza',
+        'Guarda',
     'Save to disk':
-        'Salveaza pe disc',
+        'Guarda al disc',
     'store this project\nin the downloads folder\n(in supporting browsers)':
-        'Salveaza proiectul\nin meniul Descarcari\n(functie de browser)',
+        'guarda aquest projecte\na la carpeta de descàrregues\n'
+            + '(en navegadors que ho admeten)',
     'Save As...':
-        'Salveaza sub numele...',
+        'Anomena i guarda...',
     'Import...':
         'Importa...',
     'file menu import hint':
-        'indiciu import meniul fisiere',
+        'carrega una biblioteca de projecte\no de blocs exportada, un vestit\no un so',
+
+
     'Export project as plain text...':
-        'Exporta proiectul ca text...',
+        'Exporta el projecte en text pla...',
     'Export project...':
-        'Exporta proiectul...',
+        'Exporta el projecte...',
     'show project data as XML\nin a new browser window':
-        'afiseaza continut proiect ca XML\nin fereastra noua de browser',
+        'mostra tot el projecte en format XML\nen una altra finestra del navegador',
     'Export blocks...':
-        'Exporta blocurile...',
+        'Exporta els blocs...',
     'show global custom block definitions as XML\nin a new browser window':
-        ' afiseaza definitiile blocurilor ca XML\n intr-o fereastra noua de browser',
+        'mostra les definicions de blocs personalitzats\nen format XML en una altra finestra del\nnavegador',
     'Unused blocks...':
-          'Blocuri nefolosite...',
+        'Blocs no utilitzats...',
     'find unused global custom blocks\nand remove their definitions':
-        'cauta blocuri utilizator nefolosite\nsi sterge-le',
+        'busca blocs personalitzats globals\nno utilitzats i esborra\'ls',
     'Remove unused blocks':
-        'Sterge blocurile nefolosite',
+        'Esborra blocs no utilitzats',
     'there are currently no unused\nglobal custom blocks in this project':
-        'nu exista blocuri utilizator nefolosite\nin acest proiect',
+        'no hi ha cap bloc\npersonalitzat no utilitzat\nen aquest projecte',
     'unused block(s) removed':
-        'blocuri nefolosite eliminate',
+        'bloc(s) personalitzats no utilitzats esborrats',
     'Export summary...':
-        'Exporta sumarul...',
+        'Exporta el resum...',
     'open a new browser browser window\n with a summary of this project':
-        'Deschide o noua fereastra de browser\ncu sumarul acestui proiect',
+        'obri una finestra nova del navegador\namb un resum d\'aquest projecte',
+
     'Contents':
-        'Continut',
+        'Continguts',
     'Kind of':
-        'De tipul',
+        'Espècie de',
     'Part of':
-        'Parte din',
+        'Part de',
     'Parts':
-        'Parti',
+        'Parts',
     'Blocks':
-        'Blocuri',
+        'Blocs',
     'For all Sprites':
-        'Pentru toate animatiile',
+        'Per a tots els objectes', 
     'Import tools':
-        'Importa unelte',
+        'Importa eines',
     'load the official library of\npowerful blocks':
-        'incarca biblioteca oficiala\nde blocuri importante',
+        'carrega la biblioteca\noficial de blocs avançats',
     'Libraries...':
-        'Biblioteci...',
+        'Biblioteques...',
     'Import library':
-        'Importa biblioteca',
+        'Importa una biblioteca',
 
     // cloud menu
     'Login...':
-        'Autentificare...',
+        'Inicia la sessió...',
     'Signup...':
-        'Creaza-ti cont...',
+        'Registra\'t...',
 
     // settings menu
     'Language...':
-        'Selecteaza limba...',
+        'Llengua...',
     'Zoom blocks...':
-        'Marimeblocuri...',
+        'Mida dels blocs...',
     'Stage size...':
-        'Marime scena...',
+        'Mida de l\'escenari...',
     'Stage size':
-        'Marime scena',
+        'Mida de l\'escenari',
     'Stage width':
-        'Latime scena',
+        'Amplària de l\'escenari',
     'Stage height':
-        'Inaltime scena',
+        'Alçària de l\'escenari',
     'Default':
-        'Implicit',
+        'Per defecte',
     'Blurred shadows':
-        'Umbre neclare',
+        'Ombres suavitzades',
     'uncheck to use solid drop\nshadows and highlights':
-        'debifeaza pentru a utiliza\numbre clare si evidentieri',
+        'desmarca\'m per a utilitzar\nombres i realçats sòlids',
     'check to use blurred drop\nshadows and highlights':
-        'bifeaza pentru a utiliza\numbre neclare si evidentieri',
+        'marca\'m per a utilitzar\nombres i realçats suavitzats',
     'Zebra coloring':
-        'Culoare zebra',
+        'Coloració en zebra',
     'check to enable alternating\ncolors for nested blocks':
-        'bifeaza pentru a folosi culori\nalternative in blocurile imbricate',
+        'marca\'m per a habilitar la coloració\nalternada per a blocs imbricats',
     'uncheck to disable alternating\ncolors for nested block':
-        'debifeaza pentru a folosi culori\nobisnuite in blocurile imbricate',
+        'desmarca\'m per a inhabilitar la coloració\nalternada per a blocs imbricats',
     'Dynamic input labels':
-        'Etichete intrare dinamice',
+        'Etiquetes dinàmiques de camps d\'entrada',
     'uncheck to disable dynamic\nlabels for variadic inputs':
-        'debifeaza pentru a renunta la\netichete dinamice pentru intrari variabile',
+        'marca\'m per a desactivar les\netiquetes dinàmiques en camps\namb aritat variable',
     'check to enable dynamic\nlabels for variadic inputs':
-        'difeaza pentru a folosi etichete\n dinamice pentru intrari variabile',
+        'marca\'m per a habilitar les\netiquetes dinàmiques en camps\namb aritat variable',
     'Prefer empty slot drops':
-        'Foloseste slot drops goale',
+        'Dóna preferència a les ranures buides',
     'settings menu prefer empty slots hint':
-        'indicii de slot goale in meniul setari',
+        'marca\'m per a fer que les ranures\nbuides tinguen preferència sobre les plenes\na l\'hora de deixar-hi caure peces',
+
     'uncheck to allow dropped\nreporters to kick out others':
-        'debifeaza pentru a folosi\nreporteri pentru a elimina altii',
+        'marca\'m per a fer que les ranures\nbuides tinguen la mateixa preferència que les\nplenes a l\'hora de deixar-hi caure peces',
+
     'Long form input dialog':
-        'Dialoguri lungi',
+        'Força el diàleg de selecció de tipus',
     'Plain prototype labels':
-        'Etichete simple',
+        'Etiquetes de prototip simples',
     'uncheck to always show (+) symbols\nin block prototype labels':
-        'debifeaza pentru a folosi (+) \nin blocurile eticheta',
+        'desmarca\'m per a mostrar sempre el\nsímbol (+) en les etiquetes de prototip\nde bloc (a l\'editor de blocs)',
     'check to hide (+) symbols\nin block prototype labels':
-        'bifeaza pentru a ascunde (+) \nin blocurile eticheta',
+        'desmarca\'m per a amagar el símbol (+)\nen les etiquetes de prototip\nde bloc (a l\'editor de blocs)',
     'check to always show slot\ntypes in the input dialog':
-        'bifeaza pentru a afisa tipuri slot\N in dialoguri de intrare',
+        'marca\'m per a mostrar sempre\nel diàleg de selecció de tipus\nen afegir paràmetres als blocs\npersonalitzats',
     'uncheck to use the input\ndialog in short form':
-        'debifeaza pentru a afisa dialoguri\n de intrare in forma scurta',
+        'desmarca\'m per a no mostrar\nautomàticament el diàleg de selecció\nde tipus en afegir paràmetres\nals blocs personalitzats',
     'Virtual keyboard':
-        'Tastatura pe ecran',
+        'Teclat virtual',
     'uncheck to disable\nvirtual keyboard support\nfor mobile devices':
-        'debifeaza pentru a ascunde\ntastatura de pe ecranul\nechipamentelor mobile',
+        'desmarca\'m per a inhabilitar\nel suport per al teclat virtual\nen dispositius mòbils',
+
     'check to enable\nvirtual keyboard support\nfor mobile devices':
-        'bifeaza pentru a afisa\ntastatura pe ecranul\nechipamentelor mobile',
+        'marca\'m per a habilitar\nel suport per al teclat virtual\nen dispositius mòbils',
+
     'Input sliders':
-        'Slidere pentru intrare',
+        'Botons lliscants d\'entrada',
     'uncheck to disable\ninput sliders for\nentry fields':
-        'debifeaza pentru a ascunde\nsliderele campurilor de intrare',
+        'desmarca\'m per a inhabilitar\nels botons lliscants per als camps\nd\'entrada',
     'check to enable\ninput sliders for\nentry fields':
-        'bifeaza pentru a afisa\nslidere in campurile de intrare',
+        'marca\'m per a habilitar\nels botons lliscants per als camps\nd\'entrada',
     'Clicking sound':
-        'Sunet la apasarea tastelor',
+        'So de clic',
     'uncheck to turn\nblock clicking\nsound off':
-        'debifeaza pentru a opri\nsunete la schimbarea blocurilor',
+        'desmarca\'m per a inhabilitar\nel so de clic en clicar sobre\nels blocs',
     'check to turn\nblock clicking\nsound on':
-        'bifeaza pentru sunete\n la schimbare blocuri',
+        'marca\'m per a habilitar\nel so de clic en clicar sobre\nels blocs',
     'Animations':
-        'Animatii',
+        'Animacions',
     'uncheck to disable\nIDE animations':
-        'debifeaza pentru a dezactiva\nanimatiile IDE',
+        'desmarca\'m per a inhabilitar\nles animacions de la interfície',
     'Turbo mode':
-        'Modul turbo',
+        'Mode turbo',
     'check to prioritize\nscript execution':
-        'bifeaza pentru a da prioritate\nexecutiei scripului',
+        'marca\'m per a activar el mode de\nprioritat en l\'execució de programes',
     'uncheck to run scripts\nat normal speed':
-        'debifeaza pentru a rula scripul\nla viteza normala',
+        'desmarca\'m per a executar\nels programes a la velocitat\nnormal',
     'check to enable\nIDE animations':
-        'bifeaza pentru a activa\nanimatiile IDE',
+        'marca\'m per a habilitar\nles animacions de la interfície',
     'Flat design':
-        'Design cu colturi',
+        'Disseny pla',
     'Keyboard Editing':
-        'Editare tastatura',
+        'Edició per teclat',
+    'Table support':
+        'Edició de taules',
+    'Table lines':
+        'Línies de taules',
     'Thread safe scripts':
-        'Scripturi thread-safe',
+        'Fil d\'execució segur',
     'uncheck to allow\nscript reentrance':
-        'debifeaza pentru a permite\nreentranta in scripturi',
+        'desmarca\'m per a permetre\nla reentrada als programes',
     'check to disallow\nscript reentrance':
-        'bifeaza pentru a interzice\nreentranta in scripturi',
+        'marca\'m per a no permetre\nla reentrada als programes',
     'Prefer smooth animations':
-        'Animatii fluide',
+        'Suavitza les animacions',
     'uncheck for greater speed\nat variable frame rates':
-        'debifeaza pentru viteza mai mare\nin detrimentul afisarii pe ecran',
+        'desmarca\'m per a augmentar la velocitat de\nles animacions fins a la màxima capacitat d\'aquesta màquina',
     'check for smooth, predictable\nanimations across computers':
-        'bifeaza pentru afisare fluida pe ecran\n in detrimentul vitezei',
+        'marca\'m per a aconseguir unes animacions\nmés suaus i a velocitat predictible en màquines diferents',
     'Flat line ends':
-        'Sfarsit de linii cu colturi',
+        'Línies del llapis rectes',
     'check for flat ends of lines':
-        'bifeaza pentru sfarsit\nde linii cu colturi',
+        'marca\'m per a fer que els\nextrems de les línies del\nllapis siguen rectes',
     'uncheck for round ends of lines':
-        'debifeaza pentru sfarsit\nde linii rotunjite',
+        'desmarca\'m per a fer que\nels extrems de les línies\ndel llapis siguen arredonits',
     'Inheritance support':
-        'Suport pentru mostenire',
+        'Suport per a herència',
 
     // inputs
     'with inputs':
-        'cu intrari',
+        'amb entrades',
     'input names:':
-        'numele intrarii:',
+        'noms d\'entrades:',
     'Input Names:':
-        'Numele intrarii:',
+        'Noms d\'entrades:',
     'input list:':
-        'lista intrare:',
+        'llista d\'entrades:',
 
     // context menus:
     'help':
-        'ajutor',
+        'ajuda',
 
     // palette:
     'hide primitives':
-        'Ascunde primitivele',
+        'amaga els blocs primitius',
     'show primitives':
-        'Afiseaza primitivele',
+        'mostra els blocs primitius',
 
     // blocks:
     'help...':
-        'ajutor...',
+        'ajuda...',
     'relabel...':
-        'redenumeste...',
+        'blocs similars...',
     'duplicate':
-        'duplica',
+        'duplica\'m',
     'make a copy\nand pick it up':
-        'fa o copie si selecteaz-o',
+        'crea una còpia\ni agafa-la',
     'only duplicate this block':
-        'duplica doar acest bloc',
+        'duplica només aquest bloc',
     'delete':
-        'sterge',
+        'esborra\'m',
     'script pic...':
-        'imagine script...',
+        'mostra la meua imatge...',
     'open a new window\nwith a picture of this script':
-        'deschide fereastra noua\ncu imaginea acestui script',
+        'obri una nova finestra\namb una imatge d\'aquest programa',
     'ringify':
-        'ringify',
+        'encapsula\'m',
     'unringify':
-        'unringify',
+        'desencapsula\'m',
+    'transient':
+        'no persistent',
+    'uncheck to save contents\nin the project':
+        'desactiveu l\'opció per a guardar els continguts\nen el projecte',
+    'check to prevent contents\nfrom being saved':
+        'activeu l\'opció per a evitar que els continguts\nes guarden',
 
     // custom blocks:
     'delete block definition...':
-        'sterge definitia blocului....',
+        'esborra la definició d\'aquest bloc',
     'edit...':
-        'modifica...',
+        'edita...',
 
     // sprites:
     'edit':
-        'modifica',
+        'edita',
     'move':
-        'muta',
+        'mou',
     'detach from':
-        'desparte',
+        'desenganxa de',
     'detach all parts':
-        'desparte toate bucatile',
+        'desenganxa totes les parts',
     'export...':
         'exporta...',
 
     // stage:
     'show all':
-        'afiseaza tot',
+        'mostra\'ls tots',
     'pic...':
-        'imagine...',
+        'exporta com a imatge...',
     'open a new window\nwith a picture of the stage':
-        'deschide o imagine a scenei\nintr-o fereastra noua',
+        'obri una nova finestra\namb una foto de l\'escenari',
 
     // scripting area
     'clean up':
-        'curata',
+        'neteja',
     'arrange scripts\nvertically':
-        'Afiseaza scripturile\nvertical',
+        'alinea els programes\nverticalment',
     'add comment':
-        'adauga comentariu',
+        'afig un comentari',
     'undrop':
-        'undrop',
+        'recupera el bloc',
     'undo the last\nblock drop\nin this pane':
-        'renunta la ultimul drop\nde block in aceasta fereastra',
+        'recupera l\'últim bloc\nque s\'haja llançat',
     'scripts pic...':
-        'imagine scripturi...',
+        'exporta com a imatge...',
     'open a new window\nwith a picture of all scripts':
-        'afiseaza imaginea scripturilor\nintr-o noua fereastra',
+        'obri una nova finestra\namb una foto d\'aquests programes',
     'make a block...':
-        'creaza bloc...',
+        'crea un bloc...',
 
     // costumes
     'rename':
-        'redenumeste',
+        'canvia de nom',
     'export':
         'exporta',
     'rename costume':
-        'redenumeste costum',
+        'canvia el nom del vestit',
 
     // sounds
     'Play sound':
-        'Ruleaza sunet',
+        'Toca el so',
     'Stop sound':
-        'Opreste sunet',
+        'Para el so',
     'Stop':
-        'Opreste',
+        'Para',
     'Play':
-        'Ruleaza',
+        'Toca',
     'rename sound':
-        'redenumeste sunet',
+        'canvia el nom del so',
+
+    // lists and tables
+    'list view...':
+        'vista en format de llista...',
+    'table view...':
+        'vista en format de taula...',
+    'open in dialog...':
+        'obri en una finestra...',
+    'reset columns':
+        'reinicialitza les columnes',
+    'items':
+        'elements',
 
     // dialogs
     // buttons
     'OK':
-        'OK',
+        'D\'acord',
     'Ok':
-        'OK',
+        'D\'acord',
     'Cancel':
-        'Renunta',
+        'Cancel·la',
     'Yes':
-        'Da',
+        'Sí',
     'No':
-        'Nu',
+        'No',
 
     // help
     'Help':
-        'Ajutor',
+        'Ajuda',
 
     // zoom blocks
     'Zoom blocks':
-        'Nivel zoom blocuri',
+         'Canvia la mida dels blocs',
     'build':
-        'build',
+        'construeix',
     'your own':
-        'al tau',
+        'els teus propis',
     'blocks':
-        'blocuri',
+        'blocs',
     'normal (1x)':
         'normal (1x)',
     'demo (1.2x)':
-        'demonstratie (1.2x)',
+        'demostració (1.2x)',
     'presentation (1.4x)':
-        'prezentare (1.4x)',
+        'presentació (1.4x)',
     'big (2x)':
-        'mare (2x)',
+        'gran (2x)',
     'huge (4x)':
-        'enorm (4x)',
+        'immens (4x)',
     'giant (8x)':
-        'gigant (8x)',
+        'gegant (8x)',
     'monstrous (10x)':
-        'monstruos (10x)',
+        'monstruós (10x)',
 
     // Project Manager
     'Untitled':
-        'fara nume',
-    'Open Project':
-        'Deschide proiect',
+        'Sense títol',
+    'Open un Project':
+        'Obri un projecte',
     '(empty)':
-        '(gol)',
+        '(buit)',
     'Saved!':
-        'Salvat!',
+        'Guardat!',
     'Delete Project':
-        'Sterge proiect',
+        'Esborra un projecte',
     'Are you sure you want to delete':
-        'Esti sigur ca vrei sa stergi?',
+        'Segur que vols esborrar',
     'rename...':
-        'redenumeste...',
+        'canvia el nom...',
 
     // costume editor
     'Costume Editor':
-        'Modificare costume',
+        'Editor de vestits',
     'click or drag crosshairs to move the rotation center':
-        'apasa mouseul sau trage de cursor pentru a muta centrul de rotatie',
+        'clica o arrossega la creueta per a moure el centre de rotació',
 
     // project notes
     'Project Notes':
-        'Note de proiect',
+        'Notes del projecte',
 
     // new project
     'New Project':
-        'Proiect nou',
+        'Projecte nou',
     'Replace the current project with a new one?':
-        'Inlocuieste proiectul cu un altul?',
+        'Vols substituir el projecte actual per un de nou?',
 
     // save project
     'Save Project As...':
-        'Salveaza proiectul sub alt nume...',
+        'Anomena i guarda el projecte...',
 
     // export blocks
     'Export blocks':
-        'Exporta blocurile',
+        'Exporta blocs',
     'Import blocks':
-        'Importa blocurile',
+        'Importa blocs',
     'this project doesn\'t have any\ncustom global blocks yet':
-        'acest proiect nu are\nblocuri globale',
+        'aquest projecte encara no\nté cap bloc personalitzat',
     'select':
-        'selecteaza',
+        'selecciona',
     'none':
-        'nici un/o',
+        'cap bloc',
 
     // variable dialog
     'for all sprites':
-        'pentru toate animatiile',
+        'per a tots els objectes',
     'for this sprite only':
-        'doar pentru aceasta animatie',
+        'només per a aquest objecte',
 
     // block dialog
     'Change block':
-        'Schimba blocul',
+        'Canvia el bloc',
     'Command':
-        'Comanda',
+        'Ordre',
     'Reporter':
-        'Reporter',
+        'Reportador',
     'Predicate':
         'Predicat',
 
     // block editor
     'Block Editor':
-        'Editor de blocuri',
+        'Editor de blocs',
     'Apply':
-        'Aplica actiunea',
+        'Aplica',
 
     // block deletion dialog
     'Delete Custom Block':
-        'Sterge blocul utilizator',
+        'Esborra el bloc personalitzat',
     'block deletion dialog text':
-        'textul pentru stergerea unui bloc',
+        'Segur que vols esborrar la definició\nd\'aquest bloc?',
+
 
     // input dialog
     'Create input name':
-        'Creaza nume',
+        'Crea una ranura',
     'Edit input name':
-        'Schimba nume',
+        'Edita la ranura',
     'Edit label fragment':
-        'Schimba eticheta',
+        'Edita el fragment d\'etiqueta',
     'Title text':
-        'Text titlu',
+        'Text del títol',
     'Input name':
-        'Nume',
+        'Nom de la ranura',
     'Delete':
-        'Sterge',
+        'Esborra',
     'Object':
-        'Obiect',
+        'Objecte',
     'Number':
-        'Nume',
+        'Nombre',
     'Text':
         'Text',
     'List':
-        'Lista',
+        'Llista',
     'Any type':
-        'Orice tip',
+        'Qualsevol tipus',
     'Boolean (T/F)':
-        'Boolean (Adevarat/Fals)',
+        'Booleà (C/F)',
     'Command\n(inline)':
-        'Comanda\n(pe acelasi rand)',
+        'Ordre\n(inserida)',
     'Command\n(C-shape)':
-        'Comanda\n(in forma de C)',
+        'Ordre\n(en forma de C)',
     'Any\n(unevaluated)':
-        'Orice\n(necalculat)',
+        'Qualsevol\n(sense avaluar)',
     'Boolean\n(unevaluated)':
-        'Boolean\n(necalculat)',
+        'Booleà\n(sense avaluar)',
     'Single input.':
-        'Intrare.',
+        'Entrada única.',
     'Default Value:':
-        'Valoare implicita:',
+        'Valor predeterminat:',
     'Multiple inputs (value is list of inputs)':
-        'Intrari multiple (dintr-o lista)',
+        'Entrades múltiples (el valor és una llista d\'entrades)',
     'Upvar - make internal variable visible to caller':
-        'Fa variabilele locale vizibile blocului chemator',
+        'Variable interna visible des de l\'exterior',
 
     // About Snap
     'About Snap':
-        'Despre Snap',
+        'Sobre l\'Snap',
     'Back...':
-        'Inapoi...',
+        'Arrere...',
     'License...':
-        'Licenta...',
+        'Llicència...',
     'Modules...':
-        'Componente...',
+        'Mòduls...',
     'Credits...':
-        'Multumiri...',
+        'Crèdits...',
     'Translators...':
-        'Traducatori',
+        'Traductors',
     'License':
-        'Licenta',
+        'Llicència',
     'current module versions:':
-        'versiuni componente:',
+        'versions actuals dels mòduls',
     'Contributors':
-        'Contribuitori',
+        'Contribuïdors',
     'Translations':
-        'Traduceri',
+        'Traduccions',
 
     // variable watchers
     'normal':
         'normal',
     'large':
-        'mare',
+        'gran',
     'slider':
-        'slider',
+        'botó lliscant',
     'slider min...':
-        'slider minim...',
+        'valor mínim del botó lliscant...',
     'slider max...':
-        'slider maxim...',
+        'valor màxim del botó lliscant...',
     'import...':
         'importa...',
     'Slider minimum value':
-        'Valoare minima slidere',
+        'Valor mínim del botó lliscant...',
     'Slider maximum value':
-        'Valoare maxima slidere',
+        'Valor màxim del botó lliscant...',
 
     // list watchers
     'length: ':
-        'lungime: ',
+        'longitud: ',
 
     // coments
     'add comment here...':
-        'adauga comentariu...',
+        'afig un comentari ací...',
 
     // drow downs
     // directions
     '(90) right':
-        '(90) dreapta',
+        '(90) dreta',
     '(-90) left':
-        '(-90) stanga',
+        '(-90) esquerra',
     '(0) up':
-        '(0) sus',
+        '(0) amunt',
     '(180) down':
-        '(180) jos',
+        '(180) avall',
 
     // collision detection
     'mouse-pointer':
-        'cursor mouse',
+        'punter del ratolí',
     'edge':
-        'margine',
+        'vora',
     'pen trails':
-        'urme stilou',
+        'rastre del llapis',
 
     // costumes
     'Turtle':
-        'Broasca',
+        'Tortuga',
     'Empty':
-        'Gol',
+        'Buit',
 
     // graphical effects
     'brightness':
-        'luminozitate',
+        'brillantor',
     'ghost':
-        'umbra',
+        'fantasma',
     'negative':
-        'negativ',
+        'negatiu',
     'comic':
-        'glumet',
+        'còmic',
     'confetti':
-        'contetti',
+        'confeti',
 
     // keys
     'space':
-        'spatiu',
+        'espai',
+    'any key':
+        'qualsevol tecla',
     'up arrow':
-        'sageata sus',
+        'fletxa amunt',
     'down arrow':
-        'sageata jos',
+        'fletxa avall',
     'right arrow':
-        'sageata dreapta',
+        'fletxa dreta',
     'left arrow':
-        'sageata stanga',
+        'fletxa esquerra',
     'a':
         'a',
     'b':
@@ -1262,13 +1303,13 @@ SnapTranslator.dict.ro = {
 
     // math functions
     'abs':
-        'val absoluta',
+        'valor absolut',
     'ceiling':
-        'rotunjire in sus',
+        'sostre',
     'floor':
-        'rotunjire in jos',
+        'part entera',
     'sqrt':
-        'radical',
+        'arrel quadrada',
     'sin':
         'sin',
     'cos':
@@ -1288,35 +1329,66 @@ SnapTranslator.dict.ro = {
 
     // delimiters
     'letter':
-        'litera',
+        'lletra',
     'whitespace':
-        'spatiu',
+        'espai en blanc',
     'line':
-        'linie',
+        'línia',
     'tab':
-        'tab',
+        'tabulador',
     'cr':
-        'enter',
+        'retorn de carro',
 
     // data types
     'number':
-        'numar',
+        'nombre',
     'text':
-        'test',
+        'text',
     'Boolean':
-        'boolean',
+        'Booleà',
     'list':
-        'lista',
+        'llista',
     'command':
-        'comanda',
+        'ordre',
     'reporter':
-        'reporter',
+        'reportador',
     'predicate':
         'predicat',
 
     // list indices
     'last':
-        'ultimul',
+        'últim',
     'any':
-        'oricare'
+        'qualsevol',
+
+    // attributes
+    'neighbors':
+        'veïns',
+    'self':
+        'un mateix',
+    'other sprites':
+        'els altres objectes',
+    'parts':
+        'parts',
+    'anchor':
+        'àncora',
+    'parent':
+        'pare',
+    'children':
+        'fill',
+    'clones':
+        'clons',
+    'other clones':
+        'altres clons',
+    'dangling?':
+        'penjant?',
+    'rotation x':
+        'rotació x',
+    'rotation y':
+        'rotació y',
+    'center x':
+        'centre x',
+    'center y':
+        'centre y'
+
 };
