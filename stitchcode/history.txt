@@ -1,0 +1,17 @@
+Turtlestitch history
+---------------------
+
+180902
+------
+* read/write proper creator, origName, remixhistory tags 
+* remove context error while loading
+* fix translation error when loading project: add (empty) translations files to stitchcode
+
+180924
+------
+* remix history
+
+180917
+------
+* change CSV reading algorithm (works with google sheets)
+
