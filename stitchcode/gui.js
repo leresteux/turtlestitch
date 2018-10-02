@@ -1081,12 +1081,14 @@ IDE_Morph.prototype.downloadDST = function() {
 
 IDE_Morph.prototype.setProjectName = function (string) {
 
-	if (string != this.projectName && SnapCloud.username != this.creator) {
+	if (string.replace(/['"]/g, '') != this.projectName && SnapCloud.username != this.creator) {
 		this.remixHistory = this.creator + ":" + this.projectName + ";"  + this.remixHistory 
 	}
 	this.origCreator =  SnapCloud.username != this.creator ? this.creator : SnapCloud.username;
 	this.creator = SnapCloud.username ? SnapCloud.username : "anonymous";
-	this.origName =  this.projectName;
+	if (string.replace(/['"]/g, '') != this.projectName) {
+		this.origName =  this.projectName;
+	}
     this.projectName = string.replace(/['"]/g, ''); // filter quotation marks
     this.hasChangedMedia = true;
     this.controlBar.updateLabel();
