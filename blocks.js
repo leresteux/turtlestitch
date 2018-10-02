@@ -148,7 +148,7 @@ CustomCommandBlockMorph, SymbolMorph, ToggleButtonMorph, DialMorph*/
 
 // Global stuff ////////////////////////////////////////////////////////
 
-modules.blocks = '2018-June-08';
+modules.blocks = '2018-September-09';
 
 var SyntaxElementMorph;
 var BlockMorph;
@@ -2312,7 +2312,7 @@ BlockMorph.prototype.setSpec = function (spec, silently, definition) {
         this.add(this.placeHolder());
     }
     this.parseSpec(spec).forEach(function (word) {
-        if (word[0] === '%') {
+        if (word[0] === '%' && (word !== '%br')) {
             inputIdx += 1;
         }
         part = myself.labelPart(word);
@@ -8664,9 +8664,10 @@ InputSlotMorph.prototype.shadowedVariablesMenu = function () {
 
     if (!block) {return dict; }
     rcvr = block.scriptTarget();
-    if (this.parentThatIsA(RingMorph)) {
+    if (this.parentThatIsA(RingMorph) ||
+            this.topBlock().selector === 'receiveOnClone') {
     	// show own local vars and attributes, because this is likely to be
-     	// inside TELL, ASK or OF
+     	// inside TELL, ASK or OF or when initializing a new clone
         vars = rcvr.variables.names();
         vars.forEach(function (name) {
             dict[name] = name;
@@ -9419,7 +9420,7 @@ BooleanSlotMorph.uber = ArgMorph.prototype;
 
 // BooleanSlotMorph preferences settings
 
-BooleanSlotMorph.prototype.isTernary = true;
+BooleanSlotMorph.prototype.isTernary = false;
 
 // BooleanSlotMorph instance creation:
 

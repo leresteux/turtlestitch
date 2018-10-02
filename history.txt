@@ -4211,7 +4211,6 @@ Translation Updates:
 * Portuguese, thanks, Manuel!
 * Catalan, thanks, Joan!
 
-=== in development ===
 
 180703
 ------
@@ -4253,3 +4252,60 @@ Translation Updates:
 * Portuguese, thanks, Manuel!
 * French, thanks, Nathalie and Joan!
 * Spanish, Catalan and French translations of the tools library, thanks, Nathalie and Joan!
+
+180710
+------
+* Threads, GUI: reverted Cache-Control header for HTTP requests b/c of CORS issues
+
+=== v4.2.1.1 maintenance release ===
+
+180710
+------
+* Threads, GUI: fixed #712 - false "reporter didn't report" error messages
+
+180711
+------
+* GUI: added support for "&lang=nn" url parameter, made it non-permanent
+* Threads: fixed outer script variable scope for TELL/ASK and OF
+* Tools: fixed JOIN WORDS and LIST -> SENTENCE
+
+180712
+------
+* Threads: tweaked outer script variable scope for TELL/ASK and OF
+* Blocks: fixed #2145 - newlines in block labels conflict with input declarations
+* GUI: increased project dialog width to accommodate translations for the "recover" button
+
+180713
+------
+* Blocks: enabled smart ternary Boolean slots by default
+
+=== v4.2.1.2 maintenance release ===
+
+New Feature:
+* new "&lang=nn" url parameter for specifying a session translation in a web-link
+
+Changed:
+* smart ternary Boolean slots - only 2 states except inside rings and in the palette
+* made project dialog wider to accommodate translations for the "recover" button
+
+Fixes:
+* corrected scope for outer script variables in inter-sprite messages (TELL, ASK, OF)
+* eliminated false "reporter didn't report" error messages
+
+
+180719
+------
+* Threads: fixed a regression conflict between "when I am stopped" and broadcasts
+
+=== v4.2.1.3 maintenance release ===
+
+180909
+------
+* new dev version
+* Threads: fixed #2176 ('arguments' not found for calling empty multi-slots)
+* Blocks: enabled drop-down for "inherit" command for clone-initialization scripts
+
+=== v4.2.1.4 maintenance release ===
+
+
+=== in development ===
