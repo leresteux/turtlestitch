@@ -16,7 +16,7 @@ IDE_Morph.prototype.init = function(isAutoFill) {
 		'Embroidery tools'
 	);    
 //    this.isAnimating = false;
-
+	 this.cloud = new BeetleCloud('/api');
 };
 
 //  change logo
@@ -2254,4 +2254,82 @@ DialogBoxMorph.prototype.informWithLink = function (
 
 IDE_Morph.prototype.toggleStageSize = function (isSmall, forcedRatio) {
 
+};
+
+ProjectDialogMorph.prototype.installCloudProjectList = function (pl) {
+    var myself = this;
+    this.projectList = pl || [];
+    this.projectList.sort(function (x, y) {
+        return x.ProjectName.toLowerCase() < y.ProjectName.toLowerCase() ?
+                 -1 : 1;
+    });
+
+    this.listField.destroy();
+    this.listField = new ListMorph(
+        this.projectList,
+        this.projectList.length > 0 ?
+                function (element) {
+                    return element.ProjectName || element;
+                } : null,
+        [ // format: display shared project names bold
+            [
+                'bold',
+                function (proj) {return proj.Public === 'true'; }
+            ]
+        ],
+        function () {myself.ok(); }
+    );
+    this.fixListFieldItemColors();
+    this.listField.fixLayout = nop;
+    this.listField.edge = InputFieldMorph.prototype.edge;
+    this.listField.fontSize = InputFieldMorph.prototype.fontSize;
+    this.listField.typeInPadding = InputFieldMorph.prototype.typeInPadding;
+    this.listField.contrast = InputFieldMorph.prototype.contrast;
+    this.listField.drawNew = InputFieldMorph.prototype.drawNew;
+    this.listField.drawRectBorder = InputFieldMorph.prototype.drawRectBorder;
+
+    this.listField.action = function (item) {
+        if (item === undefined) {return; }
+        if (myself.nameField) {
+            myself.nameField.setContents(item.ProjectName || '');
+        }
+        if (myself.task === 'open') {
+            myself.notesText.text = item.Notes || '';
+            myself.notesText.drawNew();
+            myself.notesField.contents.adjustBounds();
+            myself.preview.texture = item.Thumbnail || null;
+            myself.preview.cachedTexture = null;
+            myself.preview.drawNew();
+            (new SpeechBubbleMorph(new TextMorph(
+                localize('last changed') + '\n' + item.Updated,
+                null,
+                null,
+                null,
+                null,
+                'center'
+            ))).popUp(
+                myself.world(),
+                myself.preview.rightCenter().add(new Point(2, 0))
+            );
+        }
+        if (item.Public === 'true') {
+            myself.shareButton.hide();
+            myself.unshareButton.show();
+        } else {
+            myself.unshareButton.hide();
+            myself.shareButton.show();
+        }
+        myself.buttons.fixLayout();
+        myself.fixLayout();
+        myself.edit();
+    };
+    this.body.add(this.listField);
+    this.shareButton.show();
+    this.unshareButton.hide();
+    this.deleteButton.show();
+    this.buttons.fixLayout();
+    this.fixLayout();
+    if (this.task === 'open') {
+        this.clearDetails();
+    }
 };

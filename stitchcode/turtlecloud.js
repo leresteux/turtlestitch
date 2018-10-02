@@ -284,9 +284,11 @@ BeetleCloud.prototype.getProjectList = function (callBack, errorCall) {
                                         eachProject.Thumbnail = eachProject.thumbnail;
                                         eachProject.Updated = eachProject.updated;
                                         eachProject.Notes = eachProject.notes;
+                                        
                                     });
                                     callBack.call(null, response);
                                 } else {
+									alert("empty")
                                     callBack.call(null, []);
                                 } 
                             },
@@ -299,12 +301,7 @@ BeetleCloud.prototype.getProjectList = function (callBack, errorCall) {
             );
 };
 
-
-// Backwards compatibility with old cloud
-// To be removed when we finish moving to the new cloud
-BeetleCloud.prototype.parseResponse = function (usr) {
-    return [{ username: usr, password: 'nope' }];
-};
+Cloud = BeetleCloud;
 
 var SnapCloud = new BeetleCloud(
    '/api' 
@@ -727,4 +724,119 @@ IDE_Morph.prototype.cloudMenu = function () {
     menu = new MenuMorph(this);
         menu.popup(world, pos); 
    
+};
+
+
+ProjectDialogMorph.prototype.setSource = function (source) {
+    var myself = this,
+        msg;
+
+    this.source = source; //this.task === 'save' ? 'local' : source;
+    this.srcBar.children.forEach(function (button) {
+        button.refresh();
+    });
+    switch (this.source) {
+        case 'cloud':
+            msg = myself.ide.showMessage('Updating\nproject list...');
+            this.projectList = [];
+
+            //msg.destroy();
+            SnapCloud.getProjectList(
+                    function (projectList) {
+                        myself.installCloudProjectList(projectList);
+                        msg.destroy();
+                    },
+                    function (err, lbl) {
+                        msg.destroy();
+                        myself.ide.cloudError().call(null, err, lbl);
+                    }
+                    );
+            return;
+            break;
+        case 'examples':
+            this.projectList = this.getExamplesProjectList();
+            break;
+        case 'local':
+            this.projectList = this.getLocalProjectList();
+            break;
+    }
+
+    this.listField.destroy();
+    this.listField = new ListMorph(
+            this.projectList,
+            this.projectList.length > 0 ?
+            function (element) {
+                return element.name;
+            } : null,
+            null,
+            function () {myself.ok(); }
+            );
+
+    this.fixListFieldItemColors();
+    this.listField.fixLayout = nop;
+    this.listField.edge = InputFieldMorph.prototype.edge;
+    this.listField.fontSize = InputFieldMorph.prototype.fontSize;
+    this.listField.typeInPadding = InputFieldMorph.prototype.typeInPadding;
+    this.listField.contrast = InputFieldMorph.prototype.contrast;
+    this.listField.drawNew = InputFieldMorph.prototype.drawNew;
+    this.listField.drawRectBorder = InputFieldMorph.prototype.drawRectBorder;
+
+    if (this.source === 'local') {
+        this.listField.action = function (item) {
+            var src, xml;
+
+            if (item === undefined) {return; }
+            if (myself.nameField) {
+                myself.nameField.setContents(item.name || '');
+            }
+            if (myself.task === 'open') {
+
+                src = localStorage['-snap-project-' + item.name];
+                xml = myself.ide.serializer.parse(src);
+
+                myself.notesText.text = xml.childNamed('notes').contents
+                    || '';
+                myself.notesText.drawNew();
+                myself.notesField.contents.adjustBounds();
+                myself.preview.texture = xml.childNamed('thumbnail').contents
+                    || null;
+                myself.preview.cachedTexture = null;
+                myself.preview.drawNew();
+            }
+            myself.edit();
+        };
+    } else { // 'examples', 'cloud' is initialized elsewhere
+        this.listField.action = function (item) {
+            var src, xml;
+            if (item === undefined) {return; }
+            if (myself.nameField) {
+                myself.nameField.setContents(item.name || '');
+            }
+            src = myself.ide.getURL(item.path);
+
+            xml = myself.ide.serializer.parse(src);
+            myself.notesText.text = xml.childNamed('notes').contents
+                || '';
+            myself.notesText.drawNew();
+            myself.notesField.contents.adjustBounds();
+            myself.preview.texture = xml.childNamed('thumbnail').contents
+                || null;
+            myself.preview.cachedTexture = null;
+            myself.preview.drawNew();
+            myself.edit();
+        };
+    }
+    this.body.add(this.listField);
+    this.shareButton.hide();
+    this.unshareButton.hide();
+    if (this.source === 'local') {
+        this.deleteButton.show();
+    } else { // examples
+        this.deleteButton.hide();
+    }
+    this.buttons.fixLayout();
+    this.fixLayout();
+    if (this.task === 'open') {
+        this.clearDetails();
+    }
 };
