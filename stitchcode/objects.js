@@ -206,7 +206,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
     oldx = this.xPosition();
     oldy = this.yPosition();
     this.origGotoXY(x, y, justMe);
-    if ( (Math.abs(this.xPosition()-oldx)<=0.01 && Math.abs(this.yPosition()-oldy)<=0.01) || noShadow ) {
+    if ( (Math.abs(this.xPosition()-oldx)<=0.01 && Math.abs(this.yPosition()-oldy)<=0.01) ) {
 		// jump in place - don't add / ignore
 		console.log("jump in place - don't add / ignore");
     } else {
