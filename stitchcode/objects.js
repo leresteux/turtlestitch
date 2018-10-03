@@ -974,7 +974,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command',
         category: 'motion',
-        spec: 'goto x: %n y: %n by: %n',
+        spec: 'go to x: %n y: %n by: %n',
         defaults: [0, 0, 10]
     };
 
