@@ -5,7 +5,7 @@ tempDict = {
 		'Opslaan',
 	' Stitches : ':
 		' Steken : ',
-    'Jumps':
+	'Jumps':
 		'Springsteken',
 	'Jumps : ':
 		'Springsteken : ',
@@ -15,19 +15,19 @@ tempDict = {
 		'Raster',
 	'Reset View':
 		'Weergave wissen',
-    'Size : ':
+	'Size : ':
 		'Grootte : ',
 	'clear':
 		'wis',
-    'Imperial units':
+	'Imperial units':
 		'Brits-Amerikaanse eenheden',
-    'Turtle':
+	'Turtle':
 		'Schildpad',
-    'Login':
+	'Login':
 		'Log in',
-    'Create an account':
+	'Create an account':
 		'Account aanmaken',
-    'Reset Password...':
+	'Reset Password...':
 		'Wachtwoord opnieuw instellen',
 	'Export as SVG':
 		'Exporteren als SVG vectorafbeelding',

@@ -14,7 +14,7 @@ tempDict = {
 		'Sichern auf Festplatte',
 	' Stitches : ':
 		' Stiche : ',
-    'Jumps':
+	'Jumps':
 		'Sprungstiche',
 	'Jumps : ':
 		'Sprungstiche : ',
@@ -24,20 +24,22 @@ tempDict = {
 		'Raster',
 	'Reset View':
 		'Anzeige zur\u00fccksetzen',
-    'Size : ':
+	'Size : ':
 		'Gr\u00f6\u00dfe : ',
 	'clear':
 		'l\u00f6schen',
-    'Imperial units':
+	'Imperial units':
 		'Ang/Amerik. Einheiten',
-    'Turtle':
+	'Turtle':
 		'Schildkr\u00f6te',
-    'Login':
+
+	'Login':
 		'Anmelden',
-    'Create an account':
+	'Create an account':
 		'Benutzerkonto anlegen',
-    'Reset Password...':
+	'Reset Password...':
 		'Passwort zur\u00fccksetzen',
+
 	'Export as SVG':
 		'Exportieren als SVG Vektorgrafik',
 	'Export as Melco/EXP':
