@@ -65,7 +65,9 @@ tempDict = {
 		'gehe zu x: %n y: %n in %n er Schritten',
 	'go to x: %n y: %n in %n':
 		'gehe zu x: %n y: %n in %n Stichen',
-        
+  	'point towards x: %n y: %n':
+		'zeige nach x: %n y: %n',
+		      
 	' are too long! (will get clamped)':
 		'sind zu lang! (werden geklammert)',
 	' is too long! (will get clamped)':

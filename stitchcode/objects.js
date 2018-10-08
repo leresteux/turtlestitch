@@ -1163,6 +1163,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
         blocks.push(block('setHeading'));
         blocks.push(block('doFaceTowards'));
+        blocks.push(block('pointTowards'));
         blocks.push('-');
         blocks.push(block('gotoXY'));
         blocks.push(block('gotoXYIn'));
@@ -1174,7 +1175,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setXPosition'));
         blocks.push(block('changeYPosition'));
         blocks.push(block('setYPosition'));
-        blocks.push(block('pointTowards'));
         blocks.push('-');
         blocks.push(block('bounceOffEdge'));
         blocks.push('-');
