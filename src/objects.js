@@ -83,7 +83,7 @@ BlockEditorMorph, BlockDialogMorph, PrototypeHatBlockMorph, localize,
 TableMorph, TableFrameMorph, normalizeCanvas, BooleanSlotMorph, HandleMorph,
 AlignmentMorph, Process, XML_Element, VectorPaintEditorMorph*/
 
-modules.objects = '2018-July-06';
+modules.objects = '2018-October-05';
 
 var SpriteMorph;
 var StageMorph;
@@ -3534,9 +3534,14 @@ SpriteMorph.prototype.getHue = function () {
 SpriteMorph.prototype.setHue = function (num) {
     var hsv = this.color.hsv(),
         x = this.xPosition(),
-        y = this.yPosition();
+        y = this.yPosition(),
+        n = +num;
 
-    hsv[0] = Math.max(Math.min(+num || 0, 100), 0) / 100;
+    if (n < 0 || n > 100) { // wrap the hue
+        n = (n < 0 ? 100 : 0) + n % 100;
+    }
+    hsv[0] = n / 100;
+    // hsv[0] = Math.max(Math.min(+num || 0, 100), 0) / 100; // old code
     hsv[1] = 1; // we gotta fix this at some time
     this.color.set_hsv.apply(this.color, hsv);
     if (!this.costume) {
@@ -3560,7 +3565,7 @@ SpriteMorph.prototype.setBrightness = function (num) {
         y = this.yPosition();
 
     hsv[1] = 1; // we gotta fix this at some time
-    hsv[2] = Math.max(Math.min(+num || 0, 100), 0) / 100;
+    hsv[2] = Math.max(Math.min(+num || 0, 100), 0) / 100; // shade doesn't wrap
     this.color.set_hsv.apply(this.color, hsv);
     if (!this.costume) {
         this.drawNew();

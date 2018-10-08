@@ -61,7 +61,7 @@ normalizeCanvas, contains*/
 
 // Global stuff ////////////////////////////////////////////////////////
 
-modules.store = '2018-July-09';
+modules.store = '2018-October-05';
 
 
 // XML_Serializer ///////////////////////////////////////////////////////
@@ -483,6 +483,7 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
                 sprite.setExemplar(exemplar);
             }
             sprite.inheritedAttributes = sprite.inheritanceInfo.delegated || [];
+            sprite.updatePropagationCache();
         }
         if (sprite.nestingInfo) { // only sprites may have nesting info
             anchor = myself.project.sprites[sprite.nestingInfo.anchor];
@@ -2024,9 +2025,10 @@ CustomBlockDefinition.prototype.toXML = function (serializer) {
                             ' readonly="true"' : '',
                     myself.declarations.get(decl)[1],
                     myself.declarations.get(decl)[2] ?
-                            '<options>' + myself.declarations.get(decl)[2] +
-                                '</options>'
-                                : ''
+                            serializer.format(
+                                '<options>@</options>',
+                                myself.declarations.get(decl)[2]
+                            ) : ''
                 );
             }, ''),
         this.body ? serializer.store(this.body.expression) : '',
