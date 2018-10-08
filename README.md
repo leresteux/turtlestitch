@@ -12,11 +12,15 @@ It uses webgl [ThreeJS](http://threejs.org) as rendering engine for performance 
 
 ## Try it
 
-You can try [latest development version from the git master branch](https://backface.github.io/turtlestitch/) via github pages.
+For full functionality run it from the TurtleStitch platform on http://www.turtlestitch.org
 
-Be sure to check out the platform, including a stable version, gallery, more infos, etc... on
+http://www.turtlestitch.org/run
 
-## http://www.turtlestitch.org
+or the testing the current develeopment version integrated into the platform:
+
+http://www.turtlestitch.org/beta
+
+You can also try the [latest development version from the git master branch](https://backface.github.io/turtlestitch/) via github pages (no cloud access!)
 
 
 
