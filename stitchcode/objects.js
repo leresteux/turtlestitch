@@ -274,6 +274,45 @@ SpriteMorph.prototype.gotoXYBy = function (x, y, stepsize) {
     }
 };
 
+SpriteMorph.prototype.gotoXYIn = function (x, y, steps) {
+    var stage = this.parentThatIsA(StageMorph);
+    var dest;
+
+    if (!stage) {return; }
+
+    x = !isFinite(+x) ? 0 : +x;
+    y = !isFinite(+y) ? 0 : +y;
+
+    var dest = new Point(x, y).subtract(
+                  new Point(this.xPosition(), this.yPosition()));
+
+    var a = (x - this.xPosition());
+    var b = (y - this.yPosition());
+    var dist = Math.sqrt(a*a + b*b);
+    if (a == 0 && b == 0)
+      dist = 0;
+
+    if (dist > 0) {
+		var stepsize =  dist / steps;
+		var deltaX = (x - this.xPosition()) * this.parent.scale;
+		var deltaY = (y - this.yPosition()) * this.parent.scale;
+		var angle = Math.abs(deltaX) < 0.001 ? (deltaY < 0 ? 90 : 270)
+				  : Math.round(
+				  (deltaX >= 0 ? 0 : 180)
+					  - (Math.atan(deltaY / deltaX) * 57.2957795131)
+			  );
+		this.setHeading(angle + 90);
+
+		for(i=0; i < steps; i++) {
+			this.forward(stepsize);
+		}
+
+    }
+};
+
+
+
+
 SpriteMorph.prototype.origSetHeading = SpriteMorph.prototype.setHeading;
 SpriteMorph.prototype.setHeading = function (degrees) {
     var stage = this.parentThatIsA(StageMorph);
@@ -526,19 +565,21 @@ StageMorph.prototype.clearAll = function () {
 StageMorph.prototype.initRenderer = function () {
     var myself = this;
 
-
+	console.log("set up renderer");
     if (Detector.webgl) {
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true,
             canvas: this.penTrails()
         });
+        console.log("webgl enabled");
         this.renderer_status_msg = "webgl enabled";
 
     } else {
+		console.log("webgl unavailable. fallback to canvas (SLOW!)");
+		this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
         this.renderer = new THREE.CanvasRenderer(
             {canvas: this.penTrails()});
-        this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
     }
     this.renderer.setClearColor(0xffffff, 1);
 
@@ -974,7 +1015,17 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command',
         category: 'motion',
-        spec: 'go to x: %n y: %n by: %n',
+        spec: 'go to x: %n y: %n by %n',
+        defaults: [0, 0, 10]
+    };
+
+   // control
+    this.blocks.gotoXYIn =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'motion',
+        spec: 'go to x: %n y: %n in %n',
         defaults: [0, 0, 10]
     };
 
@@ -1082,6 +1133,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('doFaceTowards'));
         blocks.push('-');
         blocks.push(block('gotoXY'));
+        blocks.push(block('gotoXYIn'));
         blocks.push(block('gotoXYBy'));
         blocks.push(block('doGotoObject'));
         blocks.push(block('doGlide'));

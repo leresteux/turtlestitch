@@ -22,7 +22,7 @@
 		<script type="text/javascript" src="sha512.js"></script>
 		<script type="text/javascript" src="FileSaver.min.js"></script>
 
-		<script type="text/javascript" src="stitchcode/threee/three.js"></script>
+		<script type="text/javascript" src="stitchcode/three-newer/three.js"></script>
 		<script type="text/javascript" src="stitchcode/threee/CanvasRenderer.js"></script>
 		<script type="text/javascript" src="stitchcode/threee/THREE.MeshLine.js"></script>
 		<script type="text/javascript" src="stitchcode/threee/OrbitControls.old.js"></script>
@@ -41,6 +41,8 @@
 		<script type="text/javascript">
 			var world;
 			window.onload = function () {
+				console.log("is Retina supported: " + isRetinaSupported());
+				disableRetinaSupport();
 				world = new WorldMorph(document.getElementById('world'));
                 world.worldCanvas.focus();
 				new IDE_Morph().openIn(world);
