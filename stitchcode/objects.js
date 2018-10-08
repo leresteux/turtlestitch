@@ -311,6 +311,27 @@ SpriteMorph.prototype.gotoXYIn = function (x, y, steps) {
 };
 
 
+SpriteMorph.prototype.pointTowards = function (x, y) {
+    var stage = this.parentThatIsA(StageMorph);
+    var dest;
+
+    if (!stage) {return; }
+
+    x = !isFinite(+x) ? 0 : +x;
+    y = !isFinite(+y) ? 0 : +y;
+
+
+	var deltaX = (x - this.xPosition()) * this.parent.scale;
+	var deltaY = (y - this.yPosition()) * this.parent.scale;
+	var angle = Math.abs(deltaX) < 0.001 ? (deltaY < 0 ? 90 : 270)
+			  : Math.round(
+			  (deltaX >= 0 ? 0 : 180)
+				  - (Math.atan(deltaY / deltaX) * 57.2957795131)
+	);
+	this.setHeading(angle + 90);
+};
+
+
 
 
 SpriteMorph.prototype.origSetHeading = SpriteMorph.prototype.setHeading;
@@ -1029,6 +1050,17 @@ SpriteMorph.prototype.initBlocks = function () {
         defaults: [0, 0, 10]
     };
 
+
+   // control
+    this.blocks.pointTowards =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'motion',
+        spec: 'point towards x: %n y: %n',
+        defaults: [0, 0]
+    };
+    
 };
 
 SpriteMorph.prototype.initBlocks();
@@ -1142,6 +1174,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setXPosition'));
         blocks.push(block('changeYPosition'));
         blocks.push(block('setYPosition'));
+        blocks.push(block('pointTowards'));
         blocks.push('-');
         blocks.push(block('bounceOffEdge'));
         blocks.push('-');
