@@ -1588,16 +1588,26 @@ IDE_Morph.prototype.projectMenu = function () {
     menu.addItem(
         'Import tools',
         function () {
-            myself.droppedText(
-                myself.getURL(myself.resourceURL('tools.xml')),
-                'tools'
+            if (location.protocol === 'file:') {
+                myself.importLocalFile();
+                return;
+            }
+            myself.getURL(
+                myself.resourceURL('libraries', 'tools.xml'),
+                function (txt) {
+                    myself.droppedText(txt, 'tools');
+                }
             );
         },
         'load the official library of\npowerful blocks'
     );
-    menu.addItem(
+	menu.addItem(
         'Libraries...',
         function() {
+            if (location.protocol === 'file:') {
+                myself.importLocalFile();
+                return;
+            }
             myself.getURL(
                 myself.resourceURL('libraries', 'LIBRARIES'),
                 function (txt) {
