@@ -2,6 +2,7 @@
 // modified SpriteMorph turtlestitch functions
 
 
+
 SpriteMorph.prototype.origInit = SpriteMorph.prototype.init;
 SpriteMorph.prototype.init = function(globals) {
     this.origInit(globals);
@@ -11,7 +12,6 @@ SpriteMorph.prototype.init = function(globals) {
     this.isDown = true;
     this.cache = new Cache;
 };
-
 
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
     var stage = this.parentThatIsA(StageMorph);
@@ -331,7 +331,60 @@ SpriteMorph.prototype.pointTowards = function (x, y) {
 	this.setHeading(angle + 90);
 };
 
+SpriteMorph.prototype.drawText = function (text, scale) {
+    var stage = this.parentThatIsA(StageMorph);
+    var dest;
 
+    if (!stage) {return; }
+
+    // Load the font JSON data
+	if (stage.fonts) {
+		var font = "futuram";
+		for(var i in text) {
+			var index = text.charCodeAt(i) - 33;
+			var x = this.xPosition();
+			var y = this.yPosition();
+			var maxx = 0, maxy = 0;
+			if (stage.fonts[font].chars[index]){
+				commands = stage.fonts[font].chars[index].d.split(' ');
+				for (var i =0; i<commands.length; i++) {
+					var coord = commands[i].split(',');
+					if (coord[0][0] == "M") {
+						coord[0] = coord[0].replace('M','')
+					} else if (coord[0][0] == "L") {
+						coord[0] = coord[0].replace('L','');
+					}
+					maxx = Math.max(maxx, parseInt(coord[0]))
+					maxy = Math.max(maxy, parseInt(coord[1]))
+				}
+				for (var i =0; i<commands.length; i++) {
+					var coord = commands[i].split(',');
+					if (coord[0][0] == "M") {
+						coord[0] = coord[0].replace('M','')
+						var penState = this.isDown;
+						this.isDown = false;
+						this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale )
+						this.isDown = penState;
+					} else if (coord[0][0] == "L") {
+						coord[0] = coord[0].replace('L','');
+						this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale )
+					} else {
+						this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale )
+					}
+				}
+				this.gotoXY(x + (maxx + 2) * scale, y)
+			} else {
+				var penState = this.isDown;
+				this.isDown = false;
+				this.gotoXY(x + 10 * scale, y)
+				this.isDown = penState;
+			}
+		}
+	} else {
+		console.log("no fonts loaded");
+		console.log(stage.fonts);
+	}
+};
 
 
 SpriteMorph.prototype.origSetHeading = SpriteMorph.prototype.setHeading;
@@ -452,7 +505,27 @@ StageMorph.prototype.init = function (globals) {
     this.initScene();
     this.initRenderer();
     this.initCamera();
+    this.fonts = null;
 
+	function loadFont(callback) {
+		var xobj = new XMLHttpRequest();
+		xobj.overrideMimeType("application/json");
+		xobj.open('GET', 'stitchcode/hershey/futuram.json', true); // Replace 'my_data' with the path to your file
+		xobj.onreadystatechange = function () {
+			  if (xobj.readyState == 4 && xobj.status == "200") {
+				// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+				callback(xobj.responseText);
+			  }
+		};
+		xobj.send(null);
+	}
+	
+    if (!this.fonts) {
+		loadFont(function(response) {
+			// Parse JSON string into object
+			myself.fonts = JSON.parse(response);
+		});
+	}
 
     this.turtleShepherd = new TurtleShepherd();
 
@@ -1061,6 +1134,15 @@ SpriteMorph.prototype.initBlocks = function () {
         defaults: [0, 0]
     };
     
+   // control
+    this.blocks.drawText =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'motion',
+        spec: 'draw text: %s scale: %n',
+        defaults: ["hello", 2]
+    };
 };
 
 SpriteMorph.prototype.initBlocks();
@@ -1164,6 +1246,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setHeading'));
         blocks.push(block('doFaceTowards'));
         blocks.push(block('pointTowards'));
+        blocks.push(block('drawText'));
         blocks.push('-');
         blocks.push(block('gotoXY'));
         blocks.push(block('gotoXYIn'));

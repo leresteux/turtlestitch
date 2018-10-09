@@ -169,8 +169,6 @@ BeetleCloud.prototype.saveProject = function (ide, callBack, errorCall) {
                         throw new Error('Serialization of program data failed:\n' + err);
                     }
 
-                    ide.showMessage(pdata); 
-
                     //(path, body, callBack, errorCall, errorMsg)
                     myself.post(
                             '/projects/save?projectname='
