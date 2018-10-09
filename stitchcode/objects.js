@@ -363,20 +363,23 @@ SpriteMorph.prototype.drawText = function (text, scale) {
 						coord[0] = coord[0].replace('M','')
 						var penState = this.isDown;
 						this.isDown = false;
-						this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale )
+						this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
 						this.isDown = penState;
 					} else if (coord[0][0] == "L") {
 						coord[0] = coord[0].replace('L','');
-						this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale )
+						this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
 					} else {
-						this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale )
+						this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
 					}
 				}
-				this.gotoXY(x + (maxx + 2) * scale, y)
+				var penState = this.isDown;
+				this.isDown = false;
+				this.gotoXYBy(x + (maxx + 2) * scale, y, 10)
+				this.isDown = penState;
 			} else {
 				var penState = this.isDown;
 				this.isDown = false;
-				this.gotoXY(x + 10 * scale, y)
+				this.gotoXYBy(x + 10 * scale, y, 10)
 				this.isDown = penState;
 			}
 		}
