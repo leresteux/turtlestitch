@@ -331,15 +331,21 @@ SpriteMorph.prototype.pointTowards = function (x, y) {
 	this.setHeading(angle + 90);
 };
 
-SpriteMorph.prototype.drawText = function (text, scale) {
+SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
     var stage = this.parentThatIsA(StageMorph);
     var dest;
 
     if (!stage) {return; }
 
-    // Load the font JSON data
+	// implement Hershey fonts.
+	// Json data from:
+	// https://techninja.github.io/hersheytextjs/
+
+    var font = "futuram"
+	if (fontnr == 1) font = "scripts"
+	if (fontnr == 2) font = "futural"
+
 	if (stage.fonts) {
-		var font = "futuram";
 		for(var i in text) {
 			var index = text.charCodeAt(i) - 33;
 			var x = this.xPosition();
@@ -363,7 +369,7 @@ SpriteMorph.prototype.drawText = function (text, scale) {
 						coord[0] = coord[0].replace('M','')
 						var penState = this.isDown;
 						this.isDown = false;
-						this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
+						this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale,)
 						this.isDown = penState;
 					} else if (coord[0][0] == "L") {
 						coord[0] = coord[0].replace('L','');
@@ -374,12 +380,12 @@ SpriteMorph.prototype.drawText = function (text, scale) {
 				}
 				var penState = this.isDown;
 				this.isDown = false;
-				this.gotoXYBy(x + (maxx + 2) * scale, y, 10)
+				this.gotoXY(x + (stage.fonts[font].chars[index].o * 1.7) * scale, y)
 				this.isDown = penState;
 			} else {
-				var penState = this.isDown;
+				var penState = this.isDown
 				this.isDown = false;
-				this.gotoXYBy(x + 10 * scale, y, 10)
+				this.gotoXY(x + 10 * scale, y)
 				this.isDown = penState;
 			}
 		}
@@ -510,13 +516,15 @@ StageMorph.prototype.init = function (globals) {
     this.initCamera();
     this.fonts = null;
 
+	// implement Hershey fonts.
+	// Json data from:
+	// https://techninja.github.io/hersheytextjs/
 	function loadFont(callback) {
 		var xobj = new XMLHttpRequest();
 		xobj.overrideMimeType("application/json");
-		xobj.open('GET', 'stitchcode/hershey/futuram.json', true); // Replace 'my_data' with the path to your file
+		xobj.open('GET', 'stitchcode/hershey/fonts.json', true);
 		xobj.onreadystatechange = function () {
 			  if (xobj.readyState == 4 && xobj.status == "200") {
-				// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
 				callback(xobj.responseText);
 			  }
 		};
@@ -525,7 +533,6 @@ StageMorph.prototype.init = function (globals) {
 	
     if (!this.fonts) {
 		loadFont(function(response) {
-			// Parse JSON string into object
 			myself.fonts = JSON.parse(response);
 		});
 	}
@@ -1143,8 +1150,8 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command',
         category: 'motion',
-        spec: 'draw text: %s scale: %n',
-        defaults: ["hello", 2]
+        spec: 'draw text: %s scale: %n font: %n',
+        defaults: ["hello", 2, 0]
     };
 };
 
