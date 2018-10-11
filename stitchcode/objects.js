@@ -337,13 +337,23 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 
     if (!stage) {return; }
 
-	// implement Hershey fonts.
-	// Json data from:
+
+	// a few basic Hershey fonts.
+	// https://en.wikipedia.org/wiki/Hershey_fonts
+	// retrieved from
 	// https://techninja.github.io/hersheytextjs/
 
     var font = "futuram"
 	if (fontnr == 1) font = "scripts"
 	if (fontnr == 2) font = "futural"
+	
+	// Asteroid font 
+	// retrieved from https://trmm.net/Asteroids_font
+	if (fontnr == 3) font = "asteroid"
+
+	if (fontnr == 3) {
+		scale = scale * 2;
+	}
 
 	if (stage.fonts) {
 		for(var i in text) {
@@ -351,42 +361,72 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 			var x = this.xPosition();
 			var y = this.yPosition();
 			var maxx = 0, maxy = 0;
-			if (stage.fonts[font].chars[index]){
-				commands = stage.fonts[font].chars[index].d.split(' ');
-				for (var i =0; i<commands.length; i++) {
-					var coord = commands[i].split(',');
-					if (coord[0][0] == "M") {
-						coord[0] = coord[0].replace('M','')
-					} else if (coord[0][0] == "L") {
-						coord[0] = coord[0].replace('L','');
-					}
-					maxx = Math.max(maxx, parseInt(coord[0]))
-					maxy = Math.max(maxy, parseInt(coord[1]))
-				}
-				for (var i =0; i<commands.length; i++) {
-					var coord = commands[i].split(',');
-					if (coord[0][0] == "M") {
-						coord[0] = coord[0].replace('M','')
-						var penState = this.isDown;
-						this.isDown = false;
-						this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale,)
-						this.isDown = penState;
-					} else if (coord[0][0] == "L") {
-						coord[0] = coord[0].replace('L','');
-						this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
-					} else {
-						this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
+			var nextPenIsUp = false; 
+			if (fontnr == 3) {
+				if (stage.afonts[text[i].toUpperCase()]){
+					coords = stage.afonts[text[i].toUpperCase()];
+					for (var j =0; j<coords.length; j++) {
+						if (coords[j] == "FONT_UP") {
+							nextPenIsUp = true;
+						} else if (coords[j] == "FONT_LAST") {
+							// ignore last
+						} else {
+							if (nextPenIsUp) {
+								var penState = this.isDown;
+								this.isDown = false;
+								this.gotoXY(x + coords[j][0] * scale, y + coords[j][1] * scale )
+								this.isDown = penState;
+								nextPenIsUp = false;
+							} else 	{
+								this.gotoXYBy(x + coords[j][0] * scale, y + coords[j][1] * scale, 10 )
+							}
+						}
 					}
 				}
-				var penState = this.isDown;
-				this.isDown = false;
-				this.gotoXY(x + (stage.fonts[font].chars[index].o * 1.7) * scale, y)
-				this.isDown = penState;
-			} else {
-				var penState = this.isDown
-				this.isDown = false;
-				this.gotoXY(x + 10 * scale, y)
-				this.isDown = penState;
+				if (i < text.length) {
+					var penState = this.isDown;
+					this.isDown = false;
+					this.gotoXY(x + (10 * scale), y );
+					this.isDown = penState;
+				}
+			} else  {
+				if (stage.fonts[font].chars[index]){
+					commands = stage.fonts[font].chars[index].d.split(' ');
+					for (var i =0; i<commands.length; i++) {
+						var coord = commands[i].split(',');
+						if (coord[0][0] == "M") {
+							coord[0] = coord[0].replace('M','')
+						} else if (coord[0][0] == "L") {
+							coord[0] = coord[0].replace('L','');
+						}
+						maxx = Math.max(maxx, parseInt(coord[0]))
+						maxy = Math.max(maxy, parseInt(coord[1]))
+					}
+					for (var i =0; i<commands.length; i++) {
+						var coord = commands[i].split(',');
+						if (coord[0][0] == "M") {
+							coord[0] = coord[0].replace('M','')
+							var penState = this.isDown;
+							this.isDown = false;
+							this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale,)
+							this.isDown = penState;
+						} else if (coord[0][0] == "L") {
+							coord[0] = coord[0].replace('L','');
+							this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
+						} else {
+							this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
+						}
+					}
+					var penState = this.isDown;
+					this.isDown = false;
+					this.gotoXY(x + (stage.fonts[font].chars[index].o * 1.7) * scale, y)
+					this.isDown = penState;
+				} else {
+					var penState = this.isDown
+					this.isDown = false;
+					this.gotoXY(x + 10 * scale, y)
+					this.isDown = penState;
+				}
 			}
 		}
 	} else {
@@ -522,7 +562,7 @@ StageMorph.prototype.init = function (globals) {
 	function loadFont(callback) {
 		var xobj = new XMLHttpRequest();
 		xobj.overrideMimeType("application/json");
-		xobj.open('GET', 'stitchcode/hershey/fonts.json', true);
+		xobj.open('GET', 'stitchcode/fonts/hershey.json', true);
 		xobj.onreadystatechange = function () {
 			  if (xobj.readyState == 4 && xobj.status == "200") {
 				callback(xobj.responseText);
@@ -534,6 +574,27 @@ StageMorph.prototype.init = function (globals) {
     if (!this.fonts) {
 		loadFont(function(response) {
 			myself.fonts = JSON.parse(response);
+		});
+	}
+
+	// load Asteroid font 
+	// retrieved from https://trmm.net/Asteroids_font
+	
+	function loadAsteroidFont(callback) {
+		var xobj = new XMLHttpRequest();
+		xobj.overrideMimeType("application/json");
+		xobj.open('GET', 'stitchcode/fonts/asteroid.json', true);
+		xobj.onreadystatechange = function () {
+			  if (xobj.readyState == 4 && xobj.status == "200") {
+				callback(xobj.responseText);
+			  }
+		};
+		xobj.send(null);
+	}
+
+    if (!this.afonts) {
+		loadAsteroidFont(function(response) {
+			myself.afonts = JSON.parse(response);
 		});
 	}
 
