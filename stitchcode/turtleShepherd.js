@@ -396,11 +396,14 @@ TurtleShepherd.prototype.toEXP = function() {
                 dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
 				dsteps = Math.abs(dmax / 127);
                 
+				if (!lastStitch.penDown)
+					move(0,0);
+
                 if (dsteps <= 1) {
                     if (!stitch.penDown) {
                         //ignore color
-                        //expArr.push(0x80);
-                        //expArr.push(0x04);
+                        expArr.push(0x80);
+                        expArr.push(0x04);
                     }
                     move(Math.round(x1 - x0), Math.round(y1 - y0));
                 } else {
@@ -414,13 +417,13 @@ TurtleShepherd.prototype.toEXP = function() {
                             sum_x += (x1 - x0)/dsteps;
                             sum_y += (y1 - y0)/dsteps;
                         } else {
-                            move(Math.round((x1 - x0) - sum_x),
-                                Math.round((y1 - y0) - sum_y));
+                            move(Math.round((x1 - x0) - sum_x), Math.round((y1 - y0) - sum_y));
                         }
                     }
                 }
-
-            }
+            } else {
+				move(Math.round(Math.round(stitch.x * scale), -Math.round(stitch.y * scale)));
+			}
             lastStitch = stitch;
             hasFirst = true;
         }
@@ -625,16 +628,15 @@ TurtleShepherd.prototype.toDST = function() {
                 dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));                
                 dsteps = Math.abs(dmax / 121);
                 
+                if (!lastStitch.penDown)
+					encodeTajimaStitch(0,0,false);
+
                 if (dsteps <= 1) {
                     encodeTajimaStitch((x1 - x0), (y1 - y0),
                         !stitch.penDown);
                     count_stitches++;
                 } else {
                     for(j=0;j<dsteps;j++) {
-                        //if (tStitch.stitches.jump[i])  {
-                        //	expArr.push(0x80);
-                        //	expArr.push(0x04);
-                        //}
                         if (j < dsteps -1) {
                             encodeTajimaStitch(
                                 Math.round((x1 - x0)/dsteps),
