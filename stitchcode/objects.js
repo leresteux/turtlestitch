@@ -365,13 +365,13 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 			if (fontnr == 3) {
 				if (stage.afonts[text[i].toUpperCase()]){
 					coords = stage.afonts[text[i].toUpperCase()];
-					for (var j =0; j<coords.length; j++) {
+					for (var j=0; j<coords.length; j++) {
 						if (coords[j] == "FONT_UP") {
 							nextPenIsUp = true;
 						} else if (coords[j] == "FONT_LAST") {
 							// ignore last
 						} else {
-							if (nextPenIsUp) {
+							if (nextPenIsUp || j == 0  ) {
 								var penState = this.isDown;
 								this.isDown = false;
 								this.gotoXY(x + coords[j][0] * scale, y + coords[j][1] * scale )
