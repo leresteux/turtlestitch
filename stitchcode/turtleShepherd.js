@@ -220,7 +220,7 @@ TurtleShepherd.prototype.addColorChange= function(color) {
 		r: Math.round(color.r),
 		g: Math.round(color.g),
 		b: Math.round(color.b),
-		a: Math.round(color.a) || 255
+		a: 255 - Math.round(color.a) || 255
 	};
 	this.newColor = c;
 };
@@ -318,18 +318,17 @@ TurtleShepherd.prototype.toSVG = function() {
 
     hasFirst = false;
     tagOpen = false;
+    colorChanged = false;
     lastStitch = null;
-    color = { r:0, g:0, b:0 };
+    color = { r:0, g:0, b:0, a:255 };
 
     for (var i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "color") {
-            /*if (tagOpen) svgStr += '" />\n';
-            color = {
-                    r: this.cache[i].color.r,
-                    g: this.cache[i].color.g,
-                    b: this.cache[i].color.b
-                };
-            tagOpen = false;*/
+			color = this.cache[i].color;
+			colorChanged = true;
+			if (tagOpen) svgStr += '" />\n';
+			tagOpen = false;
+
         } else if (this.cache[i].cmd == "move") {
             stitch = this.cache[i];
             if (!hasFirst) {
@@ -343,23 +342,11 @@ TurtleShepherd.prototype.toSVG = function() {
                     hasFirst = true;
                     tagOpen = true;
                 } else {
-                    /* is jum
-                    svgStr += '<path stroke="red" stroke-dasharray="4 4" d="M ' +
-                        this.initX +
-                        ' ' +
-                        this.initY +
-                        ' L ' +
-                        (stitch.x) +
-                        ' ' +
-                        (stitch.y) +
-                        '" />\n' ;
-                    */
-                    //hasFirst = true;
+					// do nothing
                 }
-
             } else {
                 if (stitch.penDown ) {
-                    if (!lastStich.penDown ) {
+                    if (!lastStich.penDown || colorChanged) {
                         svgStr +='  <path fill="none" style="stroke:rgb('+
                             color.r + ',' + color.g + ',' + color.b +
                             ')" d="M ' +
@@ -376,20 +363,10 @@ TurtleShepherd.prototype.toSVG = function() {
                         ' ' +
                         (this.maxY - stitch.y);
                     tagOpen = true;
+                    colorChanged = false;
                 } else {
                     if (tagOpen) svgStr += '" />\n';
                     tagOpen = false;
-                    /* is jump
-                    svgStr += '<path stroke="red" stroke-dasharray="4 4" d="M ' +
-                        (this.cache[i-1].x) +
-                        ' ' +
-                        (this.cache[i-1].y) +
-                        ' L ' +
-                        (stitch.x) +
-                        ' ' +
-                        (stitch.y) +
-                    '" />\n' ;
-                    */
                 }
             }
             lastStich = stitch;
