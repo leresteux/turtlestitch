@@ -22,6 +22,7 @@ TurtleShepherd.prototype.init = function() {
     this.densityMax = 15;
     this.colors = [];
     this.newColor = false;
+    this.oldColor = null;
 };
 
 
@@ -44,6 +45,7 @@ TurtleShepherd.prototype.clear = function() {
     this.densityWarning = false;
     this.colors = [];
     this.newColor = false;
+    this.oldColor = null;
 };
 
 
@@ -156,6 +158,7 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 			} else {
 				this.colors.push({r:0,g:0,b:0,a:255});
 			}
+			this.oldColor = this.colors[this.colors.length-1];
 		}
     }
 
@@ -228,13 +231,20 @@ TurtleShepherd.prototype.addColorChange= function(color) {
 TurtleShepherd.prototype.pushColorChangeNow = function() {
 
 	c = this.newColor;
+	o = this.oldColor;
+
+	if (c.r == o.r && c.g == o.g && c.b == o.b && c.a == o.a) {
+		this.newColor = false;
+		return;
+	}
 
 	index = this.colors.findIndex(x => (x.r == c.r && x.b == x.b && x.g == c.g && x.a == c.a) );
-	console.log(index, this.newColor, this.colors);
 
 	if (index < 0) {
 		index = this.colors.push(this.newColor)-1;
 	}
+
+	//console.log("change color to", c);
 
     this.cache.push(
         {
@@ -243,7 +253,9 @@ TurtleShepherd.prototype.pushColorChangeNow = function() {
             "thread": index
         }
     );
+	this.oldColor = this.newColor;
     this.newColor = false;
+
 };
 
 /*
