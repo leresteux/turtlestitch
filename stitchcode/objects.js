@@ -334,6 +334,7 @@ SpriteMorph.prototype.pointTowards = function (x, y) {
 SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
     var stage = this.parentThatIsA(StageMorph);
     var dest;
+    var myself = this;
 
     if (!stage) {return; }
 
@@ -355,6 +356,15 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 		scale = scale * 2;
 	}
 
+	function doAJump(x, y) {
+		var penState = myself.isDown;
+		myself.isDown = false;
+		myself.gotoXY(x, y);
+		myself.gotoXY(x+2, y+2);
+		myself.gotoXY(x, y);
+		myself.isDown = penState;
+	}
+
 	if (stage.fonts) {
 		for(var i in text) {
 			var index = text.charCodeAt(i) - 33;
@@ -372,10 +382,7 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 							// ignore last
 						} else {
 							if (nextPenIsUp || j == 0  ) {
-								var penState = this.isDown;
-								this.isDown = false;
-								this.gotoXY(x + coords[j][0] * scale, y + coords[j][1] * scale )
-								this.isDown = penState;
+								doAJump(x + coords[j][0] * scale, y + coords[j][1] * scale )
 								nextPenIsUp = false;
 							} else 	{
 								this.gotoXYBy(x + coords[j][0] * scale, y + coords[j][1] * scale, 10 )
@@ -384,10 +391,7 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 					}
 				}
 				if (i < text.length) {
-					var penState = this.isDown;
-					this.isDown = false;
-					this.gotoXY(x + (10 * scale), y );
-					this.isDown = penState;
+					doAJump(x + (10 * scale), y );
 				}
 			} else  {
 				if (stage.fonts[font].chars[index]){
@@ -406,10 +410,7 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 						var coord = commands[i].split(',');
 						if (coord[0][0] == "M") {
 							coord[0] = coord[0].replace('M','')
-							var penState = this.isDown;
-							this.isDown = false;
-							this.gotoXY(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale,)
-							this.isDown = penState;
+							doAJump(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale,)
 						} else if (coord[0][0] == "L") {
 							coord[0] = coord[0].replace('L','');
 							this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
@@ -417,15 +418,9 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 							this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
 						}
 					}
-					var penState = this.isDown;
-					this.isDown = false;
-					this.gotoXY(x + (stage.fonts[font].chars[index].o * 1.7) * scale, y)
-					this.isDown = penState;
+					doAJump(x + (stage.fonts[font].chars[index].o * 1.7) * scale, y)
 				} else {
-					var penState = this.isDown
-					this.isDown = false;
-					this.gotoXY(x + 10 * scale, y)
-					this.isDown = penState;
+					doAJump(x + 10 * scale, y)
 				}
 			}
 		}

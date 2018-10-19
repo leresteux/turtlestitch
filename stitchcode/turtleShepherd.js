@@ -142,32 +142,33 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
             }
         );
         this.density[Math.round(x1) + "x" + Math.round(y1)] = 1;
-
-    } else {
-        if (x2 < this.minX) this.minX = x2;
-        if (x2 > this.maxX) this.maxX = x2;
-
-        if (y2 < this.minY) this.minY  = y2;
-        if (y2 > this.maxY) this.maxY  = y2;
-        
-        var d = Math.round(x2) + "x" + Math.round(y2);
-        if (this.density[d]) {
-			this.density[d] += 1;
-			if (this.density[d] > this.densityMax) {
-				this.densityWarning = true;
-				if (this.density[d] <= this.densityMax+1) 
-					warn = true;
-			}
-		} else  {
-			this.density[d] = 1;
-		}	
-		if ( this.calcTooLong && penState) {
-			if ( (Math.max(	
-				Math.abs(x2 - x1), Math.abs(y2 - y1)
-				) / this.pixels_per_millimeter * 10) / this.maxLength > 1)
-				this.tooLongCount += 1;
-		}		
     }
+
+	if (x2 < this.minX) this.minX = x2;
+	if (x2 > this.maxX) this.maxX = x2;
+
+	if (y2 < this.minY) this.minY  = y2;
+	if (y2 > this.maxY) this.maxY  = y2;
+
+	var d = Math.round(x2) + "x" + Math.round(y2);
+	if (this.density[d]) {
+		this.density[d] += 1;
+		if (this.density[d] > this.densityMax) {
+			this.densityWarning = true;
+			if (this.density[d] <= this.densityMax+1)
+				warn = true;
+		}
+	} else  {
+		this.density[d] = 1;
+	}
+
+	if ( this.calcTooLong && penState) {
+		if ( (Math.max(
+			Math.abs(x2 - x1), Math.abs(y2 - y1)
+			) / this.pixels_per_millimeter * 10) / this.maxLength > 1)
+			this.tooLongCount += 1;
+	}
+
     this.cache.push(
         {
             "cmd":"move",
