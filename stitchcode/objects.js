@@ -74,7 +74,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
     stage.reRender();
 };
 
-SpriteMorph.prototype.addStitchPoint = function(x1, y1, x2, y2) {
+SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
     var stage = this.parentThatIsA(StageMorph);
 
 	var material = this.cache.findMaterial( 0x0000ff, 1);    
@@ -121,7 +121,7 @@ SpriteMorph.prototype.addStitchPoint = function(x1, y1, x2, y2) {
 SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
     var stage = this.parentThatIsA(StageMorph);
 
-	var geometry = turtle.cache.findGeometry('densityPoint', [3, 6,]);
+	var geometry = this.cache.findGeometry('densityPoint', [3, 6,]);
 	if (!geometry) {
 		geometry = new THREE.CircleGeometry( 3, 6 );
 		geometry.vertices.shift();
@@ -154,33 +154,40 @@ SpriteMorph.prototype.forward = function (steps) {
 
     oldx = this.xPosition();
     oldy = this.yPosition();
+
     if (dist >= 0) {
         dest = this.position().distanceAngle(dist, this.heading);
     } else {
         dest = this.position().distanceAngle(
-            Math.abs(dist),
-            (this.heading - 180)
+            Math.abs(dist),  (this.heading - 180)
         );
     }
-    this.setPosition(dest);
-    this.positionTalkBubble();
 
-    warn = stage.turtleShepherd.moveTo(
-        oldx, oldy,
-        this.xPosition(), this.yPosition(),
-        this.isDown );
+    if (dist != 0) {
+		this.setPosition(dest);
+		this.positionTalkBubble();
 
-    if (warn) {
-		this.addDensityPoint(this.xPosition(), this.yPosition());
+		warn = stage.turtleShepherd.moveTo(
+			oldx, oldy,
+			this.xPosition(), this.yPosition(),
+			this.isDown );
+
+		//console.log(this.isDown, this.xPosition(), this.yPosition(), dist);
+
+		if (this.isDown) {
+			this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
+			this.addStitchPoint(this.xPosition(), this.yPosition());
+			if (warn) {
+				this.addDensityPoint(this.xPosition(), this.yPosition());
+			}
+			if (this.parentThatIsA(StageMorph).turtleShepherd.isEmpty()) {
+				this.addStitchPoint(0,0);
+			}
+		} else {
+			this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
+		}
+		stage.moveTurtle(this.xPosition(), this.yPosition());
 	}
-
-    if (this.isDown)
-        this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
-    else {
-        this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
-    }
-    this.addStitchPoint(oldx, oldy, this.xPosition(), this.yPosition());
-    stage.moveTurtle(this.xPosition(), this.yPosition());
 
     //this.changed();
 };
@@ -211,24 +218,36 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
     oldx = this.xPosition();
     oldy = this.yPosition();
     this.origGotoXY(x, y, justMe);
-    if ( (Math.abs(this.xPosition()-oldx)<=0.01 && Math.abs(this.yPosition()-oldy)<=0.01) ) {
+
+    x = !isFinite(+x) ? 0 : +x;
+    y = !isFinite(+y) ? 0 : +y;
+
+    var a = (oldx - this.xPosition());
+    var b = (oldy - this.yPosition());
+    var dist = Math.sqrt(a*a + b*b);
+
+    if ( dist <= 1) {
 		// jump in place - don't add / ignore
-		console.log("jump in place - don't add / ignore");
+		//console.log("jump in place - don't add / ignore",  this.isDown,this.xPosition(), this.yPosition(), dist);
     } else {
         warn = this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
             oldx, oldy,
             this.xPosition(), this.yPosition(),
             this.isDown );
 
+		//console.log("goto", this.isDown,this.xPosition(), this.yPosition(), dist);
+
         if (this.isDown) {
             this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
+            this.addStitchPoint(this.xPosition(), this.yPosition());
 			if (warn) {
 				this.addDensityPoint(this.xPosition(), this.yPosition());
 			}
+			if (this.parentThatIsA(StageMorph).turtleShepherd.isEmpty())
+				this.addStitchPoint(0,0);
         } else {
             this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
         }
-        this.addStitchPoint(oldx, oldy, this.xPosition(), this.yPosition());
         stage.moveTurtle(this.xPosition(), this.yPosition());
 	}
 };
@@ -269,7 +288,6 @@ SpriteMorph.prototype.gotoXYBy = function (x, y, stepsize) {
       }
       if (rest > 0) {
         this.gotoXY(x,y);
-
       }
     }
 };
@@ -292,21 +310,20 @@ SpriteMorph.prototype.gotoXYIn = function (x, y, steps) {
     if (a == 0 && b == 0)
       dist = 0;
 
+	var deltaX = (x - this.xPosition()) * this.parent.scale;
+	var deltaY = (y - this.yPosition()) * this.parent.scale;
+	var angle = Math.abs(deltaX) < 0.001 ? (deltaY < 0 ? 90 : 270)
+			  : Math.round(
+			  (deltaX >= 0 ? 0 : 180)
+				  - (Math.atan(deltaY / deltaX) * 57.2957795131)
+		  );
+	this.setHeading(angle + 90);
+
     if (dist > 0) {
 		var stepsize =  dist / steps;
-		var deltaX = (x - this.xPosition()) * this.parent.scale;
-		var deltaY = (y - this.yPosition()) * this.parent.scale;
-		var angle = Math.abs(deltaX) < 0.001 ? (deltaY < 0 ? 90 : 270)
-				  : Math.round(
-				  (deltaX >= 0 ? 0 : 180)
-					  - (Math.atan(deltaY / deltaX) * 57.2957795131)
-			  );
-		this.setHeading(angle + 90);
-
 		for(i=0; i < steps; i++) {
 			this.forward(stepsize);
 		}
-
     }
 };
 
@@ -1129,6 +1146,7 @@ SpriteMorph.prototype.resetAll = function () {
 	myself.gotoXY(0,0);
 	myself.setHeading(90);
     myself.clear();
+    myself.setColor(new Color(0,0,0,0));
 }
 
 

@@ -20,6 +20,8 @@ TurtleShepherd.prototype.init = function() {
     this.maxLength = 121;
     this.calcTooLong = true;
     this.densityMax = 15;
+    this.colors = [];
+    this.newColor = false;
 };
 
 
@@ -40,6 +42,8 @@ TurtleShepherd.prototype.clear = function() {
     this.density = {};
     this.tooLongCount = 0;
     this.densityWarning = false;
+    this.colors = [];
+    this.newColor = false;
 };
 
 
@@ -55,6 +59,9 @@ TurtleShepherd.prototype.isMetric = function() {
     return this.metric;
 };
 
+TurtleShepherd.prototype.isEmpty = function() {
+    return this.steps > 1;
+};
 
 TurtleShepherd.prototype.hasSteps = function() {
     return this.steps > 0;
@@ -123,8 +130,8 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
     warn = false;
 
     // ignore jump stitches withouth any previous stitches
-    if (this.steps === 0 && !penState)
-		return
+    //if (this.steps === 0 && !penState)
+	//	return
 
     if (this.steps === 0) {
         this.initX = x1;
@@ -142,7 +149,19 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
             }
         );
         this.density[Math.round(x1) + "x" + Math.round(y1)] = 1;
+        if (this.colors.length < 1) {
+			if (this.newColor) {
+				this.colors.push(this.newColor);
+				this.newColor = false;
+			} else {
+				this.colors.push({r:0,g:0,b:0,a:255});
+			}
+		}
     }
+
+    if (this.newColor) {
+		this.pushColorChangeNow();
+	}
 
 	if (x2 < this.minX) this.minX = x2;
 	if (x2 > this.maxX) this.maxX = x2;
@@ -197,17 +216,34 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 
 
 TurtleShepherd.prototype.addColorChange= function(color) {
+	var c = {
+		r: Math.round(color.r),
+		g: Math.round(color.g),
+		b: Math.round(color.b),
+		a: Math.round(color.a) || 255
+	};
+	this.newColor = c;
+};
+
+TurtleShepherd.prototype.pushColorChangeNow = function() {
+
+	c = this.newColor;
+
+	index = this.colors.findIndex(x => (x.r == c.r && x.b == x.b && x.g == c.g && x.a == c.a) );
+	console.log(index, this.newColor, this.colors);
+
+	if (index < 0) {
+		index = this.colors.push(this.newColor)-1;
+	}
+
     this.cache.push(
         {
             "cmd":"color",
-            "color":{
-                r: Math.round(color.r),
-                g: Math.round(color.g),
-                b: Math.round(color.b),
-                a: Math.round(color.a) || 0
-            },
+            "color": this.newColor,
+            "thread": index
         }
     );
+    this.newColor = false;
 };
 
 /*
@@ -381,10 +417,24 @@ TurtleShepherd.prototype.toEXP = function() {
 
     for (var i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "color") {
-            //expArr.push(0x01);
-            //expArr.push(0x01);
+            expArr.push(0x80);
+            expArr.push(0x01);
+			expArr.push(0x00);
+			expArr.push(0x00);
+			move(0,0);
         } else if (this.cache[i].cmd == "move") {
+
             stitch = this.cache[i];
+
+            if (!hasFirst) {
+				if (!stitch.penDown) {
+					expArr.push(0x80);
+					expArr.push(0x04);
+				}
+				move(0,0);
+				lastStitch = {cmd: "move", x: 0, y: -0, penDown: stitch.penDown}
+				hasFirst = true;
+			}
 
             if (hasFirst) {
                 x1 = Math.round(stitch.x * scale);
@@ -402,7 +452,6 @@ TurtleShepherd.prototype.toEXP = function() {
 
                 if (dsteps <= 1) {
                     if (!stitch.penDown) {
-                        //ignore color
                         expArr.push(0x80);
                         expArr.push(0x04);
                     }
@@ -579,7 +628,7 @@ TurtleShepherd.prototype.toDST = function() {
 
 	writeHeader("LA:turtlestitch", 20, true);
 	writeHeader("ST:" + this.steps.toString(), 11);
-	writeHeader("CO:1", 7);
+	writeHeader("CO:" + this.colors.length, 7);
 	writeHeader("+X:" +  Math.round(this.maxX / this.pixels_per_millimeter) * 10, 9); // Math.round(this.getMetricWidth()*10), 9);
 	writeHeader("-X:" + Math.round(this.minX / this.pixels_per_millimeter) * 10, 9);
 	writeHeader("+Y:" + Math.round(this.maxY/ this.pixels_per_millimeter) * 10, 9); //Math.round(this.getMetricHeight()*10), 9);
@@ -611,12 +660,21 @@ TurtleShepherd.prototype.toDST = function() {
     }
 	
     for (i=0; i < this.cache.length; i++) {
+
         if (this.cache[i].cmd == "color") {
-            //expArr.push(0x01);
-            //expArr.push(0x01);
+			expArr.push(0x00);
+			expArr.push(0x00);
+			expArr.push(0x43);
+			encodeTajimaStitch(0,0,false);
         } else if (this.cache[i].cmd == "move") {
-			
+
             stitch = this.cache[i];
+
+            if (!hasFirst) {
+				encodeTajimaStitch(0,0,!stitch.penDown);
+				lastStitch = {cmd: "move", x: 0, y: -0, penDown: stitch.penDown}
+				hasFirst = true;
+			}
 
             if (hasFirst) {
                 x1 = Math.round(stitch.x * scale);
@@ -658,10 +716,7 @@ TurtleShepherd.prototype.toDST = function() {
                         }
                     }
                 }
-            } else {
-				encodeTajimaStitch(Math.round(stitch.x), Math.round(stitch.y) ,false);
-                count_stitches++;
-			}
+            }
             lastStitch = stitch;
             hasFirst = true;
         }
