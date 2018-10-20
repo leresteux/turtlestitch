@@ -21,8 +21,10 @@ TurtleShepherd.prototype.init = function() {
     this.calcTooLong = true;
     this.densityMax = 15;
     this.colors = [];
-    this.newColor = false;
-    this.oldColor = null;
+    this.newColor = 0;
+    this.oldColor = 0;
+	this.penSize = 1;
+    this.newPenSize = 0;
 };
 
 
@@ -44,8 +46,10 @@ TurtleShepherd.prototype.clear = function() {
     this.tooLongCount = 0;
     this.densityWarning = false;
     this.colors = [];
-    this.newColor = false;
-    this.oldColor = null;
+    this.newColor = 0;
+    this.oldColor = 0;
+	this.penSize = 1;
+    this.newPenSize = 0;    
 };
 
 
@@ -166,6 +170,10 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 		this.pushColorChangeNow();
 	}
 
+    if (this.newPenSize) {
+		this.pushPenSizeNow();
+	}
+
 	if (x2 < this.minX) this.minX = x2;
 	if (x2 > this.maxX) this.maxX = x2;
 
@@ -255,7 +263,28 @@ TurtleShepherd.prototype.pushColorChangeNow = function() {
     );
 	this.oldColor = this.newColor;
     this.newColor = false;
+};
 
+TurtleShepherd.prototype.setPenSize = function(s) {
+	this.newPenSize = s;
+};
+
+TurtleShepherd.prototype.pushPenSizeNow = function() {
+	n = this.newPenSize;
+	o = this.penSize;
+
+	if (n == o) {
+		this.newPenSize = false;
+		return;
+	}
+    this.cache.push(
+        {
+            "cmd":"pensize",
+            "pensize": n
+        }
+    );
+	this.penSize = this.newPenSize;
+    this.newPenSize = false;
 };
 
 /*
@@ -331,6 +360,8 @@ TurtleShepherd.prototype.toSVG = function() {
     hasFirst = false;
     tagOpen = false;
     colorChanged = false;
+    penSizeChanged = false;
+    penSize = 1;
     lastStitch = null;
     color = { r:0, g:0, b:0, a:255 };
 
@@ -340,17 +371,23 @@ TurtleShepherd.prototype.toSVG = function() {
 			colorChanged = true;
 			if (tagOpen) svgStr += '" />\n';
 			tagOpen = false;
-
+        } else if (this.cache[i].cmd == "pensize") {
+			penSize = this.cache[i].pensize;
+			penSizeChanged = true;
+			if (tagOpen) svgStr += '" />\n';
+			tagOpen = false;
         } else if (this.cache[i].cmd == "move") {
             stitch = this.cache[i];
             if (!hasFirst) {
                 if (stitch.penDown) {
-                    svgStr += '<path fill="none" style="stroke:rgb('+
-                        color.r + ',' + color.g + ',' + color.b +
-                        ')" d="M ' +
-                        (this.initX - this.minX) +
-                        ' ' +
-                        (this.maxY - this.initY) ;
+                    svgStr += '<path fill="none" style="' +
+						'stroke:rgb('+ color.r + ',' + color.g + ',' + color.b + '); ' +
+						'stroke-width:' + penSize + ';' +
+						'stroke-linecap:round;"' +
+                        ' d="M ' +
+						   (this.initX - this.minX) +
+                           ' ' +  
+                           (this.maxY - this.initY) ;
                     hasFirst = true;
                     tagOpen = true;
                 } else {
@@ -358,10 +395,12 @@ TurtleShepherd.prototype.toSVG = function() {
                 }
             } else {
                 if (stitch.penDown ) {
-                    if (!lastStich.penDown || colorChanged) {
-                        svgStr +='  <path fill="none" style="stroke:rgb('+
-                            color.r + ',' + color.g + ',' + color.b +
-                            ')" d="M ' +
+                    if (!lastStich.penDown || colorChanged || penSizeChanged) {
+						svgStr += '<path fill="none" style="' +
+							'stroke:rgb('+ color.r + ',' + color.g + ',' + color.b + '); ' +
+							'stroke-width:' + penSize + ';' +
+							'stroke-linecap:round;"' +
+							' d="M ' +
                             (lastStich.x - this.minX) +
                             ' ' +
                             (this.maxY - lastStich.y) +
@@ -376,6 +415,7 @@ TurtleShepherd.prototype.toSVG = function() {
                         (this.maxY - stitch.y);
                     tagOpen = true;
                     colorChanged = false;
+                    penSizeChanged = false;
                 } else {
                     if (tagOpen) svgStr += '" />\n';
                     tagOpen = false;
