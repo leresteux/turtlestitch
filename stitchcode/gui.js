@@ -1837,7 +1837,7 @@ IDE_Morph.prototype.setLanguage = function(lang, callback) {
 
     myself.originalSetLanguage(lang, function () {
         var translation = document.getElementById('bb-language'),
-            src = 'stitchcode/lang-' + lang + '.js',
+            src = 'stitchcode/locales/lang-' + lang + '.js',
             myInnerSelf = this;
         if (translation) {
             document.head.removeChild(translation);
