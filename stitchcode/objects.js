@@ -954,7 +954,7 @@ StageMorph.prototype.initCamera = function () {
 StageMorph.prototype.initTurtle = function() {
     var myself = this;    
     var geometry = new THREE.Geometry();    
-    var material = new THREE.MeshBasicMaterial( { color: 0x000000, opacity:0.8 } );
+    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00, opacity:0.8 } );
     
 
     geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
@@ -969,18 +969,28 @@ StageMorph.prototype.initTurtle = function() {
     
     
     if (typeof this.turtle.loaded === 'undefined') {
-        var loader = new THREE.OBJLoader();
-        loader.load('stitchcode/assets/turtle.obj', function (object) {
-            this.turtle = object;
-            object.scale.set(4, 4, 4);
-            object.position.z = 0.02;
-            //object.position.set(0,0, 0.01);
-            object.rotation.x = 90 * Math.PI / 180;
-            object.rotation.y = 270 * Math.PI / 180;
-            myself.turtle.add(object);
-            myself.renderer.changed = true;
-            this.turtle.loaded = true;
-        });
+		
+		var mtlloader = new THREE.MTLLoader();
+		var onLoadMtl = function ( materials ) {
+			materials.preload();
+			var loader = new THREE.OBJLoader();
+			loader.setMaterials( materials )
+			
+			loader.load( 'stitchcode/assets/turtle.obj',  function (object) {
+				this.turtle = object;
+				object.scale.set(4, 4, 4);
+				object.position.z = 0.02;
+				//object.position.set(0,0, 0.01);
+				object.rotation.x = 90 * Math.PI / 180;
+				object.rotation.y = 270 * Math.PI / 180;
+				myself.turtle.add(object);
+				myself.renderer.changed = true;
+				this.turtle.loaded = true;
+			}, null, null, null, false );
+		};
+		mtlloader.load( 'stitchcode/assets/turtle.mtl', onLoadMtl );		
+        
+
     }
 
     this.drawingColor = new Color(0,0,0);

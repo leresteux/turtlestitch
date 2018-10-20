@@ -386,7 +386,7 @@ TurtleShepherd.prototype.toSVG = function() {
 						'stroke-linecap:round;"' +
                         ' d="M ' +
 						   (this.initX - this.minX) +
-                           ' ' +  
+                           ' ' +
                            (this.maxY - this.initY) ;
                     hasFirst = true;
                     tagOpen = true;
