@@ -16,7 +16,6 @@ SpriteMorph.prototype.init = function(globals) {
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
     var stage = this.parentThatIsA(StageMorph);
 
-
     if (this.stitchLines === null) {
         this.stitchLines = new THREE.Group();
     }
@@ -24,20 +23,22 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 	color = new THREE.Color("rgb("+
             Math.round(stage.drawingColor.r) + "," +
             Math.round(stage.drawingColor.g) + "," +
-            Math.round(stage.drawingColor.b)  + ")" )   
-    
-    var material = this.cache.findMaterial( color, 1); 
-    if (!material) {
+            Math.round(stage.drawingColor.b)  + ")" )       
+
+	var material = this.cache.findMaterial(color,1); 
+	if (!material) {
 		material = new THREE.MeshBasicMaterial({
 			color: color,
 			side:THREE.DoubleSide,
 			opacity: 1
 		});
+		material.transparent = false;
 		this.cache.addMaterial(material);
-	}    
+	}
 
 	// render as plain lines
 	if (false) {
+			
 		var geometry = this.cache.findGeometry('stitch', [x1,y1,x2,y2]);
 		if (!geometry) {
 			geometry = new THREE.Geometry();
@@ -53,24 +54,32 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 	}
 	// render as quads
 	if (true) {
-		var material = new THREE.MeshBasicMaterial(
-			{ color: color, side:THREE.DoubleSide, opacity: 0.8  } );
 		var geometry = new THREE.Geometry();
 		var s = stage.penSize / 2;
 
+		/*
 		normal = new THREE.Vector3( -(y2-y1), (x2-x1), 0);
 		normal = normal.normalize();
-		//dir = new THREE.Vector3( (x2-x1), (y2-y1), 0);
-		//dir = dir.normalize();
-
-		material.transparent = false;
-		/*geometry.vertices = [
-			new THREE.Vector3(x1 + normal.x * s - s * dir.x, y1 + normal.y * s  - s * dir.y, 0.0),
-			new THREE.Vector3(x2 + normal.x * s + s * dir.x, y2 + normal.y * s + s * dir.y, 0.0),
-			new THREE.Vector3(x2 - normal.x * s + s * dir.x, y2 - normal.y * s + s * dir.y, 0.0),
-			new THREE.Vector3(x1 - normal.x * s - s * dir.x, y1 - normal.y * s - s * dir.y, 0.0),
-			new THREE.Vector3(x1 + normal.x * s - s * dir.x, y1 + normal.y * s - s * dir.y, 0.0),
-		];*/
+		var vertices = new Float32Array( [
+			x1 + normal.x * s, y1 + normal.y * s, 0,
+			x2 + normal.x * s, y2 + normal.y * s, 0,
+			x2 - normal.x * s, y2 - normal.y * s, 0,
+			x1 + normal.x * s, y1 + normal.y * s, 0,
+			x2 - normal.x * s, y2 - normal.y * s, 0,
+			x1 - normal.x * s, y1 - normal.y * s, 0,
+			
+		] );
+		var normals  = new Float32Array( [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] );
+		var colors = new Float32Array( [ 1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] );
+		var geometry = new THREE.BufferGeometry()
+		geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+		geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
+		line = new THREE.Mesh(geometry, material);
+		*/
+		
+		/*
+		normal = new THREE.Vector3( -(y2-y1), (x2-x1), 0);
+		normal = normal.normalize();
 		geometry.vertices = [
 			new THREE.Vector3(x1 + normal.x * s, y1 + normal.y * s, 0.0),
 			new THREE.Vector3(x2 + normal.x * s, y2 + normal.y * s, 0.0),
@@ -80,24 +89,49 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		];
 		geometry.faces.push(new THREE.Face3(0, 1, 2));
 		geometry.faces.push(new THREE.Face3(0, 2, 3));
+		*/
+		//var bcgeometry = new THREE.BufferGeometry();
+		//bcgeometry.fromGeometry(geometry);
+		//console.log(geometry); 
+		//console.log(bcgeometry);
+		//console.log(bgeometry);
+		
+		var w = Math.sqrt((x2-x1) * (x2-x1) +(y2-y1) * (y2-y1));
+		w = Math.round((w + 0.00001) * 100) / 100;
+		h = stage.penSize * 2;
+		
+		var geometry = this.cache.findGeometry('plane', [w, h]);
+		if (!geometry) {
+			geometry = new THREE.PlaneGeometry( w, stage.penSize, 1, 1);
+			this.cache.addGeometry('plane', geometry, [w, h]);
+		}
+		
 		line = new THREE.Mesh(geometry, material);
+		line.translateX(x1 + (x2 - x1)/2);
+		line.translateY(y1+ (y2 - y1)/2);
+		line.rotation.z = (90 - this.heading) * Math.PI / 180;
+		
 		stage.myStitchLines.add(line);
 
 		// add a circle to simulate linecaps:round in svg
-		if (stage.penSize > 1) {
-			geometry = new THREE.CircleGeometry( s, 32 );
-			geometry.faces.push(new THREE.Face3(0, 1, 2));
-			geometry.faces.push(new THREE.Face3(0, 2, 3));
+		//if (stage.penSize > 1) {
+			geometry = this.cache.findGeometry('circle', [s]);
+			if (!geometry) {
+				geometry = new THREE.CircleGeometry( s, 32 );
+				this.cache.addGeometry('circle', geometry, [s]);
+			}
 			var circle = new THREE.Mesh( geometry, material );
 			circle.translateX(x2);
 			circle.translateY(y2);
 			circle.visible = true;
 			stage.myStitchLines.add(circle);
-		}
+		//}
+		
+		//console.log(w, x2, y2);
+		//console.log(this.cache);
 	}
 
     this.lastJumped = false;
-    stage.reRender();
 };
 
 
@@ -118,52 +152,42 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
     stage.myJumpLines.add(line);
 
     this.lastJumped = true;
-    stage.reRender();
 };
 
 SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
     var stage = this.parentThatIsA(StageMorph);
 
-	var material = this.cache.findMaterial( 0x0000ff, 1);    
+	color = new THREE.Color("rgb(0,0,255)");
+	var material = this.cache.findMaterial( color, 1);    
     if (!material) {
 		material = new THREE.MeshBasicMaterial(
-			{ color: 0x0000ff, side:THREE.DoubleSide, opacity: 1  } );
+			{ color: color, side:THREE.DoubleSide, opacity: 1  } );
+		material.transparent = true;
 		this.cache.addMaterial(material);
 	}
-    material.transparent = true;
 
-    if (this.jumpLines === null) {
-        this.jumpLines = new THREE.Group();
+    if (this.myStitchPoints === null) {
+        this.myStitchPoints = new THREE.Group();
     }
 
     //normal = new THREE.Vector3( -(y2-y1), (x2-x1), 0);
     //normal = normal.normalize();
 
-	var geometry = this.cache.findGeometry('stitchPoint', [d,]);
+	var d = 2;
+	var geometry = this.cache.findGeometry('plane', [d, d]);
 	if (!geometry) {
-		geometry = new THREE.Geometry();
-		//var d = (stage.penSize * 1.4) / 2;
-		var d = 0.7;
-		geometry.vertices = [
-			new THREE.Vector3(-d, -d, 0.011),
-			new THREE.Vector3(+d, -d, 0.011),
-			new THREE.Vector3(+d, +d, 0.011),
-			new THREE.Vector3(-d, +d, 0.011),
-		];
-
+		geometry = new THREE.PlaneGeometry( d, d, 1, 1);
+		this.cache.addGeometry('plane', geometry, [d, d]);	
 		geometry.faces.push(new THREE.Face3(0, 1, 2));
 		geometry.faces.push(new THREE.Face3(0, 2, 3));
-		this.cache.addGeometry('stitchPoint', geometry, [d]);		
 	}
 	
     line = new THREE.Mesh(geometry, material);    
-    line.rotation.z = (90 - this.heading) * Math.PI / 180;
+    line.rotation.z = (45 - this.heading) * Math.PI / 180;
     line.position.set(x2,y2,0);
 
     line.visible = stage.renderer.showingStitchPoints;
     stage.myStitchPoints.add(line);
-
-    stage.reRender();
 };
 
 SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
@@ -188,8 +212,6 @@ SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
     circle.translateZ(0.03);
     circle.visible = true;
     stage.myDensityPoints.add(circle);
-
-    stage.reRender();
 };
 
 
@@ -210,10 +232,10 @@ SpriteMorph.prototype.forward = function (steps) {
             Math.abs(dist),  (this.heading - 180)
         );
     }
-
+    
     if (dist != 0) {
 		this.setPosition(dest);
-		this.positionTalkBubble();
+		//this.positionTalkBubble();
 
 		warn = stage.turtleShepherd.moveTo(
 			oldx, oldy,
@@ -228,6 +250,7 @@ SpriteMorph.prototype.forward = function (steps) {
 			if (warn) {
 				this.addDensityPoint(this.xPosition(), this.yPosition());
 			}
+			
 			if (this.parentThatIsA(StageMorph).turtleShepherd.isEmpty()) {
 				this.addStitchPoint(0,0);
 			}
@@ -235,9 +258,8 @@ SpriteMorph.prototype.forward = function (steps) {
 			this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
 		}
 		stage.moveTurtle(this.xPosition(), this.yPosition());
+	
 	}
-
-    //this.changed();
 };
 
 SpriteMorph.prototype.forwardByNr = function (totalsteps, nr_steps) {
@@ -616,6 +638,7 @@ StageMorph.prototype.init = function (globals) {
     this.initRenderer();
     this.initCamera();
     this.fonts = null;
+    this.stepcounter = 0;
 
 	// implement Hershey fonts.
 	// Json data from:
@@ -1018,9 +1041,13 @@ StageMorph.prototype.rotateTurtle = function(h) {
 StageMorph.prototype.originalStep = StageMorph.prototype.step;
 StageMorph.prototype.step = function () {
     this.originalStep();
-
-    // update, if needed
-    this.renderCycle();
+    if (!(this.isFastTracked && this.threads.processes.length)) {
+		this.renderCycle();	
+	} else if (this.stepcounter % 12 == 0) {
+		this.renderCycle();	
+	};
+		
+	this.stepcounter++;
 };
 
 StageMorph.prototype.referencePos = null;
@@ -1871,7 +1898,7 @@ function Cache () {
 
 Cache.prototype.init = function () {
     this.materials = [];
-    this.geometries = { stitch: [], stitchPoint: [], densityPoint: [], };
+    this.geometries = { stitch: [], stitchPoint: [], densityPoint: [], circle: [], plane: [] };
 };
 
 Cache.prototype.clear = function () {
@@ -1884,10 +1911,10 @@ Cache.prototype.addMaterial = function (material) {
 
 Cache.prototype.findMaterial = function (color, opacity) {
     return detect(
-            this.materials,
-            function (each) {
-                return each.color.equals(color) && each.opacity === opacity;
-            });
+		this.materials,
+		function (each) {
+			return each.color.r == color.r && each.color.g == color.g && each.color.b == color.b && each.opacity == opacity;
+		});
 };
 
 Cache.prototype.addGeometry = function (type, geometry, params) {

@@ -66,7 +66,7 @@ TurtleShepherd.prototype.isMetric = function() {
 };
 
 TurtleShepherd.prototype.isEmpty = function() {
-    return this.steps > 1;
+    return this.steps < 1;
 };
 
 TurtleShepherd.prototype.hasSteps = function() {
@@ -176,9 +176,8 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 
 	if (x2 < this.minX) this.minX = x2;
 	if (x2 > this.maxX) this.maxX = x2;
-
-	if (y2 < this.minY) this.minY  = y2;
-	if (y2 > this.maxY) this.maxY  = y2;
+	if (y2 < this.minY) this.minY = y2;
+	if (y2 > this.maxY) this.maxY = y2;
 
 	var d = Math.round(x2) + "x" + Math.round(y2);
 	if (this.density[d]) {
@@ -677,10 +676,16 @@ TurtleShepherd.prototype.toDST = function() {
 	writeHeader("MY:0", 10);
 	writeHeader("PD:******", 10);
 
+	// end of header data
 	expArr.push(0x1a);
 	expArr.push(0x00);
 	expArr.push(0x00);
 	expArr.push(0x00);
+	
+	// extented header goes here
+	// "AU:%s\r" % author)
+    // "CP:%s\r" % meta_copyright)
+    // "TC:%s,%s,%s\r" % (thread.hex_color(), thread.description, thread.catalog_number))
 
 
     // Print empty header
