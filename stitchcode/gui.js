@@ -599,6 +599,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         //this.paletteHandle,
         this.stageHandle,
         this.palette,
+        this.statusDisplay, 
         this.categories ];
 
         this.isAppMode = isNil(appMode) ? !this.isAppMode : appMode;
