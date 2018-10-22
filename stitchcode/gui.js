@@ -674,8 +674,7 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
 		function () {
             window.open('http://www.turtlestitch.com', 'TurtleStitchWebsite');
         },
-        'TurtleStitch! website',
-        
+        'TurtleStitch Web Site',
     ); 
     dlg.fixLayout();
 };
@@ -1812,7 +1811,7 @@ IDE_Morph.prototype.snapMenu = function () {
         }
     );
     menu.addItem(
-        'TurtleStitch! website',
+        'TurtleStitch Web Site',
         function () {
             window.open('http://www.turtlestitch.com', 'TurtleStitchWebsite');
         }

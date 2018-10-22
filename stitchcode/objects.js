@@ -1,7 +1,32 @@
 /* Sprite */
 // modified SpriteMorph turtlestitch functions
 
+/*
+SpriteMorph.prototype.categories =
+    [
+        'motion',
+        'control',
+        'sensing',
+        'operators',  
+        'pen',
+        'variables',              
+		'colors',
+        'my blocks'
+    ];
 
+SpriteMorph.prototype.blockColor = {
+    motion : new Color(74, 108, 212),
+    pen : new Color(143, 86, 227),
+	colors : new Color(32, 128, 54),
+    control : new Color(230, 168, 34),
+    sensing : new Color(4, 148, 220),
+    operators : new Color(98, 194, 19),
+    variables : new Color(243, 118, 29),
+    lists : new Color(217, 77, 17),
+    other : new Color(150, 150, 150),
+    'my blocks': new Color(150, 150, 150),
+};
+*/
 
 SpriteMorph.prototype.origInit = SpriteMorph.prototype.init;
 SpriteMorph.prototype.init = function(globals) {
@@ -11,6 +36,7 @@ SpriteMorph.prototype.init = function(globals) {
     this.turtle = null;    
     this.isDown = true;
     this.cache = new Cache;
+    
 };
 
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
@@ -529,6 +555,77 @@ SpriteMorph.prototype.setHeading = function (degrees) {
     stage.rotateTurtle(this.heading);
 };
 
+
+SpriteMorph.prototype.setColorRGB = function (r,g,b) {
+	var a = this.color.a;
+	r = Math.max(Math.min(r, 255), 0);
+	b = Math.max(Math.min(b, 255), 0);
+	g = Math.max(Math.min(g, 255), 0);
+    this.setColor(new Color(r, g, b, a));
+};
+
+SpriteMorph.prototype.pickHue = function (value) {
+    this.setColor(value);
+};
+
+
+SpriteMorph.prototype.setAlpha = function (a) {
+	this.color = aColor.copy();
+	this.color.a = a;
+    this.setColor(this.color);
+};
+
+SpriteMorph.prototype.setColorHex = function (hex) {
+	var a = this.color.a;
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+
+	hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+		return r + r + g + g + b + b;
+	});
+
+	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	if (result) {
+		r = parseInt(result[1], 16);
+		g = parseInt(result[2], 16);
+		b = parseInt(result[3], 16);
+		this.setColor(new Color(r, g, b, a));
+	} else {
+	  // silently ignore
+	} 
+};
+
+SpriteMorph.prototype.setColorHSV = function (h, s, v) {
+	var col = new Color();
+	h = Math.max(Math.min(h, 1), 0);
+	s = Math.max(Math.min(s, 1), 0);
+	v = Math.max(Math.min(v, 1), 0);
+	col.set_hsv(h, s, v);
+	col.a = this.color.a;
+	this.setColor(col);
+}
+
+SpriteMorph.prototype.getColorRGB = function (){
+	return new List([this.color.r, this.color.g, this.color.b]);
+}
+
+SpriteMorph.prototype.getColorHex = function (){
+	return new String("#" + ((1 << 24) + (Math.round(this.color.r) << 16) + (Math.round(this.color.g) << 8) 
+	+ Math.round(this.color.b)).toString(16).slice(1));
+}
+
+SpriteMorph.prototype.getColorHSV = function (){
+	return new List(this.color.hsv());
+}
+
+SpriteMorph.prototype.isPenDown = function (){
+	return this.isDown;
+}
+
+SpriteMorph.prototype.getPenSize = function (){
+	return this.penSize();
+}
+
 SpriteMorph.prototype.setColor = function (aColor) {
     var stage = this.parentThatIsA(StageMorph);
     if (!this.color.eq(aColor)) {
@@ -536,9 +633,6 @@ SpriteMorph.prototype.setColor = function (aColor) {
     }
     stage.setColor(aColor);
     stage.turtleShepherd.addColorChange(aColor);
-
-
-    // TO DO: set color in turtleShepherd
 };
 
 SpriteMorph.prototype.origSetHue = SpriteMorph.prototype.setHue;
@@ -1017,12 +1111,10 @@ StageMorph.prototype.initTurtle = function() {
 			}, null, null, null, false );
 		};
 		mtlloader.load( 'stitchcode/assets/turtle.mtl', onLoadMtl );		
-        
-
     }
 
     this.drawingColor = new Color(0,0,0);
-    this.penSize = 0.8;
+    this.penSize = 1;
 };
 
 StageMorph.prototype.moveTurtle = function(x, y) {
@@ -1253,7 +1345,6 @@ SpriteMorph.prototype.initBlocks = function () {
     var myself = this;
     this.originalInitBlocks();
 
-    // control
     this.blocks.resetAll =
     {
 		only: SpriteMorph,
@@ -1261,8 +1352,6 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'reset',
         category: 'control'
     };
-
-    // control
     this.blocks.forwardBy =
     {
 		only: SpriteMorph,
@@ -1271,8 +1360,7 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'move %n steps by %n steps',
         defaults: [100,10]
     };
-
-    // control
+          
     this.blocks.forwardByNr =
     {
 		only: SpriteMorph,
@@ -1281,8 +1369,6 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'move %n steps in %n',
         defaults: [100,10]
     };
-
-    // control
     this.blocks.gotoXYBy =
     {
 		only: SpriteMorph,
@@ -1291,8 +1377,6 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'go to x: %n y: %n by %n',
         defaults: [0, 0, 10]
     };
-
-   // control
     this.blocks.gotoXYIn =
     {
 		only: SpriteMorph,
@@ -1301,9 +1385,6 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'go to x: %n y: %n in %n',
         defaults: [0, 0, 10]
     };
-
-
-   // control
     this.blocks.pointTowards =
     {
 		only: SpriteMorph,
@@ -1312,8 +1393,6 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'point towards x: %n y: %n',
         defaults: [0, 0]
     };
-    
-   // control
     this.blocks.drawText =
     {
 		only: SpriteMorph,
@@ -1322,6 +1401,116 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'draw text: %s scale: %n font: %n',
         defaults: ["hello", 2, 0]
     };
+    
+    // pen blocks
+    this.blocks.isPenDown =
+    {
+		only: SpriteMorph,
+        type: 'reporter',
+        category: 'pen',
+        spec: 'is pen down',
+    };   
+    
+    // pen blocks
+    this.blocks.getPenSize  =
+    {
+		only: SpriteMorph,
+        type: 'reporter',
+        category: 'pen',
+        spec: 'pen size',
+    };   
+            
+    this.blocks.setColorRGB =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'pen',
+        spec: 'set color to RGB: %n %n %n',
+        defaults: [0, 255, 0]
+    };    
+  
+    this.blocks.setColorHex =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'pen',
+        spec: 'set color to hex value: %s',
+        defaults: ['#ff0000']
+    };  
+    
+    this.blocks.setColorHSV =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'pen',
+        spec: 'set color to HSV: %n %n %n',
+        defaults: [0.3, 0.7, 0.6]
+    };   
+    
+    this.blocks.setAlpha =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'pen',
+        spec: 'set opacity to %s',
+        defaults: [255]
+    }; 
+
+	this.blocks.getColorRGB =
+    {
+		only: SpriteMorph,
+        type: 'reporter',
+        category: 'pen',
+        spec: 'RGB color',
+    };   
+    
+	this.blocks.getColorHSV =
+    {
+		only: SpriteMorph,
+        type: 'reporter',
+        category: 'pen',
+        spec: 'HSV color',
+    };
+    
+	this.blocks.getColorHex =
+    {
+		only: SpriteMorph,
+        type: 'reporter',
+        category: 'pen',
+        spec: 'hex color',
+    };      
+
+  
+	// colors
+    this.blocks.pickHue =
+    {
+        type: 'command',
+        spec: 'set pen hue to %huewheel',
+        category: 'pen'
+    };
+    
+     /* 
+    this.blocks.setHSLA =
+    {
+        type: 'command',
+        spec: 'set %hsla to %n',
+        category: 'colors',
+        defaults: ['hue', 50]
+    };
+    this.blocks.changeHSLA =
+    {
+        type: 'command',
+        spec: 'change %hsla by %n',
+        category: 'colors',
+        defaults: ['hue', 10]
+    };
+    this.blocks.getHSLA =
+    {
+        type: 'reporter',
+        spec: 'color %hsla',
+        category: 'colors'
+    };  
+    */ 
 };
 
 SpriteMorph.prototype.initBlocks();
@@ -1530,16 +1719,33 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
         blocks.push(block('down'));
         blocks.push(block('up'));
+        blocks.push(block('isPenDown'));
+        blocks.push('-');
+        blocks.push(block('changeSize'));
+        blocks.push(block('setSize'));  
+        blocks.push(block('getPenSize'));      
         blocks.push('-');
         blocks.push(block('setColor'));
+        blocks.push(block('setColorRGB'));
+        blocks.push(block('setColorHSV'));
+        blocks.push(block('setColorHex'));
+        blocks.push(block('getColorRGB'));
+        blocks.push(block('getColorHSV'));        
+        blocks.push(block('getColorHex'));
+        blocks.push('-');
+        blocks.push(block('pickHue'));
         blocks.push(block('changeHue'));
         blocks.push(block('setHue'));
         blocks.push('-');
-        blocks.push(block('changeBrightness'));
-        blocks.push(block('setBrightness'));
+
+  /*      
+	} else if (cat === 'colors') {
+        blocks.push(block('pickHue'));
         blocks.push('-');
-        blocks.push(block('changeSize'));
-        blocks.push(block('setSize'));
+        blocks.push(block('setHSLA'));
+        blocks.push(block('changeHSLA'));
+        blocks.push(block('getHSLA'));
+    */   
     } else if (cat === 'control') {
 
 		blocks.push(block('resetAll'));
