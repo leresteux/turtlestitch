@@ -694,11 +694,11 @@ TurtleShepherd.prototype.toDST = function() {
     }
 	
     for (i=0; i < this.cache.length; i++) {
-
+	
         if (this.cache[i].cmd == "color") {
 			expArr.push(0x00);
 			expArr.push(0x00);
-			expArr.push(0x43);
+			expArr.push(0xC3);
 			encodeTajimaStitch(0,0,false);
         } else if (this.cache[i].cmd == "move") {
 

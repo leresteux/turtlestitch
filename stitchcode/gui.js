@@ -646,6 +646,40 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         this.setExtent(this.world().extent()); // resume trackChanges
 };
 
+IDE_Morph.prototype.aboutTurtleStitch = function () {
+    var dlg, aboutTxt, pic, world = this.world();
+
+    pic = Morph.fromImageURL('stitchcode/assets/turtle-logo.png');
+    pic.setExtent(new Point(32, 32));
+
+    aboutTxt = 'TurtleStich! 2.1.0 beta\n\n'
+        + 'Copyright \u24B8 2018 Michael Aschauer\n\n'
+
+        + 'TurtleStitch is developed by OSEDA - Association for\n'
+        + 'Development of Open Source Software in Education, Design\n'
+        + 'and Art and stitchcode.com - Visionary Embroidery.\n\n'
+
+        + 'The project has been sponsored by netidee Open Innovation\n'
+        + '(Internet Foundation Austria) and kickstarter crowdfunding.\n\n'
+
+        + 'TurtleStich is based on Snap!\n\n'
+
+        dlg = new DialogBoxMorph();
+    dlg.inform(localize('About TurtleStitch'), localize(aboutTxt), world, pic);
+	
+    btn1 = dlg.addButton(this.aboutSnap,
+        'About Snap! ...'
+    ); 
+    btn2 = dlg.addButton(
+		function () {
+            window.open('http://www.turtlestitch.com', 'TurtleStitchWebsite');
+        },
+        'TurtleStitch! website',
+        
+    ); 
+    dlg.fixLayout();
+};
+
 // create status display (inspired by beetleblocks)
 IDE_Morph.prototype.createStatusDisplay = function () {
     var frame,
@@ -1767,7 +1801,9 @@ IDE_Morph.prototype.snapMenu = function () {
         world = this.world();
 
     menu = new MenuMorph(this);
-    menu.addItem('About...', 'aboutSnap');
+    menu.addItem('About TurtleStitch ...', 'aboutTurtleStitch');
+    menu.addItem('About Snap! ...', 'aboutSnap');
+    
     menu.addLine();
     menu.addItem(
         'Reference manual',
@@ -1776,9 +1812,9 @@ IDE_Morph.prototype.snapMenu = function () {
         }
     );
     menu.addItem(
-        'TurtleStich! website',
+        'TurtleStitch! website',
         function () {
-            window.open('http://'+window.location.hostname, 'SnapWebsite');
+            window.open('http://www.turtlestitch.com', 'TurtleStitchWebsite');
         }
     );
     menu.addItem(
