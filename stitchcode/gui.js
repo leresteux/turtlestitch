@@ -16,7 +16,9 @@ IDE_Morph.prototype.init = function(isAutoFill) {
 		'Embroidery tools'
 	);    
 //    this.isAnimating = false;
-	 this.cloud = new BeetleCloud('/api');
+    this.paletteWidth = 250; // initially same as logo width
+    //MorphicPreferences.globalFontFamily = 'Sans, Helvetica, Arial';
+	this.cloud = new BeetleCloud('/api');
 };
 
 //  change logo
@@ -138,7 +140,7 @@ IDE_Morph.prototype.buildPanes = function () {
     this.createStatusDisplay();
     this.createStageHandle();
     this.createPaletteHandle();
-    
+	
 };
 
 StageHandleMorph.prototype.init = function (target) {
@@ -149,6 +151,7 @@ StageHandleMorph.prototype.init = function (target) {
     this.isDraggable = false;
     this.noticesTransparentClick = true;
     this.setExtent(new Point(12, 50));
+    
 };
 
 IDE_Morph.prototype.origSetStageExtent = IDE_Morph.prototype.setStageExtent;
@@ -222,7 +225,7 @@ IDE_Morph.prototype.createControlBar = function () {
     }
 
     this.controlBar = new Morph();
-    this.controlBar.color = this.frameColor;
+    //this.controlBar.color = this.frameColor;
 	this.controlBar.color = new Color(250, 250, 250);
     this.controlBar.setHeight(this.logo.height()); // height is fixed
     this.controlBar.mouseClickLeft = function () {
@@ -596,7 +599,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         this.controlBar.steppingButton,
         //this.controlBar.largeStageSizeButton,
         this.spriteEditor,
-        //this.paletteHandle,
+        this.paletteHandle,
         this.stageHandle,
         this.palette,
         this.statusDisplay, 
@@ -617,9 +620,12 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
                     morph.hide();
                 }
             });
+            this.stage.add(this.controlBar);
+			this.controlBar.alpha = 0;
         } else {
-            this.setColor(this.backgroundColor);
-            this.controlBar.setColor(this.frameColor);
+			this.controlBar.setColor(this.controlBar.color);
+			this.add(this.controlBar);
+            
             elements.forEach(function (e) {
                 e.show();
             });
@@ -916,16 +922,16 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     elements.push(zoomOutButton);
 
 
-    var resetCameraButton = new PushButtonMorph(
+    var fitScreenButton = new PushButtonMorph(
             null,
-            function () { stage.camera.reset(); },
-            'Reset View'
+            function () { stage.camera.fitScene(); },
+            'Zoom to Fit'
             );
-    resetCameraButton.columns = 4;
-    resetCameraButton.newColumn = 2;
-    elements.push(resetCameraButton);
-
-    var toggleTurboButton = new ToggleMorph(
+    elements.push(fitScreenButton); 
+    fitScreenButton.columns = 4;
+    fitScreenButton.newColumn = 2;  
+   
+	var toggleTurboButton = new ToggleMorph(
             'checkbox',
             null,
             function () {
@@ -951,8 +957,16 @@ IDE_Morph.prototype.createStatusDisplay = function () {
             function () {
                 return !stage.turtleShepherd.isMetric();
             });
-    toggleUnitButton.newLines = 3;
-    elements.push(toggleUnitButton);    
+    toggleUnitButton.newLines = 2;
+    elements.push(toggleUnitButton); 
+        
+    var resetCameraButton = new PushButtonMorph(
+            null,
+            function () { stage.camera.reset(); },
+            'Reset View'
+            );
+    elements.push(resetCameraButton);
+    resetCameraButton.newLines = 3;    
 
     var downloadSVGButton = new PushButtonMorph(
         null,
@@ -1016,7 +1030,7 @@ IDE_Morph.prototype.fixLayout = function (situation) {
 
         // categories
         this.categories.setLeft(this.logo.left());
-        this.categories.setTop(this.logo.bottom());
+        this.categories.setTop(this.logo.bottom()+1);
         this.categories.setWidth(this.paletteWidth);
     }
 
@@ -1029,11 +1043,13 @@ IDE_Morph.prototype.fixLayout = function (situation) {
     if (situation !== 'refreshPalette') {
         // stage
         if (this.isAppMode) {
-            this.stage.setScale(Math.floor(Math.min(
-                (this.width() - padding * 2) / this.stage.dimensions.x,
-                (this.height() - this.controlBar.height() * 2 - padding * 2) /
-                    this.stage.dimensions.y ) * 10) / 10);
+            this.stage.setScale(this.width() / this.stage.dimensions.x);
+            //this.stage.setScale(3);
             this.stage.setCenter(this.center());
+            //this.stage.setTop(this.controlBar.bottom());
+            //this.stage.setLeft(0);
+            this.controlBar.setTop(0);
+			this.controlBar.setRight(this.width() - padding);
         } else {
             this.stage.setScale(this.isSmallStage ? this.stageRatio : 1);
             this.stage.setTop(this.logo.bottom() + padding);
@@ -2262,9 +2278,6 @@ DialogBoxMorph.prototype.informWithLink = function (
 };
 
 
-IDE_Morph.prototype.toggleStageSize = function (isSmall, forcedRatio) {
-
-};
 
 ProjectDialogMorph.prototype.installCloudProjectList = function (pl) {
     var myself = this;

@@ -130,7 +130,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		//console.log(w, x2, y2);
 		//console.log(this.cache);
 	}
-
+	this.reRender();
     this.lastJumped = false;
 };
 
@@ -152,6 +152,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
     stage.myJumpLines.add(line);
 
     this.lastJumped = true;
+    this.reRender();
 };
 
 SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
@@ -188,6 +189,8 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
 
     line.visible = stage.renderer.showingStitchPoints;
     stage.myStitchPoints.add(line);
+    this.reRender();
+    
 };
 
 SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
@@ -212,6 +215,7 @@ SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
     circle.translateZ(0.03);
     circle.visible = true;
     stage.myDensityPoints.add(circle);
+    this.reRender();
 };
 
 
@@ -579,7 +583,7 @@ SpriteMorph.prototype.clear = function () {
 };
 
 SpriteMorph.prototype.reRender = function () {
-
+    this.parentThatIsA(StageMorph).renderer.changed = true  ;
     //this.hide();
     this.changed();
 };
@@ -941,11 +945,10 @@ StageMorph.prototype.initCamera = function () {
                 this.zoomFactor = 1.7;
                 this.applyZoom();
                 this.position.set(0,0,10);
-                //myself.controls.rotateLeft(radians(90));
             } else {
                 this.position.set(0,0,10);
             }
-
+	
             myself.controls.update();
             myself.reRender();
         };
@@ -957,13 +960,15 @@ StageMorph.prototype.initCamera = function () {
                 center = boundingSphere.center,
                 distance = boundingSphere.radius;
 
-            this.reset();
-
-            this.position.set(center.x, center.y, center.z);
-            this.translateZ(distance * 1.2);
-
-            myself.controls.center.set(center.x, center.y, center.z);
-            myself.controls.dollyOut(1.2);
+            var width = Math.max(myself.width(), 480),
+                height = Math.max(myself.height(), 360);
+               
+            this.zoomFactor = Math.max(width / distance, height / distance);
+            this.applyZoom();
+            
+            this.position.set(center.x, center.y, 10);
+            myself.controls.center.set(center.x, center.y, 10);
+            
             myself.controls.update();
             myself.reRender();
         };
@@ -1041,12 +1046,16 @@ StageMorph.prototype.rotateTurtle = function(h) {
 StageMorph.prototype.originalStep = StageMorph.prototype.step;
 StageMorph.prototype.step = function () {
     this.originalStep();
+    
     if (!(this.isFastTracked && this.threads.processes.length)) {
 		this.renderCycle();	
-	} else if (this.stepcounter % 12 == 0) {
-		this.renderCycle();	
+	} else {
+		if (this.stepcounter % 12 == 0) {
+			this.renderCycle();	
+		}
 	};
-		
+	
+	
 	this.stepcounter++;
 };
 
