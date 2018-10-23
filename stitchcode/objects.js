@@ -139,6 +139,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		
 		stage.myStitchLines.add(line);
 
+		/*
 		// add a circle to simulate linecaps:round in svg
 		//if (stage.penSize > 1) {
 			geometry = this.cache.findGeometry('circle', [s]);
@@ -152,6 +153,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 			circle.visible = true;
 			stage.myStitchLines.add(circle);
 		//}
+		*/
 		
 		//console.log(w, x2, y2);
 		//console.log(this.cache);
