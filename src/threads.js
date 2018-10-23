@@ -2789,7 +2789,7 @@ Process.prototype.parseCSV = function (string) {
     // by lines.
     // taken from:
     // https://stackoverflow.com/questions/8493195/how-can-i-parse-a-csv-string-with-javascript-which-contains-comma-in-data
-	/*
+	
     var re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/,
         re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g,
         a = [];
@@ -2817,26 +2817,6 @@ Process.prototype.parseCSV = function (string) {
         a.push('');
     }
     return new List(a);
-	*/
-
-    let ret = [''], i = 0, p = '', s = true;
-    for (let l in string) {
-        l = string[l];
-        if ('"' === l) {
-            s = !s;
-            if ('"' === p) {
-                ret[i] += '"';
-                l = '-';
-            } el
-                l = '-';
-        } else if (s && ',' === l)
-            l = ret[++i] = '';
-        else
-            ret[i] += l;
-        p = l;
-    }
-
-    return new List(ret);
 };
 
 // Process debugging
