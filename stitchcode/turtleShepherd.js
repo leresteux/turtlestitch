@@ -160,7 +160,7 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 				this.colors.push(this.newColor);
 				this.newColor = false;
 			} else {
-				this.colors.push({r:0,g:0,b:0,a:255});
+				this.colors.push({r:0,g:0,b:0,a:1});
 			}
 			this.oldColor = this.colors[this.colors.length-1];
 		}
@@ -230,9 +230,10 @@ TurtleShepherd.prototype.addColorChange= function(color) {
 		r: Math.round(color.r),
 		g: Math.round(color.g),
 		b: Math.round(color.b),
-		a: 255 - Math.round(color.a) || 255
+		a: color.a
 	};
 	this.newColor = c;
+
 };
 
 TurtleShepherd.prototype.pushColorChangeNow = function() {
@@ -362,7 +363,7 @@ TurtleShepherd.prototype.toSVG = function() {
     penSizeChanged = false;
     penSize = 1;
     lastStitch = null;
-    color = { r:0, g:0, b:0, a:255 };
+    color = { r:0, g:0, b:0, a:1 };
 
     for (var i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "color") {
@@ -380,9 +381,11 @@ TurtleShepherd.prototype.toSVG = function() {
             if (!hasFirst) {
                 if (stitch.penDown) {
                     svgStr += '<path fill="none" style="' +
-						'stroke:rgb('+ color.r + ',' + color.g + ',' + color.b + '); ' +
+						'stroke:rgb('+ color.r + ',' + color.g + ',' + color.b +  '); ' +
 						'stroke-width:' + penSize + ';' +
-						'stroke-linecap:round;"' +
+						'stroke-linecap:round;' +
+						'stroke-opacity:' + color.a + ';' +
+						'"' +
                         ' d="M ' +
 						   (this.initX - this.minX) +
                            ' ' +
@@ -396,9 +399,11 @@ TurtleShepherd.prototype.toSVG = function() {
                 if (stitch.penDown ) {
                     if (!lastStich.penDown || colorChanged || penSizeChanged) {
 						svgStr += '<path fill="none" style="' +
-							'stroke:rgb('+ color.r + ',' + color.g + ',' + color.b + '); ' +
+							'stroke:rgb('+ color.r + ',' + color.g + ',' + color.b +'); ' +
 							'stroke-width:' + penSize + ';' +
-							'stroke-linecap:round;"' +
+							'stroke-linecap:round;' +
+							'stroke-opacity:' + color.a + ';' +
+							'"' +
 							' d="M ' +
                             (lastStich.x - this.minX) +
                             ' ' +

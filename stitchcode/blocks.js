@@ -318,10 +318,22 @@ SyntaxElementMorph.prototype.originalLabelPart = SyntaxElementMorph.prototype.la
 SyntaxElementMorph.prototype.labelPart = function (spec) {
     var part;
     switch (spec) {
+        case '%hsb':
+            part = new InputSlotMorph(
+                null,
+                false,
+                {
+                    'hue' : ['hue'],
+                    'saturation' : ['saturation'],
+                    'brightness' : ['brightness'],
+                },
+                true
+                );
+            break;
         case '%huewheel':
             part = new HueSlotMorph();
             part.isStatic = true;
-            break;
+			break;
         default:
             part = this.originalLabelPart(spec);
         break;

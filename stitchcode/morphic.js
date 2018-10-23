@@ -32,6 +32,8 @@ Morph.fromImageURL = function(url) {
 
 // ColorPaletteMorph ///////////////////////////////////////////////////
 
+// from https://github.com/jguille2
+
 var ColorPaletteMorph;
 
 // ColorPaletteMorph inherits from Morph:
@@ -187,6 +189,8 @@ ColorPaletteMorph.prototype.setTargetSetter = function () {
 
 
 // Hue Wheel
+// 
+// from Bernat / BeetleBlocks
 
 var HueWheelMorph;
 

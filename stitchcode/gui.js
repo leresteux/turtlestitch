@@ -668,13 +668,13 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
     dlg.inform(localize('About TurtleStitch'), localize(aboutTxt), world, pic);
 	
     btn1 = dlg.addButton(this.aboutSnap,
-        'About Snap! ...'
+        'About Snap!...'
     ); 
     btn2 = dlg.addButton(
 		function () {
             window.open('http://www.turtlestitch.com', 'TurtleStitchWebsite');
         },
-        'TurtleStitch Web Site',
+        'TurtleStitch Website',
     ); 
     dlg.fixLayout();
 };
@@ -958,7 +958,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     var fitScreenButton = new PushButtonMorph(
             null,
             function () { stage.camera.fitScene(); },
-            'Zoom to Fit'
+            'Zoom to fit'
             );
     elements.push(fitScreenButton); 
     fitScreenButton.columns = 4;
@@ -1800,8 +1800,8 @@ IDE_Morph.prototype.snapMenu = function () {
         world = this.world();
 
     menu = new MenuMorph(this);
-    menu.addItem('About TurtleStitch ...', 'aboutTurtleStitch');
-    menu.addItem('About Snap! ...', 'aboutSnap');
+    menu.addItem('About TurtleStitch...', 'aboutTurtleStitch');
+    menu.addItem('About Snap!...', 'aboutSnap');
     
     menu.addLine();
     menu.addItem(
