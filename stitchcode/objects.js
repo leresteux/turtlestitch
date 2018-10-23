@@ -1124,23 +1124,26 @@ StageMorph.prototype.initCamera = function () {
         };
 
         myself.camera.fitScene = function () {
+			
 
             var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
                 boundingSphere = boundingBox.getBoundingSphere(),
                 center = boundingSphere.center,
                 distance = boundingSphere.radius;
 
-            var width = Math.max(myself.width(), 480),
+            if(distance > 0) {
+				var width = Math.max(myself.width(), 480),
                 height = Math.max(myself.height(), 360);
-               
-            this.zoomFactor = Math.max(width / distance, height / distance);
-            this.applyZoom();
-            
-            this.position.set(center.x, center.y, 10);
-            myself.controls.center.set(center.x, center.y, 10);
-            
-            myself.controls.update();
-            myself.reRender();
+
+				this.zoomFactor = Math.max(width / distance, height / distance) * 0.95;
+				this.applyZoom();
+
+				this.position.set(center.x, center.y, 10);
+				myself.controls.center.set(center.x, center.y, 10);
+
+				myself.controls.update();
+				myself.reRender();
+			}
         };
     };
 
@@ -1415,6 +1418,8 @@ SpriteMorph.prototype.initBlocks = function () {
     var myself = this;
     this.originalInitBlocks();
 
+	// sprite movements
+	 
     this.blocks.resetAll =
     {
 		only: SpriteMorph,
@@ -1473,6 +1478,7 @@ SpriteMorph.prototype.initBlocks = function () {
     };
     
     // pen blocks
+    
     this.blocks.isPenDown =
     {
 		only: SpriteMorph,
@@ -1480,8 +1486,7 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'pen',
         spec: 'pen down?',
     };   
-    
-    // pen blocks
+
     this.blocks.getPenSize  =
     {
 		only: SpriteMorph,
@@ -1489,7 +1494,9 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'pen',
         spec: 'pen size',
     };   
-            
+
+	// pen color blocks
+	
     this.blocks.setColorRGB =
     {
 		only: SpriteMorph,
@@ -1598,6 +1605,15 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'pen color: %hsb',
         category: 'pen'
     };
+
+	// more blocks
+	
+    this.blocks.zoomToFit =
+    {
+        type: 'command',
+        spec: 'zoom to fit',
+        category: 'sensing'
+    };    
 
 };
 
@@ -1934,6 +1950,8 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('doSetFastTracking'));
         blocks.push('-');
         blocks.push(block('reportDate'));
+        blocks.push('-');
+        blocks.push(block('zoomToFit'));
 
     // for debugging: ///////////////
 

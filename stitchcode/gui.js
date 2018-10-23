@@ -208,6 +208,7 @@ IDE_Morph.prototype.createControlBar = function () {
         settingsButton,
         steppingButton,
         stageSizeButton,
+        zoomToFitButton,
         //largeStageSizeButton,
         appModeButton,
         cloudButton,
@@ -278,7 +279,7 @@ IDE_Morph.prototype.createControlBar = function () {
             return myself.isAppMode;
         }
     );
-
+    
     button.corner = 12;
     button.color = colors[0];
     button.highlightColor = colors[1];
@@ -297,6 +298,39 @@ IDE_Morph.prototype.createControlBar = function () {
     this.controlBar.add(appModeButton);
     this.controlBar.appModeButton = appModeButton; // for refreshing
 
+
+
+    // zoomToFitButton
+    //appModeButton
+    
+    button = new ToggleButtonMorph(
+        null, //colors,
+        this, // the IDE is the target
+        'zoomToFit', new SymbolMorph('zoomToFit', 14),
+        function () {  // query
+            return false;
+        }
+    );
+    
+    button.corner = 12;
+    button.color = colors[0];
+    button.highlightColor = colors[1];
+    button.pressColor = colors[2];
+    button.labelMinExtent = new Point(36, 18);
+    button.padding = 0;
+    button.labelShadowOffset = new Point(-1, -1);
+    button.labelShadowColor = colors[1];
+    button.labelColor = this.buttonLabelColor;
+    button.contrast = this.buttonContrast;
+    button.drawNew();
+    // button.hint = 'start green\nflag scripts';
+    button.fixLayout();
+    button.refresh();
+    zoomToFitButton = button;
+    this.controlBar.add(zoomToFitButton);
+    this.controlBar.zoomToFitButton = zoomToFitButton; // for refreshing    
+    
+    
     //steppingButton
     button = new ToggleButtonMorph(
         null, //colors,
@@ -501,7 +535,7 @@ IDE_Morph.prototype.createControlBar = function () {
             myself.right() - StageMorph.prototype.dimensions.x *
                 (myself.isSmallStage ? myself.stageRatio : 1)
         );
-        [stageSizeButton, appModeButton].forEach(
+        [stageSizeButton, appModeButton, zoomToFitButton].forEach(
             function (button) {
                 x += padding;
                 button.setCenter(myself.controlBar.center());
@@ -586,9 +620,6 @@ IDE_Morph.prototype.createControlBar = function () {
     };
 };
 
-
-
-
 IDE_Morph.prototype.toggleAppMode = function (appMode) {
     var world = this.world(),
         elements = [
@@ -645,6 +676,11 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         }
         this.setExtent(this.world().extent()); // resume trackChanges
 };
+
+IDE_Morph.prototype.zoomToFit = function (appMode) {
+	this.stage.camera.fitScene();
+}
+
 
 IDE_Morph.prototype.aboutTurtleStitch = function () {
     var dlg, aboutTxt, pic, world = this.world();

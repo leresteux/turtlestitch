@@ -1,10 +1,13 @@
 SymbolMorph.prototype.names.push('largeStage');
+SymbolMorph.prototype.names.push('zoomToFit');
 
 SymbolMorph.prototype.originalSymbolCanvasColored = SymbolMorph.prototype.symbolCanvasColored;
 SymbolMorph.prototype.symbolCanvasColored = function (aColor) {
     if (this.name == 'largeStage') {
         return this.drawSymbolLargeStage(newCanvas(new Point(this.symbolWidth(), this.size)), aColor);
-    } else {
+    } else if (this.name == 'zoomToFit') {
+		return this.drawSymbolZoomToFit(newCanvas(new Point(this.symbolWidth(), this.size)), aColor);
+	} else {
         return this.originalSymbolCanvasColored(aColor)
     }
 }
@@ -43,6 +46,51 @@ SymbolMorph.prototype.drawSymbolFullScreen = function (canvas, color) {
 
     return canvas;
 };
+
+SymbolMorph.prototype.drawSymbolZoomToFit = function (canvas, color) {
+    // answer a canvas showing two arrows pointing diagonally outwards
+    var ctx = canvas.getContext('2d'),
+        h = canvas.height,
+        c = canvas.width / 2,
+        off = canvas.width / 10,
+        w = canvas.width / 4;
+
+    ctx.strokeStyle = color.toString();
+    ctx.lineWidth = 1.5;
+    
+    
+    ctx.moveTo(0, 0);
+    ctx.lineTo(w, 0);
+    ctx.stroke();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, w);
+    ctx.stroke();
+    
+    ctx.moveTo(0, h);
+    ctx.lineTo(0, h - w);
+    ctx.stroke();
+    ctx.moveTo(0, h);
+    ctx.lineTo(w, h);
+    ctx.stroke();
+
+    ctx.moveTo(h, 0);
+    ctx.lineTo(h - w, 0);
+    ctx.stroke();
+    ctx.moveTo(h, 0);
+    ctx.lineTo(h, w);
+    ctx.stroke();
+    
+    ctx.moveTo(h, h);
+    ctx.lineTo(h - w, h);
+    ctx.stroke();
+    ctx.moveTo(h, h);
+    ctx.lineTo(h, h - w);
+    ctx.stroke();    
+
+    return canvas;
+};
+
+
 
 SymbolMorph.prototype.drawSymbolFile= function (canvas, color) {
     // answer a canvas showing a page symbol

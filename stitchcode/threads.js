@@ -27,3 +27,10 @@ Process.prototype.reportMouseY = function () {
     }
     return 0;
 };
+
+Process.prototype.zoomToFit = function() {
+	stage = this.homeContext.receiver.parentThatIsA(StageMorph);
+	if (stage) {
+		stage.camera.fitScene();
+	}
+}
