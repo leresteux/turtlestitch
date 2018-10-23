@@ -68,6 +68,8 @@ tempDict = {
 		'Exportieren zum Ausstickservice',
 	'Export to stitchcode.com\'s embroidery service':
 		'Exportiert die aktuelle Zeichnung zum stitchcode.com Ausstickservice',
+	'Ignore colors during export':
+		'Ignoriere Farben beim Export',
 
 	'move %n steps by %n steps':
 		'gehe %n Schritte in %n er Schritten',

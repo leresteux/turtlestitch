@@ -1809,8 +1809,8 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('up'));
         blocks.push(block('isPenDown'));
         blocks.push('-');
+        blocks.push(block('setSize'));
         blocks.push(block('changeSize'));
-        blocks.push(block('setSize'));  
         blocks.push(block('getPenSize'));      
         blocks.push('-');
         blocks.push(block('setOpacity'));

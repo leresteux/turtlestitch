@@ -25,6 +25,7 @@ TurtleShepherd.prototype.init = function() {
     this.oldColor = 0;
 	this.penSize = 1;
     this.newPenSize = 0;
+    this.ignoreColors = false;
 };
 
 
@@ -63,6 +64,14 @@ TurtleShepherd.prototype.setMetric = function(b) {
 
 TurtleShepherd.prototype.isMetric = function() {
     return this.metric;
+};
+
+TurtleShepherd.prototype.getIgnoreColors = function() {
+    return this.ignoreColors;
+};
+
+TurtleShepherd.prototype.toggleIgnoreColors = function() {
+    this.ignoreColors = !this.ignoreColors;
 };
 
 TurtleShepherd.prototype.isEmpty = function() {
@@ -366,7 +375,7 @@ TurtleShepherd.prototype.toSVG = function() {
     color = { r:0, g:0, b:0, a:1 };
 
     for (var i=0; i < this.cache.length; i++) {
-        if (this.cache[i].cmd == "color") {
+        if (this.cache[i].cmd == "color" && !this.ignoreColors) {
 			color = this.cache[i].color;
 			colorChanged = true;
 			if (tagOpen) svgStr += '" />\n';
@@ -449,7 +458,7 @@ TurtleShepherd.prototype.toEXP = function() {
     }
 
     for (var i=0; i < this.cache.length; i++) {
-        if (this.cache[i].cmd == "color") {
+        if (this.cache[i].cmd == "color" && !this.ignoreColors) {
             expArr.push(0x80);
             expArr.push(0x01);
 			expArr.push(0x00);
@@ -700,7 +709,7 @@ TurtleShepherd.prototype.toDST = function() {
 	
     for (i=0; i < this.cache.length; i++) {
 	
-        if (this.cache[i].cmd == "color") {
+        if (this.cache[i].cmd == "color"  && !this.ignoreColors) {
 			expArr.push(0x00);
 			expArr.push(0x00);
 			expArr.push(0xC3);

@@ -1006,10 +1006,23 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         function () { myself.downloadSVG(); },
         'Export as SVG'
     );
-    //downloadSVGButton.columns = 4;
-    //downloadSVGButton.newColumn = 1;
-    downloadSVGButton.newLines = 1.7;
+    downloadSVGButton.columns = 6;
+    downloadSVGButton.newColumn = 2;
     elements.push(downloadSVGButton);
+    
+	var ignoreColorsButton = new ToggleMorph(
+		'checkbox',
+		null,
+		function () {
+			stage.turtleShepherd.toggleIgnoreColors();
+		},
+		'Ignore colors during export',
+		function () {
+			return stage.turtleShepherd.getIgnoreColors();
+		});
+    
+    ignoreColorsButton.newLines = 1.7;
+    elements.push(ignoreColorsButton);
 
     var downloadEXPButton = new PushButtonMorph(
         null,
