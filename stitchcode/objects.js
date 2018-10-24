@@ -1135,7 +1135,7 @@ StageMorph.prototype.initCamera = function () {
 				var width = Math.max(myself.width(), 480),
                 height = Math.max(myself.height(), 360);
 
-				this.zoomFactor = Math.max(width / distance, height / distance) * 0.95;
+				this.zoomFactor = Math.min(width / distance, height / distance) * 0.90;
 				this.applyZoom();
 
 				this.position.set(center.x, center.y, 10);
@@ -1613,8 +1613,13 @@ SpriteMorph.prototype.initBlocks = function () {
         type: 'command',
         spec: 'zoom to fit',
         category: 'sensing'
-    };    
-
+    };   
+    
+	this.blocks.reportPi = {
+		type: 'reporter',
+		category: 'operators',
+		spec: 'PI',
+	};
 };
 
 SpriteMorph.prototype.initBlocks();
@@ -1987,6 +1992,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('reportModulus'));
         blocks.push(block('reportRound'));
         blocks.push(block('reportMonadic'));
+        blocks.push(block('reportPi'));
         blocks.push(block('reportRandom'));
         blocks.push('-');
         blocks.push(block('reportLessThan'));

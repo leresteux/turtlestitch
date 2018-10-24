@@ -34,3 +34,8 @@ Process.prototype.zoomToFit = function() {
 		stage.camera.fitScene();
 	}
 }
+
+Process.prototype.reportPi = function (min, max) {
+    return Math.PI;
+};
+
