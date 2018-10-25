@@ -1135,7 +1135,7 @@ StageMorph.prototype.initCamera = function () {
 				var width = Math.max(myself.width(), 480),
                 height = Math.max(myself.height(), 360);
 
-				this.zoomFactor = Math.min(width / distance, height / distance) * 0.90;
+				this.zoomFactor = Math.max(width / distance, height / distance) * 0.90;
 				this.applyZoom();
 
 				this.position.set(center.x, center.y, 10);

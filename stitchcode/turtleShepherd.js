@@ -1,33 +1,29 @@
 /*
     TurtleShepherd
-
+    ------------------------------------------------------------------
     turltestich's embroidery intelligence agency
+    Embroidery function for Javscript
+    ------------------------------------------------------------------
+    Copyright (C) 2016-2017 Michael Aschauer
+
 */
+
+// TODO: Color Change integration
 
 function TurtleShepherd() {
     this.init();
+    
 }
 
 TurtleShepherd.prototype.init = function() {
     this.clear();
-    this.gridSize = 50;
-    this.showJumpStitches = false;
-    this.showStitches = false;
-    this.showGrid = false;
-    this.showTurtle = false;
-    this.metric = true;
     this.pixels_per_millimeter = 5;
-    this.maxLength = 121;
+    this.metric = true;
+	this.maxLength = 121;
     this.calcTooLong = true;
     this.densityMax = 15;
-    this.colors = [];
-    this.newColor = 0;
-    this.oldColor = 0;
-	this.penSize = 1;
-    this.newPenSize = 0;
-    this.ignoreColors = false;
+    this.ignoreColors = false;    
 };
-
 
 TurtleShepherd.prototype.clear = function() {
     this.cache = [];
@@ -43,16 +39,15 @@ TurtleShepherd.prototype.clear = function() {
     this.steps = 0;
     this.stitchCount = 0;
     this.jumpCount = 0;
-    this.density = {};
     this.tooLongCount = 0;
+    this.density = {};    
     this.densityWarning = false;
     this.colors = [];
     this.newColor = 0;
     this.oldColor = 0;
 	this.penSize = 1;
-    this.newPenSize = 0;    
+    this.newPenSize = 0;        
 };
-
 
 TurtleShepherd.prototype.toggleMetric = function() {
     return this.metric = !this.metric;
@@ -139,15 +134,12 @@ TurtleShepherd.prototype.getMetricHeight = function() {
 
 
 TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
-
-    x = Math.round(x);
-    y = Math.round(y);
-    warn = false;
-
     // ignore jump stitches withouth any previous stitches
     //if (this.steps === 0 && !penState)
 	//	return
-
+	
+	warn = false
+	
     if (this.steps === 0) {
         this.initX = x1;
         this.initY = y1;
@@ -296,66 +288,16 @@ TurtleShepherd.prototype.pushPenSizeNow = function() {
     this.newPenSize = false;
 };
 
-/*
-TurtleShepherd.prototype.flatten = function(max_length) {
-	new_cache = [];
-	hasFirst = false;
-	lastStitch = null;
-	
-	for (var i=0; i < this.cache.length; i++) {
-        if (this.cache[i].cmd == "color") {
-            new_cache.push(this.cache[i]);
-        } else if (this.cache[i].cmd == "move") {
-            stitch = this.cache[i];
-
-            if (hasFirst) {
-                x1 = Math.round(stitch.x * scale);
-                y1 = -Math.round(stitch.y * scale);
-                x0 = Math.round(lastStitch.x * scale);
-                y0 = -Math.round(lastStitch.y * scale);
-
-                sum_x = 0;
-                sum_y = 0;
-                dmax = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
-				dsteps = Math.abs(dmax / 127);
-                
-                if (dsteps <= 1) {
-                    new_cache.push(this.cache[i]);
-                } else {
-                    for(j=0;j<dsteps;j++) {
-                        if (j < dsteps -1) {
-                            new_cache.push(
-								{
-									"cmd":"move",
-									"x":Math.round((x1 - x0)/dsteps),
-									"y":Math.round((y1 - y0)/dsteps),
-									"penDown":penState,
-								}
-							);                            
-                            sum_x += (x1 - x0)/dsteps;
-                            sum_y += (y1 - y0)/dsteps;
-                        } else {
-							new_cache.push(
-								{
-									"cmd":"move",
-									"x":Math.round((x1 - x0) - sum_x),
-									"y":Math.round((y1 - y0) - sum_y),
-									"penDown":penState,
-								}
-							);    
-                        }
-                    }
-                }
-
-            }
-            lastStitch = stitch;
-            hasFirst = true;
-        }	
+TurtleShepherd.prototype.undoStep = function() {
+	var last = this.cache.pop();
+	if (last.cmd == "move") {
+		if (last.penDown) {
+			this.steps--;
+		} else {
+			this.jumpCount--;
+		}
 	}
-	this.cache = new_cache;
-}
-*/
-
+};
 
 TurtleShepherd.prototype.toSVG = function() {
 
@@ -537,7 +479,7 @@ TurtleShepherd.prototype.toDST = function() {
     scale = 10 / pixels_per_millimeter;
 	count_stitches = 0;
 	count_jumps = 0;
-
+	
     function encodeTajimaStitch(dx, dy, jump) {
         b1 = 0;
         b2 = 0;
@@ -652,8 +594,8 @@ TurtleShepherd.prototype.toDST = function() {
         }
     }
 
-    function writeHeader(str, length, padWithSpace=false) {
-		for(var i = 0; i<length-2; i++) {
+    function writeHeader(str, length, padWithSpace=true) {
+		for(var i = 0; i<length-1; i++) {
 			if (i < str.length) {
 				expArr.push("0xF1" + str[i].charCodeAt(0).toString(16));
 			} else {
@@ -664,17 +606,27 @@ TurtleShepherd.prototype.toDST = function() {
 				}
 			}
 		}
-		expArr.push(0x0A);
-		expArr.push(0x1A);
+		//expArr.push(0x0A);
+		expArr.push(0x0d);
+	}
+	
+	function pad(n, width, z) {
+		z = z || ' ';
+		n = n != 0 ? n + '' : "0";
+		return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 	}
 
-	writeHeader("LA:turtlestitch", 20, true);
-	writeHeader("ST:" + this.steps.toString(), 11);
-	writeHeader("CO:" + this.colors.length, 7);
-	writeHeader("+X:" +  Math.round(this.maxX / this.pixels_per_millimeter) * 10, 9); // Math.round(this.getMetricWidth()*10), 9);
-	writeHeader("-X:" + Math.round(this.minX / this.pixels_per_millimeter) * 10, 9);
-	writeHeader("+Y:" + Math.round(this.maxY/ this.pixels_per_millimeter) * 10, 9); //Math.round(this.getMetricHeight()*10), 9);
-	writeHeader("-Y:" + Math.round(this.minY / this.pixels_per_millimeter) * 10, 9);
+	var extx1 = Math.round(this.maxX) - this.initX;
+	var exty1 = Math.round(this.maxY) - this.initY;
+	var extx2 = Math.round(this.minX) - this.initX;
+	var exty2 = Math.round(this.maxY) - this.initY;
+	writeHeader("LA:turtlestitch NN", 20, true);
+	writeHeader("ST:" + pad(this.steps, 7), 11);
+	writeHeader("CO:" + pad(this.colors.length, 3), 7);
+	writeHeader("+X:" + pad(Math.round(extx1 / this.pixels_per_millimeter) * 10, 5), 9); // Math.round(this.getMetricWidth()*10), 9);
+	writeHeader("-X:" + pad(Math.abs(Math.round(extx2 / this.pixels_per_millimeter)) * 10, 5), 9);
+	writeHeader("+Y:" + pad(Math.round(exty1 / this.pixels_per_millimeter) * 10, 5), 9); //Math.round(this.getMetricHeight()*10), 9);
+	writeHeader("-Y:" + pad(Math.abs(Math.round(exty2 / this.pixels_per_millimeter)) * 10, 5), 9);
 	
 	needle_end_x = 0;
 	needle_end_y = 0;
@@ -684,28 +636,35 @@ TurtleShepherd.prototype.toDST = function() {
 			needle_end_y = this.cache[i].y;
 	}
 	
-	writeHeader("AX:+" + Math.round(needle_end_x / this.pixels_per_millimeter) * 10, 10);
-	writeHeader("AY:+" + Math.round(needle_end_y / this.pixels_per_millimeter) * 10, 10);
-	writeHeader("MX:0", 10);
-	writeHeader("MY:0", 10);
-	writeHeader("PD:******", 10);
-
-	// end of header data
-	expArr.push(0x1a);
-	expArr.push(0x00);
-	expArr.push(0x00);
-	expArr.push(0x00);
+	needle_end_x = needle_end_x - this.initX;
+	needle_end_y = needle_end_y - this.initY;
 	
+	console.log(pad(needle_end_x,5), needle_end_y);
+	
+	
+	writeHeader("AX:" + pad(Math.round(needle_end_x / this.pixels_per_millimeter) * 10, 6), 10);
+	writeHeader("AY:" + pad(Math.round(needle_end_y / this.pixels_per_millimeter) * 10, 6), 10);
+	writeHeader("MX:", 10);
+	writeHeader("MY:", 10);
+	writeHeader("PD:", 10);
+
 	// extented header goes here
 	// "AU:%s\r" % author)
     // "CP:%s\r" % meta_copyright)
     // "TC:%s,%s,%s\r" % (thread.hex_color(), thread.description, thread.catalog_number))
 
 
+	// end of header data
+	expArr.push(0x1a);
+	
+
     // Print empty header
-    for (var i=0; i<384; i++) {
+    for (var i=0; i<387; i++) {
         expArr.push(0x20);
     }
+	
+	origin = {}
+	hasFirst = false;
 	
     for (i=0; i < this.cache.length; i++) {
 	
@@ -713,22 +672,22 @@ TurtleShepherd.prototype.toDST = function() {
 			expArr.push(0x00);
 			expArr.push(0x00);
 			expArr.push(0xC3);
-			encodeTajimaStitch(0,0,false);
+			encodeTajimaStitch(0, 0, false);
         } else if (this.cache[i].cmd == "move") {
-
             stitch = this.cache[i];
-
+		
             if (!hasFirst) {
-				encodeTajimaStitch(0,0,!stitch.penDown);
-				lastStitch = {cmd: "move", x: 0, y: -0, penDown: stitch.penDown}
-				hasFirst = true;
-			}
-
-            if (hasFirst) {
-                x1 = Math.round(stitch.x * scale);
-                y1 = Math.round(stitch.y * scale);
-                x0 = Math.round(lastStitch.x * scale);
-                y0 = Math.round(lastStitch.y * scale);
+				origin.x = Math.round(stitch.x * scale);
+                origin.y = Math.round(stitch.y * scale);
+				encodeTajimaStitch(0, 0, !stitch.penDown);
+				encodeTajimaStitch(0, 0, !stitch.penDown);
+				lastStitch = {cmd: "move", x: 0, y:0, penDown: stitch.penDown}
+				hasFirst = true;				
+			} else {
+                x1 = Math.round(stitch.x * scale) - origin.x;
+                y1 = Math.round(stitch.y * scale) - origin.y;
+                x0 = Math.round(lastStitch.x * scale) - origin.x;
+                y0 = Math.round(lastStitch.y * scale) - origin.y;
 
                 sum_x = 0;
                 sum_y = 0;
@@ -736,7 +695,7 @@ TurtleShepherd.prototype.toDST = function() {
                 dsteps = Math.abs(dmax / 121);
                 
                 if (!lastStitch.penDown)
-					encodeTajimaStitch(0,0,false);
+					encodeTajimaStitch(0,0, false);
 
                 if (dsteps <= 1) {
                     encodeTajimaStitch((x1 - x0), (y1 - y0),
@@ -760,7 +719,6 @@ TurtleShepherd.prototype.toDST = function() {
                                 !stitch.penDown
                             );
                             count_stitches++;
-							//encodeTajimaStitch(0,0,false);
                         }
                     }
                 }
@@ -776,13 +734,6 @@ TurtleShepherd.prototype.toDST = function() {
     
     str = count_stitches.toString();
     
-	for(var i = 0; i<9; i++) {
-		if (i < str.length) {
-			expArr[20+i] = "0xF1" + str[i].charCodeAt(0).toString(16);
-		} else {
-			expArr[20+i] = 0x00;
-		}
-	}
 
     expUintArr = new Uint8Array(expArr.length);
     for (i=0;i<expArr.length;i++) {
@@ -790,6 +741,7 @@ TurtleShepherd.prototype.toDST = function() {
     }
     return expUintArr;
 };
+
 
 TurtleShepherd.prototype.debug_msg = function (st, clear) {
 	o = "";

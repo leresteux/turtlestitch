@@ -2440,3 +2440,64 @@ ProjectDialogMorph.prototype.installCloudProjectList = function (pl) {
         this.clearDetails();
     }
 };
+
+
+ProjectDialogMorph.prototype.fixLayoutOrig = ProjectDialogMorph.prototype.fixLayout;
+ProjectDialogMorph.prototype.buildContentsOrig = ProjectDialogMorph.prototype.buildContents;
+ProjectDialogMorph.prototype.initOrig = ProjectDialogMorph.prototype.init;
+ProjectDialogMorph.prototype.saveProjectOrig = ProjectDialogMorph.prototype.saveProject;
+
+ProjectDialogMorph.prototype.buildContents = function () {
+    this.buildContentsOrig();
+    this.tagsLabelField = new TextMorph("Tags (New cloud projects only):");
+    this.body.add(this.tagsLabelField);
+    this.notesLabelField = new TextMorph("Notes");
+    this.notesLabelField.edge = InputFieldMorph.prototype.edge;
+    this.body.add(this.notesLabelField);    
+    this.tagsField = new InputFieldMorph("");
+    this.tagsField.edge = InputFieldMorph.prototype.edge;
+    this.tagsField.contrast = InputFieldMorph.prototype.contrast;
+    this.tagsField.drawNew = InputFieldMorph.prototype.drawNew;    
+    this.body.add(this.tagsField);
+	this.fixLayout();
+};
+
+ProjectDialogMorph.prototype.fixLayout = function () {
+	this.fixLayoutOrig();
+    var th = fontHeight(this.titleFontSize) + this.titlePadding * 2,
+        thin = this.padding / 2,
+        oldFlag = Morph.prototype.trackChanges;
+        
+	if (this.body && this.tagsField) {
+		this.notesLabelField.setTop(this.preview.bottom() + thin);
+        this.notesLabelField.setLeft(this.preview.left() + 1);        
+        
+        this.notesField.setTop(this.notesLabelField.bottom());
+        this.notesField.setLeft(this.preview.left());
+        this.notesField.setHeight(this.body.bottom() - this.notesLabelField.bottom() - this.notesLabelField.height() - thin);	
+		
+		this.tagsLabelField.setTop(this.notesField.bottom() + thin);
+        this.tagsLabelField.setLeft(this.notesField.left()  + 1);
+        		
+		this.tagsField.setTop(this.notesField.bottom() + 2);
+        this.tagsField.setLeft(this.tagsLabelField.right());
+        this.tagsField.setWidth(this.notesField.width() -  this.tagsLabelField.width() - 1);
+        
+
+    }
+    this.changed();		
+}
+
+
+ProjectDialogMorph.prototype.init = function (ide, task) {
+	this.initOrig (ide, task);
+	this.tagsText = "Tags?";
+}
+	
+ProjectDialogMorph.prototype.saveProjectOrig = ProjectDialogMorph.prototype.saveProject;	
+ProjectDialogMorph.prototype.saveProject = function () {
+	this.ide.tags = this.tagsField.contents().text.text;
+	console.log(this.ide.tags);
+
+    this.saveProjectOrig();
+};

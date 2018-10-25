@@ -175,6 +175,8 @@ BeetleCloud.prototype.saveProject = function (ide, callBack, errorCall) {
                             + encodeURIComponent(ide.projectName)
                             + '&username='
                             + encodeURIComponent(myself.username)
+                            + '&tags='
+                            + encodeURIComponent(ide.tags)                            
                             + '&ispublic=true', // path
                             pdata, // body
                             callBack,
