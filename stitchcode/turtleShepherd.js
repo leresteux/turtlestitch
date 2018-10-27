@@ -491,7 +491,7 @@ TurtleShepherd.prototype.toEXP = function() {
 };
 
 
-TurtleShepherd.prototype.toDST = function() {
+TurtleShepherd.prototype.toDST = function(name="noname") {
     var expArr = [];
     lastStitch = null;
     hasFirst = false;
@@ -639,7 +639,7 @@ TurtleShepherd.prototype.toDST = function() {
 	var exty1 = Math.round(this.maxY) - this.initY;
 	var extx2 = Math.round(this.minX) - this.initX;
 	var exty2 = Math.round(this.maxY) - this.initY;
-	writeHeader("LA:turtlestitch NN", 20, true);
+	writeHeader("LA:" + name.substr(0, 16), 20, true);
 	writeHeader("ST:" + pad(this.steps, 7), 11);
 	writeHeader("CO:" + pad(this.colors.length, 3), 7);
 	writeHeader("+X:" + pad(Math.round(extx1 / this.pixels_per_millimeter) * 10, 5), 9); // Math.round(this.getMetricWidth()*10), 9);

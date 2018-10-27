@@ -1183,13 +1183,13 @@ IDE_Morph.prototype.downloadEXP = function() {
 
 // DST export
 IDE_Morph.prototype.downloadDST = function() {
-    expUintArr = this.stage.turtleShepherd.toDST();
+	var name = this.projectName ? this.projectName : 'turtlestitch';
+    expUintArr = this.stage.turtleShepherd.toDST(name);
     blob = new Blob([expUintArr], {type: 'application/octet-stream'});
-    saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.dst');
+    saveAs(blob, name + '.dst');
 };
 
 IDE_Morph.prototype.setProjectName = function (string) {
-
 	if (string.replace(/['"]/g, '') != this.projectName || SnapCloud.username != this.creator) {
 		this.remixHistory = this.creator + ":" + this.projectName + ";"  + this.remixHistory 
 		this.origName =  this.projectName;

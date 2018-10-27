@@ -63,6 +63,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 	}
 
 	// render as line mesh
+	/*
 	if (false) {
 		var geometry = this.cache.findGeometry('meshline', [x1,y1,x2,y2, color, this.color.a]);
 		if (!geometry) {
@@ -88,9 +89,10 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		material.transparent = true;
 		var mesh = new THREE.Mesh( g.geometry, material );
 		stage.myStitchLines.add(mesh);
-	}
+	} */
 	
-	// render as plain lines
+	// render as plain lines - OLD version
+	/*
 	if (false) {
 			
 		var geometry = this.cache.findGeometry('stitch', [x1,y1,x2,y2]);
@@ -102,63 +104,20 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 			];
 			this.cache.addGeometry('stitch', geometry, [x1,y1,x2,y2]);
 		}
-
 		line = new THREE.Line(geometry, material);
 		stage.myStitchLines.add(line);
-	}
+	} */
+	
 	// render as quads
 	if (true) {
 		var geometry = new THREE.Geometry();
 		var s = 2;
-		
-		
-		/*
-		normal = new THREE.Vector3( -(y2-y1), (x2-x1), 0);
-		normal = normal.normalize();
-		var vertices = new Float32Array( [
-			x1 + normal.x * s, y1 + normal.y * s, 0,
-			x2 + normal.x * s, y2 + normal.y * s, 0,
-			x2 - normal.x * s, y2 - normal.y * s, 0,
-			x1 + normal.x * s, y1 + normal.y * s, 0,
-			x2 - normal.x * s, y2 - normal.y * s, 0,
-			x1 - normal.x * s, y1 - normal.y * s, 0,
-			
-		] );
-		var normals  = new Float32Array( [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] );
-		var colors = new Float32Array( [ 1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ] );
-		var geometry = new THREE.BufferGeometry()
-		geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-		geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
-		line = new THREE.Mesh(geometry, material);
-		*/
-		
-		/*
-		normal = new THREE.Vector3( -(y2-y1), (x2-x1), 0);
-		normal = normal.normalize();
-		geometry.vertices = [
-			new THREE.Vector3(x1 + normal.x * s, y1 + normal.y * s, 0.0),
-			new THREE.Vector3(x2 + normal.x * s, y2 + normal.y * s, 0.0),
-			new THREE.Vector3(x2 - normal.x * s, y2 - normal.y * s, 0.0),
-			new THREE.Vector3(x1 - normal.x * s, y1 - normal.y * s, 0.0),
-			new THREE.Vector3(x1 + normal.x * s, y1 + normal.y * s, 0.0),
-		];
-		geometry.faces.push(new THREE.Face3(0, 1, 2));
-		geometry.faces.push(new THREE.Face3(0, 2, 3));
-		*/
-		//var bcgeometry = new THREE.BufferGeometry();
-		//bcgeometry.fromGeometry(geometry);
-		//console.log(geometry); 
-		//console.log(bcgeometry);
-		//console.log(bgeometry);
-		
-		
-		
+					
 		var w = Math.sqrt((x2-x1) * (x2-x1) +(y2-y1) * (y2-y1));
 		w = Math.round((w + 0.00001) * 100) / 100;
 		h = stage.penSize * 2;
 		if (stage.penSize <= 1) 
-			w = w - s * 2;
-			
+			w = w - s * 2;			
 		
 		var geometry = this.cache.findGeometry('plane', [w, h]);
 		if (!geometry) {
@@ -170,10 +129,8 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		line.translateX(x1 + (x2 - x1)/2);
 		line.translateY(y1 + (y2 - y1)/2);
 		line.rotation.z = (90 - this.heading) * Math.PI / 180;
-		
 		stage.myStitchLines.add(line);
 
-		
 		// add half circles to simulate linecaps:round in svg
 		if (stage.penSize > 1) {
 			geometry = this.cache.findGeometry('circle', [stage.penSize/2, 0]);
@@ -193,12 +150,9 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 			circle.translateY(y1);
 			circle.rotation.z = - (this.heading + 180) * Math.PI / 180;
 			circle.visible = true;
-			stage.myStitchLines.add(circle);
-			
+			stage.myStitchLines.add(circle);			
 		}
-		
-	
-		
+				
 		/*
 		// add half circles to simulate linecaps:round in svg
 		//if (stage.penSize > 1) {
@@ -227,6 +181,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
         this.jumpLines = new THREE.Group();
     }
 
+	// just draw as basic lines - OLD Version
 	if (false) {
 		var material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
 		var geometry = new THREE.Geometry();
@@ -238,6 +193,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 		stage.myJumpLines.add(line);
     }
     
+	// draw as dashed smeshline
     if (true) {
 		color = new THREE.Color("rgb(255,0,0)");
 		var geometry = this.cache.findGeometry('meshline', [x1,y1,x2,y2, color, 0.8]);
@@ -266,6 +222,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 		});
 		material.transparent = true;
 		var mesh = new THREE.Mesh( g.geometry, material );
+		mesh.visible = stage.renderer.showingJumpLines;
 		stage.myJumpLines.add(mesh);
 	}
 
@@ -304,7 +261,6 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
     line = new THREE.Mesh(geometry, material);    
     line.rotation.z = (45 - this.heading) * Math.PI / 180;
     line.position.set(x2,y2,0.01);
-
     line.visible = stage.renderer.showingStitchPoints;
     if (stage.penSize <= 1) 
 		stage.myStitchPoints.add(line);
