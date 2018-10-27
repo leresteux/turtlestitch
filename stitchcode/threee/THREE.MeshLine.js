@@ -8,7 +8,7 @@ var has_require = typeof require !== 'undefined'
 
 var THREE = root.THREE || has_require && require('three')
 if( !THREE )
-	throw new Error( 'EquirectangularToCubemap requires three.js' )
+	throw new Error( 'MeshLine requires three.js' )
 
 function MeshLine() {
 
@@ -268,7 +268,6 @@ function MeshLineMaterial( parameters ) {
 '',
 'varying vec2 vUV;',
 'varying vec4 vColor;',
-'varying vec3 vPosition;',
 'varying float vCounters;',
 '',
 'vec2 fix( vec4 i, float aspect ) {',
@@ -326,7 +325,6 @@ function MeshLineMaterial( parameters ) {
 '    vec4 offset = vec4( normal * side, 0.0, 1.0 );',
 '    finalPosition.xy += offset.xy;',
 '',
-'	 vPosition = ( modelViewMatrix * vec4( position, 1. ) ).xyz;',
 '    gl_Position = finalPosition;',
 '',
 '}' ];
@@ -336,27 +334,32 @@ function MeshLineMaterial( parameters ) {
 'precision mediump float;',
 '',
 'uniform sampler2D map;',
+'uniform sampler2D alphaMap;',
 'uniform float useMap;',
+'uniform float useAlphaMap;',
 'uniform float useDash;',
-'uniform vec2 dashArray;',
+'uniform float dashArray;',
+'uniform float dashOffset;',
+'uniform float dashRatio;',
 'uniform float visibility;',
 'uniform float alphaTest;',
+'uniform vec2 repeat;',
 '',
 'varying vec2 vUV;',
 'varying vec4 vColor;',
-'varying vec3 vPosition;',
 'varying float vCounters;',
 '',
 'void main() {',
 '',
 '    vec4 c = vColor;',
-'	 if( c.a < alphaTest ) discard;',
-'    if( useMap == 1. ) c *= texture2D( map, vUV );',
-'	 if( useDash == 1. ){',
-'	 	 ',
-'	 }',
+'    if( useMap == 1. ) c *= texture2D( map, vUV * repeat );',
+'    if( useAlphaMap == 1. ) c.a *= texture2D( alphaMap, vUV * repeat ).a;',
+'    if( c.a < alphaTest ) discard;',
+'    if( useDash == 1. ){',
+'        c.a *= ceil(mod(vCounters + dashOffset, dashArray) - (dashArray * dashRatio));',
+'    }',
 '    gl_FragColor = c;',
-'	 gl_FragColor.a *= step(vCounters,visibility);',
+'    gl_FragColor.a *= step(vCounters, visibility);',
 '}' ];
 
 	function check( v, d ) {
@@ -371,32 +374,42 @@ function MeshLineMaterial( parameters ) {
 	this.lineWidth = check( parameters.lineWidth, 1 );
 	this.map = check( parameters.map, null );
 	this.useMap = check( parameters.useMap, 0 );
+	this.alphaMap = check( parameters.alphaMap, null );
+	this.useAlphaMap = check( parameters.useAlphaMap, 0 );
 	this.color = check( parameters.color, new THREE.Color( 0xffffff ) );
 	this.opacity = check( parameters.opacity, 1 );
 	this.resolution = check( parameters.resolution, new THREE.Vector2( 1, 1 ) );
 	this.sizeAttenuation = check( parameters.sizeAttenuation, 1 );
 	this.near = check( parameters.near, 1 );
 	this.far = check( parameters.far, 1 );
-	this.dashArray = check( parameters.dashArray, [] );
-	this.useDash = ( this.dashArray !== [] ) ? 1 : 0;
+	this.dashArray = check( parameters.dashArray, 0 );
+	this.dashOffset = check( parameters.dashOffset, 0 );
+	this.dashRatio = check( parameters.dashRatio, 0.5 );
+	this.useDash = ( this.dashArray !== 0 ) ? 1 : 0;
 	this.visibility = check( parameters.visibility, 1 );
 	this.alphaTest = check( parameters.alphaTest, 0 );
+	this.repeat = check( parameters.repeat, new THREE.Vector2( 1, 1 ) );
 
 	var material = new THREE.RawShaderMaterial( {
 		uniforms:{
 			lineWidth: { type: 'f', value: this.lineWidth },
 			map: { type: 't', value: this.map },
 			useMap: { type: 'f', value: this.useMap },
+			alphaMap: { type: 't', value: this.alphaMap },
+			useAlphaMap: { type: 'f', value: this.useAlphaMap },
 			color: { type: 'c', value: this.color },
 			opacity: { type: 'f', value: this.opacity },
 			resolution: { type: 'v2', value: this.resolution },
 			sizeAttenuation: { type: 'f', value: this.sizeAttenuation },
 			near: { type: 'f', value: this.near },
 			far: { type: 'f', value: this.far },
-			dashArray: { type: 'v2', value: new THREE.Vector2( this.dashArray[ 0 ], this.dashArray[ 1 ] ) },
+			dashArray: { type: 'f', value: this.dashArray },
+			dashOffset: { type: 'f', value: this.dashOffset },
+			dashRatio: { type: 'f', value: this.dashRatio },
 			useDash: { type: 'f', value: this.useDash },
 			visibility: {type: 'f', value: this.visibility},
-			alphaTest: {type: 'f', value: this.alphaTest}
+			alphaTest: {type: 'f', value: this.alphaTest},
+			repeat: { type: 'v2', value: this.repeat }
 		},
 		vertexShader: vertexShaderSource.join( '\r\n' ),
 		fragmentShader: fragmentShaderSource.join( '\r\n' )
@@ -405,6 +418,8 @@ function MeshLineMaterial( parameters ) {
 	delete parameters.lineWidth;
 	delete parameters.map;
 	delete parameters.useMap;
+	delete parameters.alphaMap;
+	delete parameters.useAlphaMap;
 	delete parameters.color;
 	delete parameters.opacity;
 	delete parameters.resolution;
@@ -412,8 +427,11 @@ function MeshLineMaterial( parameters ) {
 	delete parameters.near;
 	delete parameters.far;
 	delete parameters.dashArray;
+	delete parameters.dashOffset;
+	delete parameters.dashRatio;
 	delete parameters.visibility;
 	delete parameters.alphaTest;
+	delete parameters.repeat;
 
 	material.type = 'MeshLineMaterial';
 
@@ -433,12 +451,21 @@ MeshLineMaterial.prototype.copy = function ( source ) {
 	this.lineWidth = source.lineWidth;
 	this.map = source.map;
 	this.useMap = source.useMap;
+	this.alphaMap = source.alphaMap;
+	this.useAlphaMap = source.useAlphaMap;
 	this.color.copy( source.color );
 	this.opacity = source.opacity;
 	this.resolution.copy( source.resolution );
 	this.sizeAttenuation = source.sizeAttenuation;
 	this.near = source.near;
 	this.far = source.far;
+	this.dashArray.copy( source.dashArray );
+	this.dashOffset.copy( source.dashOffset );
+	this.dashRatio.copy( source.dashRatio );
+	this.useDash = source.useDash;
+	this.visibility = source.visibility;
+	this.alphaTest = source.alphaTest;
+	this.repeat.copy( source.repeat );
 
 	return this;
 
@@ -457,4 +484,3 @@ else {
 }
 
 }).call(this);
-

@@ -62,6 +62,34 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		this.cache.addMaterial(material);
 	}
 
+	// render as line mesh
+	if (false) {
+		var geometry = this.cache.findGeometry('meshline', [x1,y1,x2,y2, color, this.color.a]);
+		if (!geometry) {
+			geometry = new THREE.Geometry();
+			geometry.vertices = [
+				new THREE.Vector3(x1, y1, 0.0),
+				new THREE.Vector3(x2, y2, 0.0),
+			];
+			var g = new MeshLine();
+			g.setGeometry( geometry );
+			
+			this.cache.addGeometry('meshline', g,  [x1,y1,x2,y2, color, this.color.a]);
+		}
+		
+		var material = new MeshLineMaterial( {
+				useMap: false,
+				color: new THREE.Color( color ),
+				opacity: this.color.a * 1,
+				resolution: new THREE.Vector2( stage.width(), stage.height() ),
+				sizeAttenuation: true,
+				lineWidth: stage.penSize/200,
+		});
+		material.transparent = true;
+		var mesh = new THREE.Mesh( g.geometry, material );
+		stage.myStitchLines.add(mesh);
+	}
+	
 	// render as plain lines
 	if (false) {
 			
@@ -81,8 +109,9 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 	// render as quads
 	if (true) {
 		var geometry = new THREE.Geometry();
-		var s = stage.penSize / 2;
-
+		var s = 2;
+		
+		
 		/*
 		normal = new THREE.Vector3( -(y2-y1), (x2-x1), 0);
 		normal = normal.normalize();
@@ -122,9 +151,14 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		//console.log(bcgeometry);
 		//console.log(bgeometry);
 		
+		
+		
 		var w = Math.sqrt((x2-x1) * (x2-x1) +(y2-y1) * (y2-y1));
 		w = Math.round((w + 0.00001) * 100) / 100;
 		h = stage.penSize * 2;
+		if (stage.penSize <= 1) 
+			w = w - s * 2;
+			
 		
 		var geometry = this.cache.findGeometry('plane', [w, h]);
 		if (!geometry) {
@@ -134,29 +168,52 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		
 		line = new THREE.Mesh(geometry, material);
 		line.translateX(x1 + (x2 - x1)/2);
-		line.translateY(y1+ (y2 - y1)/2);
+		line.translateY(y1 + (y2 - y1)/2);
 		line.rotation.z = (90 - this.heading) * Math.PI / 180;
 		
 		stage.myStitchLines.add(line);
 
+		
+		// add half circles to simulate linecaps:round in svg
+		if (stage.penSize > 1) {
+			geometry = this.cache.findGeometry('circle', [stage.penSize/2, 0]);
+			if (!geometry) {
+				geometry = new THREE.CircleGeometry( stage.penSize/2, 32, 0, Math.PI );
+				this.cache.addGeometry('circle', geometry, [stage.penSize/2, 0]);
+			}
+			var circle = new THREE.Mesh( geometry, material );
+			circle.translateX(x2);
+			circle.translateY(y2);
+			circle.rotation.z = - this.heading * Math.PI / 180;
+			circle.visible = true;
+			stage.myStitchLines.add(circle);
+			
+			var circle = new THREE.Mesh( geometry, material );
+			circle.translateX(x1);
+			circle.translateY(y1);
+			circle.rotation.z = - (this.heading + 180) * Math.PI / 180;
+			circle.visible = true;
+			stage.myStitchLines.add(circle);
+			
+		}
+		
+	
+		
 		/*
-		// add a circle to simulate linecaps:round in svg
+		// add half circles to simulate linecaps:round in svg
 		//if (stage.penSize > 1) {
 			geometry = this.cache.findGeometry('circle', [s]);
 			if (!geometry) {
-				geometry = new THREE.CircleGeometry( s, 32 );
+				geometry = new THREE.CircleGeometry( s, 32);
 				this.cache.addGeometry('circle', geometry, [s]);
 			}
 			var circle = new THREE.Mesh( geometry, material );
 			circle.translateX(x2);
 			circle.translateY(y2);
 			circle.visible = true;
-			stage.myStitchLines.add(circle);
+			stage.myStitchLines.add(circle);		
 		//}
 		*/
-		
-		//console.log(w, x2, y2);
-		//console.log(this.cache);
 	}
 	this.reRender();
     this.lastJumped = false;
@@ -170,14 +227,47 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
         this.jumpLines = new THREE.Group();
     }
 
-    var material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
-    var geometry = new THREE.Geometry();
-    geometry.vertices = [
-        new THREE.Vector3(x1, y1, 0.0),
-        new THREE.Vector3(x2, y2, 0.0),
-    ];
-    line = new THREE.Line(geometry, material);
-    stage.myJumpLines.add(line);
+	if (false) {
+		var material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
+		var geometry = new THREE.Geometry();
+		geometry.vertices = [
+			new THREE.Vector3(x1, y1, 0.0),
+			new THREE.Vector3(x2, y2, 0.0),
+		];
+		line = new THREE.Line(geometry, material);
+		stage.myJumpLines.add(line);
+    }
+    
+    if (true) {
+		color = new THREE.Color("rgb(255,0,0)");
+		var geometry = this.cache.findGeometry('meshline', [x1,y1,x2,y2, color, 0.8]);
+		if (!geometry) {
+			geometry = new THREE.Geometry();
+			geometry.vertices = [
+				new THREE.Vector3(x1, y1, 0.0),
+				new THREE.Vector3(x2, y2, 0.0),
+			];
+			var g = new MeshLine();
+			g.setGeometry( geometry );
+			
+			this.cache.addGeometry('meshline', g,  [x1,y1,x2,y2, color, this.color.a]);
+		}
+		
+		var material = new MeshLineMaterial( {
+				useMap: false,
+				color: new THREE.Color( color ),
+				opacity: 0.8,
+				resolution: new THREE.Vector2( stage.width(), stage.height() ),
+				sizeAttenuation: true,
+				lineWidth: .003,
+				dashArray: 0.06,
+				dashOffset: 0,
+				dashRatio: 0.35
+		});
+		material.transparent = true;
+		var mesh = new THREE.Mesh( g.geometry, material );
+		stage.myJumpLines.add(mesh);
+	}
 
     this.lastJumped = true;
     this.reRender();
@@ -213,10 +303,11 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
 	
     line = new THREE.Mesh(geometry, material);    
     line.rotation.z = (45 - this.heading) * Math.PI / 180;
-    line.position.set(x2,y2,0);
+    line.position.set(x2,y2,0.01);
 
     line.visible = stage.renderer.showingStitchPoints;
-    stage.myStitchPoints.add(line);
+    if (stage.penSize <= 1) 
+		stage.myStitchPoints.add(line);
     this.reRender();
     
 };
@@ -2230,7 +2321,7 @@ function Cache () {
 
 Cache.prototype.init = function () {
     this.materials = [];
-    this.geometries = { stitch: [], stitchPoint: [], densityPoint: [], circle: [], plane: [] };
+    this.geometries = { stitch: [], stitchPoint: [], densityPoint: [], circle: [], plane: [], meshline: [] };
 };
 
 Cache.prototype.clear = function () {
