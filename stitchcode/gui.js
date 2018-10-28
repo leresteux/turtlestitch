@@ -1513,7 +1513,7 @@ IDE_Morph.prototype.createCategories = function () {
     }
 
     SpriteMorph.prototype.categories.forEach(function (cat) {
-         if (!contains(['lists', 'other','sound','looks'], cat)) {
+         if (!contains(['sound','looks'], cat)) {
             addCategoryButton(cat);
         }
     });

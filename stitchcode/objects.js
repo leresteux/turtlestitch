@@ -1,32 +1,33 @@
 /* Sprite */
 // modified SpriteMorph turtlestitch functions
 
-/*
+
 SpriteMorph.prototype.categories =
     [
         'motion',
         'control',
         'sensing',
-        'operators',  
+        'operators',
         'pen',
-        'variables',              
-		'colors',
-        'my blocks'
+        'variables',
+        'embroidery',
+        'other',
+        'colors',
     ];
 
 SpriteMorph.prototype.blockColor = {
     motion : new Color(74, 108, 212),
-    pen : new Color(143, 86, 227),
-	colors : new Color(32, 128, 54),
+    pen : new Color(0, 161, 120),
+    embroidery : new Color(0,120,0),
     control : new Color(230, 168, 34),
     sensing : new Color(4, 148, 220),
     operators : new Color(98, 194, 19),
     variables : new Color(243, 118, 29),
     lists : new Color(217, 77, 17),
-    other : new Color(150, 150, 150),
-    'my blocks': new Color(150, 150, 150),
+    other: new Color(150, 150, 150),
+    colors : new Color(207, 74, 217),
 };
-*/
+
 
 SpriteMorph.prototype.origInit = SpriteMorph.prototype.init;
 SpriteMorph.prototype.init = function(globals) {
@@ -37,7 +38,6 @@ SpriteMorph.prototype.init = function(globals) {
     this.isDown = true;
     this.cache = new Cache;
     this.color = new Color(0,0,0,1);
-    
 };
 
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
@@ -1544,11 +1544,18 @@ SpriteMorph.prototype.initBlocks = function () {
 
 	// pen color blocks
 	
+	this.blocks.setColor = {
+		only: SpriteMorph,
+		type: 'command',
+		category: 'colors',
+		spec: 'set pen color to %clr'
+	};
+
     this.blocks.setColorRGB =
     {
 		only: SpriteMorph,
         type: 'command',
-        category: 'pen',
+        category: 'colors',
         spec: 'set pen color to RGB %n %n %n',
         defaults: [0, 255, 0]
     };    
@@ -1557,7 +1564,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command',
-        category: 'pen',
+        category: 'colors',
         spec: 'set pen color to hex %s',
         defaults: ['#ff0000']
     };  
@@ -1566,7 +1573,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command',
-        category: 'pen',
+        category: 'colors',
         spec: 'set pen color to HSV %n %n %n',
         defaults: [0.3, 0.7, 0.6]
     };   
@@ -1575,7 +1582,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command',
-        category: 'pen',
+        category: 'colors',
         spec: 'set opacity to %n',
         defaults: [100]
     }; 
@@ -1584,7 +1591,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command',
-        category: 'pen',
+        category: 'colors',
         spec: 'change opacity by %n',
         defaults: [10]
     };     
@@ -1593,7 +1600,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'reporter',
-        category: 'pen',
+        category: 'colors',
         spec: 'opacity',
     };     
 
@@ -1601,7 +1608,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'reporter',
-        category: 'pen',
+        category: 'colors',
         spec: 'RGB color',
     };   
     
@@ -1609,7 +1616,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'reporter',
-        category: 'pen',
+        category: 'colors',
         spec: 'HSV color',
     };
     
@@ -1617,7 +1624,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'reporter',
-        category: 'pen',
+        category: 'colors',
         spec: 'hex color',
     };      
 	
@@ -1627,14 +1634,14 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command', 
         spec: 'set pen color by hue %huewheel',	
-        category: 'pen'
+        category: 'colors'
     };
     this.blocks.setHSB =
     {
 		only: SpriteMorph,
         type: 'command', 
         spec: 'set pen %hsb to %n',	
-        category: 'pen',
+        category: 'colors',
         defaults: ['hue', 50]
     };
     this.blocks.changeHSB =
@@ -1642,7 +1649,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command', 
         spec: 'change pen %hsb by %n',
-        category: 'pen',
+        category: 'colors',
         defaults: ['hue', 10]
     };
     this.blocks.getHSB =
@@ -1650,7 +1657,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'reporter',
         spec: 'pen color: %hsb',
-        category: 'pen'
+        category: 'colors'
     };
 
 	// more blocks
@@ -1880,12 +1887,14 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setSize'));
         blocks.push(block('changeSize'));
         blocks.push(block('getPenSize'));      
+
+	} else if (cat === 'colors') {
+        blocks.push(block('setColor'));
         blocks.push('-');
         blocks.push(block('setOpacity'));
         blocks.push(block('changeOpacity'));
         blocks.push(block('getOpacity'));
-        blocks.push('-');        
-        blocks.push(block('setColor'));
+        blocks.push('-');
         blocks.push(block('setColorRGB'));
         blocks.push(block('setColorHSV'));
         blocks.push(block('setColorHex'));
@@ -1899,14 +1908,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 		blocks.push(block('getHSB'));
         blocks.push('-');
 
-  /*      
-	} else if (cat === 'colors') {
-        blocks.push(block('pickHue'));
-        blocks.push('-');
-        blocks.push(block('setHSLA'));
-        blocks.push(block('changeHSLA'));
-        blocks.push(block('getHSLA'));
-    */   
     } else if (cat === 'control') {
 
 		blocks.push(block('resetAll'));
