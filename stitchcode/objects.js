@@ -1537,7 +1537,8 @@ SpriteMorph.prototype.resetAll = function () {
     myself.clear();
     myself.setColor(new Color(0, 0, 0, 1.0));
 	myself.stitchtype = 0;
-	myself.stitchoptions = {};    
+	myself.stitchoptions = {};   
+	myself.isDown = true;
 }
 
 
