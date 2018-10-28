@@ -258,8 +258,6 @@ TurtleShepherd.prototype.pushColorChangeNow = function() {
 		index = this.colors.push(this.newColor)-1;
 	}
 
-	//console.log("change color to", c);
-
     this.cache.push(
         {
             "cmd":"color",
@@ -647,11 +645,8 @@ TurtleShepherd.prototype.toDST = function(name="noname") {
 	writeHeader("+Y:" + pad(Math.round(exty1 / this.pixels_per_millimeter) * 10, 5), 9); //Math.round(this.getMetricHeight()*10), 9);
 	writeHeader("-Y:" + pad(Math.abs(Math.round(exty2 / this.pixels_per_millimeter)) * 10, 5), 9);
 	
-
 	var needle_end_x = this.lastX - this.initX;
 	var needle_end_y = this.lastY - this.initY;
-	
-	console.log(pad(needle_end_x,5), needle_end_y);
 	
 	writeHeader("AX:" + pad(Math.round(needle_end_x / this.pixels_per_millimeter) * 10, 6), 10);
 	writeHeader("AY:" + pad(Math.round(needle_end_y / this.pixels_per_millimeter) * 10, 6), 10);

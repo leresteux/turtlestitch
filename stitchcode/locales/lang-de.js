@@ -99,22 +99,22 @@ tempDict = {
         'hexadezimaler Farbwert',
     'HSV color':
         'HSV Farbe',
-    'set pen color to':
-        'setze Stiftfarbe auf',
-    'set pen color to RGB %n %n %n':
-        'setze Stiftfarbe auf RGB %n %n %n',
-    'set pen color to HSV %n %n %n':
-        'setze Stiftfarbe auf HSV %n %n %n',
-    'set pen color to hex %s':
-        'setze Stiftfarbe auf hex %s',
-    'set pen color by hue %huewheel':
-        'setze Stiftfarbton %huewheel',
-    'set pen %hsb to %n':
+    'set color to %clr':
+        'setze Farbe auf %clr',
+    'set color to RGB %n %n %n':
+        'setze Farbe auf RGB %n %n %n',
+    'set color to HSV %n %n %n':
+        'setze Farbe auf HSV %n %n %n',
+    'set color to hex %s':
+        'setze Farbe auf hex %s',
+    'set color by hue %huewheel':
+        'setze Farbton %huewheel',
+    'set %hsb to %n':
 		'setze %hsb auf %n',
-    'change pen %hsb by %n':
+    'change %hsb by %n':
 		'\u00e4ndere %hsb auf %n',
-	'pen color: %hsb':
-		'Siftfarbe: %hsb',
+	'color: %hsb':
+		'Farbe: %hsb',
 	'opacity':
 		'Deckkraft',
 	'set opacity to %n':
@@ -127,6 +127,13 @@ tempDict = {
         'absolute Helligkeit',
     'change hue by %n':
         '\u00e4ndere Farbton um %n',
+
+    'Embroidery':
+        'Stickerei',
+    'jump stitch %b':
+        'Sprungstich %b',
+
+
 
     'draw text: %s scale: %n font: %n':
         'Schreibe %s Skalierung: %n Schrift %n',         

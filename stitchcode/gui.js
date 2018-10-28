@@ -1524,7 +1524,7 @@ IDE_Morph.prototype.createCategories = function () {
     }
 
     SpriteMorph.prototype.categories.forEach(function (cat) {
-         if (!contains(['sound','looks'], cat)) {
+         if (!contains(['sound','looks','lists'], cat)) {
             addCategoryButton(cat);
         }
     });

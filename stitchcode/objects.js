@@ -11,6 +11,7 @@ SpriteMorph.prototype.categories =
         'pen',
         'variables',
         'embroidery',
+        'lists',
         'colors',
         'other',
     ];
@@ -305,20 +306,18 @@ SpriteMorph.prototype.clearStitchSettings = function () {
 	this.isDown = true;
 }
 
-SpriteMorph.prototype.runningStitch = function (length) {
+SpriteMorph.prototype.runningStitch = function (length, autoadjust) {
 	if (length > 0) {
 		this.stitchtype = "running";
-		this.stitchoptions = { length: length, mode: "auto-adjust" }
-		console.log("set running stitch");
+		this.stitchoptions = { length: length, autoadjust: autoadjust }
 	} else {
 		this.stitchtype = 0;
 		this.stitchoptions = {};
 	}
 }
 
-SpriteMorph.prototype.jumpStitch = function () {
-	this.stitchtype = "jump";
-	this.isDown = false;
+SpriteMorph.prototype.jumpStitch = function (on = true) {
+	this.isDown = !on;
 }
 
 
@@ -339,8 +338,8 @@ SpriteMorph.prototype.forward = function (steps) {
     }
           
     if (dist != 0) {		
-		if ( this.stitchtype == "running" && dist > this.stitchoptions.length) {
-			if (this.stitchoptions.mode == "auto-adjust") {
+		if ( this.stitchtype == "running" && dist > this.stitchoptions.length && this.isDown) {
+			if (this.stitchoptions.autoadjust) {
 				var real_length = dist / Math.round(dist / this.stitchoptions.length);
 				this.forwardBy(steps, real_length);
 			} else {
@@ -436,11 +435,9 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 		//console.log("jump in place - don't add / ignore",  this.isDown,this.xPosition(), this.yPosition(), dist);
     } else {
 		
-		if ( this.stitchtype == "running"  && dist > this.stitchoptions.length) {
-			console.log("is running stitch");
-			if (this.stitchoptions.mode == "auto-adjust") {
+		if ( this.stitchtype == "running"  && dist > this.stitchoptions.length  && this.isDown) {
+			if (this.stitchoptions.autoadjust) {
 				var real_length = dist / Math.round(dist / this.stitchoptions.length);
-				console.log(dist, this.stitchoptions.length, 	Math.round(dist / this.stitchoptions.length), real_length);		
 				stepsize = real_length;
 			} else {
 				stepsize =  this.stitchoptions.length;
@@ -1641,7 +1638,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
 		type: 'command',
 		category: 'colors',
-		spec: 'set pen color to %clr'
+		spec: 'set color to %clr'
 	};
 
     this.blocks.setColorRGB =
@@ -1649,7 +1646,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command',
         category: 'colors',
-        spec: 'set pen color to RGB %n %n %n',
+        spec: 'set color to RGB %n %n %n',
         defaults: [0, 255, 0]
     };    
   
@@ -1658,7 +1655,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command',
         category: 'colors',
-        spec: 'set pen color to hex %s',
+        spec: 'set color to hex %s',
         defaults: ['#ff0000']
     };  
     
@@ -1667,7 +1664,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command',
         category: 'colors',
-        spec: 'set pen color to HSV %n %n %n',
+        spec: 'set color to HSV %n %n %n',
         defaults: [0.3, 0.7, 0.6]
     };   
     
@@ -1675,7 +1672,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command',
-        category: 'colors',
+        category: 'pen',
         spec: 'set opacity to %n',
         defaults: [100]
     }; 
@@ -1684,7 +1681,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command',
-        category: 'colors',
+        category: 'pen',
         spec: 'change opacity by %n',
         defaults: [10]
     };     
@@ -1693,7 +1690,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'reporter',
-        category: 'colors',
+        category: 'pen',
         spec: 'opacity',
     };     
 
@@ -1726,14 +1723,14 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command', 
-        spec: 'set pen color by hue %huewheel',	
+        spec: 'set color by hue %huewheel',	
         category: 'colors'
     };
     this.blocks.setHSB =
     {
 		only: SpriteMorph,
         type: 'command', 
-        spec: 'set pen %hsb to %n',	
+        spec: 'set %hsb to %n',	
         category: 'colors',
         defaults: ['hue', 50]
     };
@@ -1741,7 +1738,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command', 
-        spec: 'change pen %hsb by %n',
+        spec: 'change %hsb by %n',
         category: 'colors',
         defaults: ['hue', 10]
     };
@@ -1749,7 +1746,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'reporter',
-        spec: 'pen color: %hsb',
+        spec: 'color: %hsb',
         category: 'colors'
     };
     
@@ -1767,17 +1764,18 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command',
-        spec: 'running stitch length %n',
+        spec: 'running length %n adjust %b',
         category: 'embroidery',
-        defaults: [12]
+        defaults: [12, true]
     }; 
     
     this.blocks.jumpStitch =
     {
 		only: SpriteMorph,
         type: 'command',
-        spec: 'jump stitch',
+        spec: 'jump stitch %b',
         category: 'embroidery',
+        defaults: [true]
     }; 
 
 	// more blocks
@@ -2006,7 +2004,11 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
         blocks.push(block('setSize'));
         blocks.push(block('changeSize'));
-        blocks.push(block('getPenSize'));      
+        blocks.push(block('getPenSize'));   
+        blocks.push('-');
+        blocks.push(block('setOpacity'));
+        blocks.push(block('changeOpacity'));
+        blocks.push(block('getOpacity'));
 
 	} else if (cat === 'embroidery') {
 
@@ -2017,10 +2019,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 
 	} else if (cat === 'colors') {
         blocks.push(block('setColor'));
-        blocks.push('-');
-        blocks.push(block('setOpacity'));
-        blocks.push(block('changeOpacity'));
-        blocks.push(block('getOpacity'));
         blocks.push('-');
         blocks.push(block('setColorRGB'));
         blocks.push(block('setColorHSV'));
