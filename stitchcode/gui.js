@@ -151,7 +151,16 @@ StageHandleMorph.prototype.init = function (target) {
     this.isDraggable = false;
     this.noticesTransparentClick = true;
     this.setExtent(new Point(12, 50));
-    
+};
+
+PaletteHandleMorph.prototype.init = function (target) {
+    this.target = target || null;
+    HandleMorph.uber.init.call(this);
+    this.color = MorphicPreferences.isFlat ?
+            new Color(125, 125, 125) : new Color(190, 190, 190);
+    this.isDraggable = false;
+    this.noticesTransparentClick = true;
+    this.setExtent(new Point(12, 50));
 };
 
 IDE_Morph.prototype.origSetStageExtent = IDE_Morph.prototype.setStageExtent;
