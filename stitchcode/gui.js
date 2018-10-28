@@ -11,11 +11,13 @@ IDE_Morph.prototype.originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(isAutoFill) {
     this.originalInit();
     this.padding = 1;
-	this.droppedText(
+	/*
+	 this.droppedText(
 		this.getURL(this.resourceURL('stitchcode/embroidery-library.xml')),
 		'Embroidery tools'
-	);    
-//    this.isAnimating = false;
+	); 
+	*/   
+	//this.isAnimating = false;
     this.paletteWidth = 250; // initially same as logo width
     //MorphicPreferences.globalFontFamily = 'Sans, Helvetica, Arial';
 	this.cloud = new BeetleCloud('/api');

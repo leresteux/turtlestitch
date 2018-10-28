@@ -11,8 +11,8 @@ SpriteMorph.prototype.categories =
         'pen',
         'variables',
         'embroidery',
-        'other',
         'colors',
+        'other',
     ];
 
 SpriteMorph.prototype.blockColor = {
@@ -2010,7 +2010,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 
 	} else if (cat === 'embroidery') {
 
-        blocks.push(block('clearStitchSettings'));
+        blocks.push(block('clear'));
         blocks.push('-');
         blocks.push(block('runningStitch'));
         blocks.push(block('jumpStitch'));
