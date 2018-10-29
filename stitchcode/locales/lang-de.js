@@ -9,7 +9,7 @@
 */
 
 tempDict = {
-	// UI
+	// UI stuff
 	'About Snap!...':
 		'\u00dcber Snap!...',
 	'About TurtleStitch...':
@@ -42,14 +42,12 @@ tempDict = {
 		'Ang/Amerik. Einheiten',
 	'Turtle':
 		'Schildkr\u00f6te',
-
 	'Login':
 		'Anmelden',
 	'Create an account':
 		'Benutzerkonto anlegen',
 	'Reset Password...':
 		'Passwort zur\u00fccksetzen',
-
 	'Export as SVG':
 		'Exportieren als SVG',
 	'Export as PNG':
@@ -71,6 +69,7 @@ tempDict = {
 	'Ignore colors during export':
 		'Ignoriere Farben beim Export',
 
+	// new blocks
 	'move %n steps by %n steps':
 		'gehe %n Schritte in %n er Schritten',
 	'move %n steps in %n':
@@ -84,11 +83,13 @@ tempDict = {
 	'reset':
         'zur\u00fccksetzen',
 		      
+	// warnings
 	' are too long! (will get clamped)':
 		'sind zu lang! (werden geklammert)',
 	' is too long! (will get clamped)':
 		'Stich ist zu lang! (wird geklammert)',
 
+	// pen and color setting
     'pen size':
         'Stiftdicke',
 	'pen down?':
@@ -127,12 +128,20 @@ tempDict = {
         'absolute Helligkeit',
     'change hue by %n':
         '\u00e4ndere Farbton um %n',
-
+	
+	// new categories
     'Embroidery':
         'Stickerei',
+    'Colors':
+        'Farben',
+
+	// embroidery stuff
+    'running by %n':
+        'Steppstich mit %n',	
     'jump stitch %b':
         'Sprungstich %b',
-
+    'tie stitch':
+        'Riegelstich',
 
 
     'draw text: %s scale: %n font: %n':

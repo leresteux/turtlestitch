@@ -320,6 +320,15 @@ SpriteMorph.prototype.jumpStitch = function (on = true) {
 	this.isDown = !on;
 }
 
+SpriteMorph.prototype.tieStitch = function () {
+	var myself = this;
+	var penState = myself.isDown;
+	myself.isDown = true;
+	myself.forward(2);
+	myself.forward(-4);
+	myself.forward(2);
+	myself.isDown = penState;
+}
 
 SpriteMorph.prototype.origForward = SpriteMorph.prototype.forward;
 SpriteMorph.prototype.forward = function (steps) {
@@ -1765,10 +1774,18 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		only: SpriteMorph,
         type: 'command',
-        spec: 'running length %n adjust %b',
+        spec: 'running by %n steps',
         category: 'embroidery',
-        defaults: [12, true]
+        defaults: [12]
     }; 
+    
+	this.blocks.tieStitch =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        spec: 'tie stitch',
+        category: 'embroidery',
+    };     
     
     this.blocks.jumpStitch =
     {
@@ -2017,6 +2034,8 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
         blocks.push(block('runningStitch'));
         blocks.push(block('jumpStitch'));
+        blocks.push(block('tieStitch'));
+
 
 	} else if (cat === 'colors') {
         blocks.push(block('setColor'));
