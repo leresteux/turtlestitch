@@ -35,11 +35,12 @@ SpriteMorph.prototype.init = function(globals) {
     this.origInit(globals);
     this.hide();
     this.lastJumped = false;
-    this.turtle = null;    
+    this.turtle = null;
     this.isDown = true;
     this.cache = new Cache;
     this.color = new Color(0,0,0,1);
     this.stitchtype = 0;
+    this.isRunning = false;
     this.stitchoptions = {};
 };
 
@@ -48,13 +49,13 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 
     if (this.stitchLines === null) {
         this.stitchLines = new THREE.Group();
-    }    
+    }
 	color = new THREE.Color("rgb("+
             Math.round(this.color.r) + "," +
             Math.round(this.color.g) + "," +
-            Math.round(this.color.b)  + ")" )       
+            Math.round(this.color.b)  + ")" )
 
-	var material = this.cache.findMaterial(color,this.color.a); 
+	var material = this.cache.findMaterial(color,this.color.a);
 	if (!material) {
 		material = new THREE.MeshBasicMaterial({
 			color: color,
@@ -77,10 +78,10 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 			];
 			var g = new MeshLine();
 			g.setGeometry( geometry );
-			
+
 			this.cache.addGeometry('meshline', g,  [x1,y1,x2,y2, color, this.color.a]);
 		}
-		
+
 		var material = new MeshLineMaterial( {
 				useMap: false,
 				color: new THREE.Color( color ),
@@ -93,11 +94,11 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		var mesh = new THREE.Mesh( g.geometry, material );
 		stage.myStitchLines.add(mesh);
 	} */
-	
+
 	// render as plain lines - OLD version
 	/*
 	if (false) {
-			
+
 		var geometry = this.cache.findGeometry('stitch', [x1,y1,x2,y2]);
 		if (!geometry) {
 			geometry = new THREE.Geometry();
@@ -110,24 +111,24 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		line = new THREE.Line(geometry, material);
 		stage.myStitchLines.add(line);
 	} */
-	
+
 	// render as quads
 	if (true) {
 		var geometry = new THREE.Geometry();
 		var s = 2;
-					
+
 		var w = Math.sqrt((x2-x1) * (x2-x1) +(y2-y1) * (y2-y1));
 		w = Math.round((w + 0.00001) * 100) / 100;
 		h = stage.penSize * 2;
-		if (stage.penSize <= 1) 
-			w = w - s * 2;			
-		
+		if (stage.penSize <= 1)
+			w = w - s * 2;
+
 		var geometry = this.cache.findGeometry('plane', [w, h]);
 		if (!geometry) {
 			geometry = new THREE.PlaneGeometry( w, stage.penSize, 1, 1);
 			this.cache.addGeometry('plane', geometry, [w, h]);
 		}
-		
+
 		line = new THREE.Mesh(geometry, material);
 		line.translateX(x1 + (x2 - x1)/2);
 		line.translateY(y1 + (y2 - y1)/2);
@@ -149,15 +150,15 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 			circle.rotation.z = - this.heading * Math.PI / 180;
 			circle.visible = true;
 			stage.myStitchLines.add(circle);
-			
+
 			var circle = new THREE.Mesh( geometry, material );
 			circle.translateX(x1);
 			circle.translateY(y1);
 			circle.rotation.z = - (this.heading + 180) * Math.PI / 180;
 			circle.visible = true;
-			stage.myStitchLines.add(circle);			
+			stage.myStitchLines.add(circle);
 		} */
-				
+
 		/*
 		// add half circles to simulate linecaps:round in svg
 		//if (stage.penSize > 1) {
@@ -170,7 +171,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 			circle.translateX(x2);
 			circle.translateY(y2);
 			circle.visible = true;
-			stage.myStitchLines.add(circle);		
+			stage.myStitchLines.add(circle);
 		//}
 		*/
 	}
@@ -197,7 +198,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 		line = new THREE.Line(geometry, material);
 		stage.myJumpLines.add(line);
     }
-    
+
 	// draw as dashed smeshline
     if (true) {
 		color = new THREE.Color("rgb(255,0,0)");
@@ -210,10 +211,10 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 			];
 			var g = new MeshLine();
 			g.setGeometry( geometry );
-			
+
 			this.cache.addGeometry('meshline', g,  [x1,y1,x2,y2, color, this.color.a]);
 		}
-		
+
 		var material = new MeshLineMaterial( {
 				useMap: false,
 				color: new THREE.Color( color ),
@@ -239,7 +240,7 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
     var stage = this.parentThatIsA(StageMorph);
 
 	color = new THREE.Color("rgb(0,0,255)");
-	var material = this.cache.findMaterial( color, 1);    
+	var material = this.cache.findMaterial( color, 1);
     if (!material) {
 		material = new THREE.MeshBasicMaterial(
 			{ color: color, side:THREE.DoubleSide, opacity: 1  } );
@@ -258,19 +259,19 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
 	var geometry = this.cache.findGeometry('plane', [d, d]);
 	if (!geometry) {
 		geometry = new THREE.PlaneGeometry( d, d, 1, 1);
-		this.cache.addGeometry('plane', geometry, [d, d]);	
+		this.cache.addGeometry('plane', geometry, [d, d]);
 		geometry.faces.push(new THREE.Face3(0, 1, 2));
 		geometry.faces.push(new THREE.Face3(0, 2, 3));
 	}
-	
-    line = new THREE.Mesh(geometry, material);    
+
+    line = new THREE.Mesh(geometry, material);
     line.rotation.z = (45 - this.heading) * Math.PI / 180;
     line.position.set(x2,y2,0.01);
     line.visible = stage.renderer.showingStitchPoints;
-    //if (stage.penSize <= 1) 
+    //if (stage.penSize <= 1)
 		stage.myStitchPoints.add(line);
     this.reRender();
-    
+
 };
 
 SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
@@ -280,15 +281,15 @@ SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
 	if (!geometry) {
 		geometry = new THREE.CircleGeometry( 3, 6 );
 		geometry.vertices.shift();
-		this.cache.addGeometry('densityPoint', geometry, [3, 6,]);	
+		this.cache.addGeometry('densityPoint', geometry, [3, 6,]);
 	}
-	
+
 	var material = this.cache.findMaterial( 0xff0000, 1);
 	if (!material) {
 		material = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity:1} );
 		this.cache.addMaterial(material);
-	}		
-    
+	}
+
     var circle = new THREE.Mesh( geometry, material );
     circle.translateX(x1);
     circle.translateY(y1);
@@ -308,13 +309,72 @@ SpriteMorph.prototype.clearStitchSettings = function () {
 
 SpriteMorph.prototype.runningStitch = function (length, autoadjust) {
 	if (length > 0) {
-		this.stitchtype = "running";
-		this.stitchoptions = { length: length, autoadjust: autoadjust }
+		this.isRunning = true;
+		this.stitchoptions = {
+      length: length,
+      autoadjust: true,
+      type:"single"
+    }
 	} else {
 		this.stitchtype = 0;
 		this.stitchoptions = {};
 	}
 }
+
+SpriteMorph.prototype.beanStitch = function (length, autoadjust=true) {
+	if (length > 0) {
+    this.stitchtype = "bean";
+		this.isRunning = true;
+		this.stitchoptions = {
+      length: length,
+      autoadjust: autoadjust
+    }
+	} else {
+		this.stitchtype = 0;
+		this.stitchoptions = {};
+	}
+}
+
+SpriteMorph.prototype.crossStitch = function (length, width=10, center=true, autoadjust=true) {
+	if (length > 0 && width > 0) {
+    this.stitchtype = "cross";
+		this.isRunning = true;
+		this.stitchoptions = {
+      length: length,
+      autoadjust: autoadjust,
+      width: width,
+      center: center,
+    }
+
+	}
+}
+
+SpriteMorph.prototype.zigzagStitch = function (density, width=10, center=true, autoadjust=true) {
+	if (density > 0 && width > 0) {
+    this.stitchtype = "zigzag";
+		this.isRunning = true;
+		this.stitchoptions = {
+      center: center,
+      autoadjust: autoadjust,
+      width: width,
+      length: density,
+    }
+	}
+}
+
+SpriteMorph.prototype.satinStitch = function (width=10, center=true, autoadjust=true) {
+	if (width > 0) {
+    this.stitchtype = "zigzag";
+		this.isRunning = true;
+		this.stitchoptions = {
+      autoadjust: true,
+      width: width,
+      length: 2,
+      center: center,
+    }
+	}
+}
+
 
 SpriteMorph.prototype.jumpStitch = function (on = true) {
 	this.isDown = !on;
@@ -345,22 +405,135 @@ SpriteMorph.prototype.forward = function (steps) {
     } else {
         dest = this.position().distanceAngle(Math.abs(dist),  (this.heading - 180));
     }
-          
-    if (dist != 0) {		
-		if ( this.stitchtype == "running" && dist > this.stitchoptions.length && this.isDown) {
-			if (this.stitchoptions.autoadjust) {
-				var real_length = dist / Math.round(dist / this.stitchoptions.length);
-				this.forwardBy(steps, real_length);
-			} else {
-				this.forwardBy(steps, this.stitchoptions.length);
-			}
-		} else {
-			this.moveforward(steps);
-		}	
+
+    if (dist != 0) {
+  		if ( this.isRunning  && dist > this.stitchoptions.length && this.isDown) {
+  			if (this.stitchoptions.autoadjust) {
+  				var real_length = dist / Math.round(dist / this.stitchoptions.length);
+  				this.forwardBy(steps, real_length);
+  			} else {
+  				this.forwardBy(steps, this.stitchoptions.length);
+  			}
+  		} else {
+  			this.moveforward(steps);
+  		}
+    }
+};
+
+
+SpriteMorph.prototype.forwardByNr = function (totalsteps, nr_steps) {
+    stepsize = totalsteps / nr_steps;
+    for(i=0;i<nr_steps;i++) {
+        if (this.stitchtype == "zigzag" && i == 0)
+          this.zigzagForwardStart(stepsize, this.stitchoptions.width)
+        else if (this.stitchtype == "zigzag" && i == nr_steps - 1)
+            this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
+		    else
+          this.moveforward(stepsize);
 	}
 };
 
+SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
+    nr_steps = Math.floor(totalsteps / stepsize);
+    rest = totalsteps - (nr_steps * stepsize);
+    for(i=0;i<nr_steps;i++) {
+      if (this.stitchtype == "cross" && i == 0 && this.stitchoptions.center)
+          this.crossStitchForwardStart(stepsize, this.stitchoptions.width)
+
+      if (this.stitchtype == "zigzag" && i == 0 && this.stitchoptions.center)
+        this.zigzagForwardStart(stepsize, this.stitchoptions.width)
+      else
+        this.moveforward(stepsize);
+
+      if (this.stitchtype == "zigzag" && i == nr_steps - 1 && this.stitchoptions.center)
+        this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
+
+      if (this.stitchtype == "cross" && i == nr_steps - 1 && this.stitchoptions.center)
+          this.crossStitchForwardStop(stepsize, this.stitchoptions.width)
+  	}
+  	if (rest > 0) {
+  		this.moveforward(rest);
+  	}
+
+};
+
+SpriteMorph.prototype.beanStitchForward = function (steps) {
+    this.doMoveForward(steps);
+    this.doMoveForward(-steps);
+    this.doMoveForward(steps);
+}
+
+SpriteMorph.prototype.crossStitchForward = function (steps, width=10) {
+  var c = Math.sqrt(steps*steps + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turn(alpha);
+  this.doMoveForward(c);
+  this.turn(180 - alpha);
+  this.doMoveForward(steps);
+  this.turn(180 - alpha);
+  this.doMoveForward(c);
+  this.turn(alpha);
+}
+
+SpriteMorph.prototype.zigzagForward = function (steps, width=10) {
+  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turn(alpha);
+  this.doMoveForward(c);
+  this.turnLeft(2 *alpha);
+  this.doMoveForward(c);
+  this.turn(alpha);
+}
+
+SpriteMorph.prototype.crossStitchForwardStart = function (steps, width=10) {
+  this.turn(-90);
+  this.doMoveForward(width/2);
+  this.turn(90);
+}
+
+SpriteMorph.prototype.crossStitchForwardStop = function (steps, width=10) {
+  this.turn(90);
+  this.doMoveForward(width/2);
+  this.turn(-90);
+}
+
+SpriteMorph.prototype.zigzagForwardStart = function (steps, width=10) {
+  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turnLeft(alpha);
+  this.doMoveForward(c/2);
+  this.turn(alpha);
+}
+
+SpriteMorph.prototype.zigzagForwardEnd = function (steps, width=10) {
+  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turn(alpha);
+  this.doMoveForward(c);
+  this.turnLeft(2 *alpha);
+  this.doMoveForward(c/2);
+  this.turn(alpha);
+}
+
+
 SpriteMorph.prototype.moveforward = function (steps) {
+  if ( this.stitchtype == "bean") {
+    this.beanStitchForward(steps);
+  } else if ( this.stitchtype == "cross") {
+    this.crossStitchForward(steps, this.stitchoptions.width)
+  } else if ( this.stitchtype == "zigzag") {
+    this.zigzagForward(steps, this.stitchoptions.width)
+  } else {
+    this.doMoveForward(steps)
+  }
+}
+
+
+SpriteMorph.prototype.doMoveForward = function (steps) {
 	var dest,
 		dist = steps * this.parent.scale || 0;
 		stage = this.parentThatIsA(StageMorph);
@@ -374,7 +547,7 @@ SpriteMorph.prototype.moveforward = function (steps) {
 	} else {
 		dest = this.position().distanceAngle(Math.abs(dist),  (this.heading - 180));
 	}
-	
+
 	if (dist != 0) {
 		this.setPosition(dest);
 		warn = stage.turtleShepherd.moveTo(
@@ -388,42 +561,21 @@ SpriteMorph.prototype.moveforward = function (steps) {
 			if (warn) {
 				this.addDensityPoint(this.xPosition(), this.yPosition());
 			}
-			
+
 			if (this.parentThatIsA(StageMorph).turtleShepherd.isEmpty()) {
 				this.addStitchPoint(0,0);
 			}
 		} else {
 			this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
 		}
-		stage.moveTurtle(this.xPosition(), this.yPosition());		
+		stage.moveTurtle(this.xPosition(), this.yPosition());
 	}
-
 }
-
-
-SpriteMorph.prototype.forwardByNr = function (totalsteps, nr_steps) {
-    stepsize = totalsteps / nr_steps;
-    for(i=0;i<nr_steps;i++) {
-		this.moveforward(stepsize);
-	}
-};
-
-SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
-    nr_steps = Math.floor(totalsteps / stepsize);
-    rest = totalsteps - (nr_steps * stepsize);
-    for(i=0;i<nr_steps;i++) {
-		this.moveforward(stepsize);
-	}
-	if (rest > 0) {
-		this.moveforward(rest);
-	}
-
-};
 
 SpriteMorph.prototype.origGotoXY = SpriteMorph.prototype.gotoXY;
 SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
     var stage = this.parentThatIsA(StageMorph);
-    var dest;    
+    var dest;
     var oldx = this.xPosition();
     var oldy = this.yPosition();
     var warn = false;
@@ -437,40 +589,56 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
     var a = (x - this.xPosition());
     var b = (y - this.yPosition());
     var dist = Math.sqrt(a*a + b*b);
-    if (a == 0 && b == 0) dist = 0;    
+    if (a == 0 && b == 0) dist = 0;
 
-    if ( dist <= 1) {
+    if ( Math.round(dist,5) <= 0.001) {
 		// jump in place - don't add / ignore
 		//console.log("jump in place - don't add / ignore",  this.isDown,this.xPosition(), this.yPosition(), dist);
     } else {
-		
-		if ( this.stitchtype == "running"  && dist > this.stitchoptions.length  && this.isDown) {
+
+		if ( this.isRunning  && dist > this.stitchoptions.length  && this.isDown) {
 			if (this.stitchoptions.autoadjust) {
 				var real_length = dist / Math.round(dist / this.stitchoptions.length);
 				stepsize = real_length;
 			} else {
-				stepsize =  this.stitchoptions.length;
+				stepsize = this.stitchoptions.length;
 			}
 			var steps = Math.floor(dist / stepsize);
 			var rest = dist - (steps * stepsize);
 
+      rest = Math.round(rest,8);
+      stepsize =  Math.round(stepsize,8);
+
 			var deltaX = (x - this.xPosition()) * this.parent.scale;
 			var deltaY = (y - this.yPosition()) * this.parent.scale;
-			var angle = Math.abs(deltaX) < 0.001 ? (deltaY < 0 ? 90 : 270)
-					  : Math.round(
-					  (deltaX >= 0 ? 0 : 180)
-						  - (Math.atan(deltaY / deltaX) * 57.2957795131)
+			var angle = Math.abs(deltaX) < 0.0001 ? (deltaY < 0 ? 90 : 270)
+					  : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
 				  );
 			this.setHeading(angle + 90);
 
 			for(i=0; i < steps; i++) {
-				this.moveforward(stepsize);
+        if (this.stitchtype == "cross" && i == 0 && this.stitchoptions.center)
+            this.crossStitchForwardStart(stepsize, this.stitchoptions.width)
+
+        if (this.stitchtype == "zigzag" && i == 0 && this.stitchoptions.center)
+          this.zigzagForwardStart(stepsize, this.stitchoptions.width)
+        else
+          this.moveforward(stepsize);
+
+        if (this.stitchtype == "zigzag" && i == steps - 1 && this.stitchoptions.center)
+          this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
+
+        if (this.stitchtype == "cross" && i == steps - 1 && this.stitchoptions.center)
+            this.crossStitchForwardStop(stepsize, this.stitchoptions.width)
 			}
-			if (rest > 0) {
-				this.gotoXY(x,y);
-				this.origGotoXY(x, y, justMe);
+
+      console.log(x, y, this.xPosition(), this.yPosition())
+			if (rest > 0 || x != this.xPosition() || y != this.yPosition()) {
+	      this.gotoXY(x,y);
+        this.origGotoXY(x, y, justMe);
+        console.log(x, y, this.xPosition(), this.yPosition())
 			}
-      
+
 		} else {
 			this.origGotoXY(x, y, justMe);
 			warn = this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
@@ -605,8 +773,8 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
     var font = "futuram"
 	if (fontnr == 1) font = "scripts"
 	if (fontnr == 2) font = "futural"
-	
-	// Asteroid font 
+
+	// Asteroid font
 	// retrieved from https://trmm.net/Asteroids_font
 	if (fontnr == 3) font = "asteroid"
 
@@ -629,7 +797,7 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 			var x = this.xPosition();
 			var y = this.yPosition();
 			var maxx = 0, maxy = 0;
-			var nextPenIsUp = false; 
+			var nextPenIsUp = false;
 			if (fontnr == 3) {
 				if (stage.afonts[text[i].toUpperCase()]){
 					coords = stage.afonts[text[i].toUpperCase()];
@@ -697,7 +865,7 @@ SpriteMorph.prototype.setHeading = function (degrees) {
 };
 
 
-// COLORS 
+// COLORS
 // ####################################################################
 
 SpriteMorph.prototype.setColor = function (aColor) {
@@ -806,7 +974,7 @@ SpriteMorph.prototype.changeHSB = function (channel, value) {
        return this.changeSaturation(value);
     } else if (channel == 'brightness') {
         return this.changeBrightnes(value);
-    } 
+    }
 };
 
 SpriteMorph.prototype.setOpacity = function (value) {
@@ -840,7 +1008,7 @@ SpriteMorph.prototype.setColorHex = function (hex) {
 		this.setColor(new Color(r, g, b, a));
 	} else {
 	  // silently ignore
-	} 
+	}
 };
 
 SpriteMorph.prototype.getColorRGB = function (){
@@ -848,7 +1016,7 @@ SpriteMorph.prototype.getColorRGB = function (){
 }
 
 SpriteMorph.prototype.getColorHex = function (){
-	return new String("#" + ((1 << 24) + (Math.round(this.color.r) << 16) + (Math.round(this.color.g) << 8) 
+	return new String("#" + ((1 << 24) + (Math.round(this.color.r) << 16) + (Math.round(this.color.g) << 8)
 	+ Math.round(this.color.b)).toString(16).slice(1));
 }
 
@@ -858,7 +1026,7 @@ SpriteMorph.prototype.getColorHSV = function (){
 
 
 // PEN UP DOWN
-// 
+//
 SpriteMorph.prototype.isPenDown = function (){
 	return this.isDown;
 }
@@ -968,16 +1136,16 @@ StageMorph.prototype.init = function (globals) {
 		};
 		xobj.send(null);
 	}
-	
+
     if (!this.fonts) {
 		loadFont(function(response) {
 			myself.fonts = JSON.parse(response);
 		});
 	}
 
-	// load Asteroid font 
+	// load Asteroid font
 	// retrieved from https://trmm.net/Asteroids_font
-	
+
 	function loadAsteroidFont(callback) {
 		var xobj = new XMLHttpRequest();
 		xobj.overrideMimeType("application/json");
@@ -1258,13 +1426,13 @@ StageMorph.prototype.initCamera = function () {
             } else {
                 this.position.set(0,0,10);
             }
-	
+
             myself.controls.update();
             myself.reRender();
         };
 
         myself.camera.fitScene = function () {
-			
+
 
             var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
                 boundingSphere = boundingBox.getBoundingSphere(),
@@ -1293,10 +1461,10 @@ StageMorph.prototype.initCamera = function () {
 };
 
 StageMorph.prototype.initTurtle = function() {
-    var myself = this;    
-    var geometry = new THREE.Geometry();    
+    var myself = this;
+    var geometry = new THREE.Geometry();
     var material = new THREE.MeshBasicMaterial( { color: 0x00ff00, opacity:0.8 } );
-    
+
 
     geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
          new THREE.Vector3(-8, 8, 0.02),
@@ -1307,16 +1475,16 @@ StageMorph.prototype.initTurtle = function() {
     this.turtle = new THREE.Mesh(new THREE.Geometry(), material);
     this.turtle.visible = this.renderer.showingTurtle;
     myself.myObjects.add(this.turtle);
-    
-    
+
+
     if (typeof this.turtle.loaded === 'undefined') {
-		
+
 		var mtlloader = new THREE.MTLLoader();
 		var onLoadMtl = function ( materials ) {
 			materials.preload();
 			var loader = new THREE.OBJLoader();
 			loader.setMaterials( materials )
-			
+
 			loader.load( 'stitchcode/assets/turtle.obj',  function (object) {
 				this.turtle = object;
 				object.scale.set(4, 4, 4);
@@ -1329,7 +1497,7 @@ StageMorph.prototype.initTurtle = function() {
 				this.turtle.loaded = true;
 			}, null, null, null, false );
 		};
-		mtlloader.load( 'stitchcode/assets/turtle.mtl', onLoadMtl );		
+		mtlloader.load( 'stitchcode/assets/turtle.mtl', onLoadMtl );
     }
     this.penSize = 1;
 };
@@ -1351,16 +1519,16 @@ StageMorph.prototype.rotateTurtle = function(h) {
 StageMorph.prototype.originalStep = StageMorph.prototype.step;
 StageMorph.prototype.step = function () {
     this.originalStep();
-    
+
     if (!(this.isFastTracked && this.threads.processes.length)) {
-		this.renderCycle();	
+		this.renderCycle();
 	} else {
 		if (this.stepcounter % 12 == 0) {
-			this.renderCycle();	
+			this.renderCycle();
 		}
 	};
-	
-	
+
+
 	this.stepcounter++;
 };
 
@@ -1540,21 +1708,23 @@ StageMorph.prototype.userMenu = function () {
 };
 
 SpriteMorph.prototype.resetAll = function () {
-    var myself = this;
+  var myself = this;
+  myself.stitchtype = 0;
+	myself.stitchoptions = {};
+  myself.isRunning = false;
+  myself.setColor(new Color(0, 0, 0, 1.0));
 	myself.gotoXY(0,0);
 	myself.setHeading(90);
-    myself.clear();
-    myself.setColor(new Color(0, 0, 0, 1.0));
-	myself.stitchtype = 0;
-	myself.stitchoptions = {};   
+  myself.clear();
 	myself.isDown = true;
 }
 
 
 SpriteMorph.prototype.resetStitchSettings = function () {
-    var myself = this;
+  var myself = this;
 	myself.stitchoptions = {}
 	myself.stitchtype = 0;
+  myself.isRunning = false;
 }
 
 // Block specs
@@ -1566,7 +1736,7 @@ SpriteMorph.prototype.initBlocks = function () {
     this.originalInitBlocks();
 
 	// sprite movements
-	 
+
     this.blocks.resetAll =
     {
 		only: SpriteMorph,
@@ -1582,7 +1752,7 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'move %n steps by %n steps',
         defaults: [100,10]
     };
-          
+
     this.blocks.forwardByNr =
     {
 		only: SpriteMorph,
@@ -1623,16 +1793,16 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'draw text: %s scale: %n font: %n',
         defaults: ["hello", 2, 0]
     };
-    
+
     // pen blocks
-    
+
     this.blocks.isPenDown =
     {
 		only: SpriteMorph,
         type: 'predicate',
         category: 'pen',
         spec: 'pen down?',
-    };   
+    };
 
     this.blocks.getPenSize  =
     {
@@ -1640,10 +1810,10 @@ SpriteMorph.prototype.initBlocks = function () {
         type: 'reporter',
         category: 'pen',
         spec: 'pen size',
-    };   
+    };
 
 	// pen color blocks
-	
+
 	this.blocks.setColor = {
 		only: SpriteMorph,
 		type: 'command',
@@ -1658,8 +1828,8 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'colors',
         spec: 'set color to RGB %n %n %n',
         defaults: [0, 255, 0]
-    };    
-  
+    };
+
     this.blocks.setColorHex =
     {
 		only: SpriteMorph,
@@ -1667,8 +1837,8 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'colors',
         spec: 'set color to hex %s',
         defaults: ['#ff0000']
-    };  
-    
+    };
+
     this.blocks.setColorHSV =
     {
 		only: SpriteMorph,
@@ -1676,8 +1846,8 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'colors',
         spec: 'set color to HSV %n %n %n',
         defaults: [0.3, 0.7, 0.6]
-    };   
-    
+    };
+
     this.blocks.setOpacity =
     {
 		only: SpriteMorph,
@@ -1685,7 +1855,7 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'pen',
         spec: 'set opacity to %n',
         defaults: [100]
-    }; 
+    };
 
     this.blocks.changeOpacity =
     {
@@ -1694,7 +1864,7 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'pen',
         spec: 'change opacity by %n',
         defaults: [10]
-    };     
+    };
 
     this.blocks.getOpacity =
     {
@@ -1702,7 +1872,7 @@ SpriteMorph.prototype.initBlocks = function () {
         type: 'reporter',
         category: 'pen',
         spec: 'opacity',
-    };     
+    };
 
 	this.blocks.getColorRGB =
     {
@@ -1710,8 +1880,8 @@ SpriteMorph.prototype.initBlocks = function () {
         type: 'reporter',
         category: 'colors',
         spec: 'RGB color',
-    };   
-    
+    };
+
 	this.blocks.getColorHSV =
     {
 		only: SpriteMorph,
@@ -1719,35 +1889,35 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'colors',
         spec: 'HSV color',
     };
-    
+
 	this.blocks.getColorHex =
     {
 		only: SpriteMorph,
         type: 'reporter',
         category: 'colors',
         spec: 'hex color',
-    };      
-	
+    };
+
 	// color
     this.blocks.pickHue =
     {
 		only: SpriteMorph,
-        type: 'command', 
-        spec: 'set color by hue %huewheel',	
+        type: 'command',
+        spec: 'set color by hue %huewheel',
         category: 'colors'
     };
     this.blocks.setHSB =
     {
 		only: SpriteMorph,
-        type: 'command', 
-        spec: 'set %hsb to %n',	
+        type: 'command',
+        spec: 'set %hsb to %n',
         category: 'colors',
         defaults: ['hue', 50]
     };
     this.blocks.changeHSB =
     {
 		only: SpriteMorph,
-        type: 'command', 
+        type: 'command',
         spec: 'change %hsb by %n',
         category: 'colors',
         defaults: ['hue', 10]
@@ -1759,52 +1929,88 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'color: %hsb',
         category: 'colors'
     };
-    
+
     // Embroidery blocks
 
     this.blocks.clearStitchSettings =
     {
-		only: SpriteMorph,
+		    only: SpriteMorph,
         type: 'command',
         spec: 'clear stitch settings',
         category: 'embroidery',
-    }; 
+    };
 
     this.blocks.runningStitch =
     {
-		only: SpriteMorph,
+		    only: SpriteMorph,
         type: 'command',
         spec: 'running by %n steps',
         category: 'embroidery',
         defaults: [12]
-    }; 
-    
-	this.blocks.tieStitch =
+    };
+
+    this.blocks.beanStitch =
     {
-		only: SpriteMorph,
+		    only: SpriteMorph,
+        type: 'command',
+        spec: 'bean stitch by %n',
+        category: 'embroidery',
+        defaults: [12]
+    };
+
+    this.blocks.crossStitch =
+    {
+		    only: SpriteMorph,
+        type: 'command',
+        spec: 'cross stitch by in %n width %n center %b',
+        category: 'embroidery',
+        defaults: [12 , 12, true]
+    };
+
+    this.blocks.zigzagStitch =
+    {
+		    only: SpriteMorph,
+        type: 'command',
+        spec: 'zigzag with density %n width %n center %b',
+        category: 'embroidery',
+        defaults: [20, 20, true]
+    };
+
+    this.blocks.satinStitch =
+    {
+		    only: SpriteMorph,
+        type: 'command',
+        spec: 'satin stitch with width %n center %b',
+        category: 'embroidery',
+        defaults: [20, true]
+    };
+
+    this.blocks.tieStitch =
+    {
+		    only: SpriteMorph,
         type: 'command',
         spec: 'tie stitch',
         category: 'embroidery',
-    };     
-    
+    };
+
     this.blocks.jumpStitch =
     {
-		only: SpriteMorph,
+		    only: SpriteMorph,
         type: 'command',
         spec: 'jump stitch %b',
         category: 'embroidery',
         defaults: [true]
-    }; 
+    };
 
 	// more blocks
-	
+
     this.blocks.zoomToFit =
     {
         type: 'command',
         spec: 'zoom to fit',
         category: 'sensing'
-    };   
-    
+    };
+
 	this.blocks.reportPi = {
 		type: 'reporter',
 		category: 'operators',
@@ -1812,7 +2018,6 @@ SpriteMorph.prototype.initBlocks = function () {
 	};
 };
 
-SpriteMorph.prototype.initBlocks();
 
 // SpriteMorph block templates
 
@@ -2022,7 +2227,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
         blocks.push(block('setSize'));
         blocks.push(block('changeSize'));
-        blocks.push(block('getPenSize'));   
+        blocks.push(block('getPenSize'));
         blocks.push('-');
         blocks.push(block('setOpacity'));
         blocks.push(block('changeOpacity'));
@@ -2033,9 +2238,15 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('clear'));
         blocks.push('-');
         blocks.push(block('runningStitch'));
+        blocks.push(block('beanStitch'));
+        blocks.push(block('crossStitch'));
+        blocks.push('-');
+        blocks.push(block('zigzagStitch'));
+        blocks.push(block('satinStitch'));
+        blocks.push('-');
         blocks.push(block('jumpStitch'));
         blocks.push(block('tieStitch'));
-
+        blocks.push('-');
 
 	} else if (cat === 'colors') {
         blocks.push(block('setColor'));
@@ -2044,7 +2255,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setColorHSV'));
         blocks.push(block('setColorHex'));
         blocks.push(block('getColorRGB'));
-        blocks.push(block('getColorHSV'));        
+        blocks.push(block('getColorHSV'));
         blocks.push(block('getColorHex'));
         blocks.push('-');
         blocks.push(block('pickHue'));
