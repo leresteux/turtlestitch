@@ -57,15 +57,15 @@ SymbolMorph.prototype.drawSymbolZoomToFit = function (canvas, color) {
 
     ctx.strokeStyle = color.toString();
     ctx.lineWidth = 1.5;
-    
-    
+
+
     ctx.moveTo(0, 0);
     ctx.lineTo(w, 0);
     ctx.stroke();
     ctx.moveTo(0, 0);
     ctx.lineTo(0, w);
     ctx.stroke();
-    
+
     ctx.moveTo(0, h);
     ctx.lineTo(0, h - w);
     ctx.stroke();
@@ -79,13 +79,13 @@ SymbolMorph.prototype.drawSymbolZoomToFit = function (canvas, color) {
     ctx.moveTo(h, 0);
     ctx.lineTo(h, w);
     ctx.stroke();
-    
+
     ctx.moveTo(h, h);
     ctx.lineTo(h - w, h);
     ctx.stroke();
     ctx.moveTo(h, h);
     ctx.lineTo(h, h - w);
-    ctx.stroke();    
+    ctx.stroke();
 
     return canvas;
 };

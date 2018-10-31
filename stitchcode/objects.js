@@ -2008,16 +2008,17 @@ SpriteMorph.prototype.initBlocks = function () {
     {
         type: 'command',
         spec: 'zoom to fit',
-        category: 'sensing'
+        category: 'other'
     };
 
-	this.blocks.reportPi = {
-		type: 'reporter',
-		category: 'operators',
-		spec: 'PI',
-	};
+  	this.blocks.reportPi = {
+  		type: 'reporter',
+  		category: 'operators',
+  		spec: 'PI',
+  	};
 };
 
+SpriteMorph.prototype.initBlocks();
 
 // SpriteMorph block templates
 
@@ -2248,6 +2249,9 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('tieStitch'));
         blocks.push('-');
 
+  } else if (cat === 'other') {
+        blocks.push(block('zoomToFit'));
+
 	} else if (cat === 'colors') {
         blocks.push(block('setColor'));
         blocks.push('-');
@@ -2360,7 +2364,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
         blocks.push(block('reportDate'));
         blocks.push('-');
-        blocks.push(block('zoomToFit'));
+
 
     // for debugging: ///////////////
 
