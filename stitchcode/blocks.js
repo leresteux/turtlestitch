@@ -381,10 +381,10 @@ SyntaxElementMorph.prototype.labelPart = function (spec) {
         case '%huewheel':
             part = new HueSlotMorph();
             part.isStatic = true;
-			break;
+			         break;
         default:
             part = this.originalLabelPart(spec);
-        break;
+            break;
     }
     return part;
 };

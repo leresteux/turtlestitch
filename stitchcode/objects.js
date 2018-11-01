@@ -44,7 +44,7 @@ SpriteMorph.prototype.init = function(globals) {
     this.stitchoptions = {};
 };
 
-SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
+SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2, angle=false ) {
     var stage = this.parentThatIsA(StageMorph);
 
     if (this.stitchLines === null) {
@@ -132,7 +132,8 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2) {
 		line = new THREE.Mesh(geometry, material);
 		line.translateX(x1 + (x2 - x1)/2);
 		line.translateY(y1 + (y2 - y1)/2);
-		line.rotation.z = (90 - this.heading) * Math.PI / 180;
+    if (!angle) angle = this.heading;
+		line.rotation.z = (90 - angle) * Math.PI / 180;
 		stage.myStitchLines.add(line);
 
 		/*
@@ -301,10 +302,10 @@ SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
 
 // STITCH settings
 
-SpriteMorph.prototype.clearStitchSettings = function () {
+SpriteMorph.prototype.stopRunning = function () {
 	this.stitchtype = 0;
+  this.isRunning = false;
 	this.stitchoptions = {};
-	this.isDown = true;
 }
 
 SpriteMorph.prototype.runningStitch = function (length, autoadjust) {
@@ -362,6 +363,20 @@ SpriteMorph.prototype.zigzagStitch = function (density, width=10, center=true, a
 	}
 }
 
+SpriteMorph.prototype.ZStitch = function (density, width=10, center=true, autoadjust=true) {
+	if (density > 0 && width > 0) {
+    this.stitchtype = "Z";
+		this.isRunning = true;
+		this.stitchoptions = {
+      center: center,
+      autoadjust: autoadjust,
+      width: width,
+      length: density,
+    }
+	}
+}
+
+
 SpriteMorph.prototype.satinStitch = function (width=10, center=true, autoadjust=true) {
 	if (width > 0) {
     this.stitchtype = "zigzag";
@@ -375,19 +390,40 @@ SpriteMorph.prototype.satinStitch = function (width=10, center=true, autoadjust=
 	}
 }
 
+SpriteMorph.prototype.trimStitch = function (on = true) {
+  var myself = this;
+	var penState = myself.isDown;
+  var runState = myself.isRunning;
+  var stitchState = myself.stitchtype;
+  myself.stitchtype = 0;
+	myself.isDown = false;
+  myself.isRunning = false;
+	myself.forward(2);
+	myself.forward(-4);
+	myself.forward(2);
+  myself.stitchtype = stitchState;
+	myself.isDown = penState;
+  myself.isRunning = runState;
+}
 
 SpriteMorph.prototype.jumpStitch = function (on = true) {
 	this.isDown = !on;
 }
 
 SpriteMorph.prototype.tieStitch = function () {
-	var myself = this;
-	var penState = myself.isDown;
+  var myself = this;
+  var penState = myself.isDown;
+  var runState = myself.isRunning;
+  var stitchState = myself.stitchtype;
+  myself.stitchtype = 0;
 	myself.isDown = true;
+  myself.isRunning = false;
 	myself.forward(2);
 	myself.forward(-4);
 	myself.forward(2);
-	myself.isDown = penState;
+  myself.stitchtype = stitchState;
+  myself.isDown = penState;
+  myself.isRunning = runState;
 }
 
 SpriteMorph.prototype.origForward = SpriteMorph.prototype.forward;
@@ -434,21 +470,26 @@ SpriteMorph.prototype.forwardByNr = function (totalsteps, nr_steps) {
 };
 
 SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
-    nr_steps = Math.floor(totalsteps / stepsize);
-    rest = totalsteps - (nr_steps * stepsize);
-    for(i=0;i<nr_steps;i++) {
+    steps = Math.floor(totalsteps / stepsize);
+    rest = totalsteps - (steps * stepsize);
+    for(i=0;i<steps;i++) {
       if (this.stitchtype == "cross" && i == 0 && this.stitchoptions.center)
           this.crossStitchForwardStart(stepsize, this.stitchoptions.width)
 
       if (this.stitchtype == "zigzag" && i == 0 && this.stitchoptions.center)
         this.zigzagForwardStart(stepsize, this.stitchoptions.width)
+      else if (this.stitchtype == "Z" && i == 0 && this.stitchoptions.center)
+        this.ZForwardStart(stepsize, this.stitchoptions.width)
       else
         this.moveforward(stepsize);
 
-      if (this.stitchtype == "zigzag" && i == nr_steps - 1 && this.stitchoptions.center)
+      if (this.stitchtype == "zigzag" && i == steps - 1 && this.stitchoptions.center)
         this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
 
-      if (this.stitchtype == "cross" && i == nr_steps - 1 && this.stitchoptions.center)
+      if (this.stitchtype == "Z" && i == steps - 1 && this.stitchoptions.center)
+          this.ZForwardEnd(stepsize, this.stitchoptions.width)
+
+      if (this.stitchtype == "cross" && i == steps - 1 && this.stitchoptions.center)
           this.crossStitchForwardStop(stepsize, this.stitchoptions.width)
   	}
   	if (rest > 0) {
@@ -476,17 +517,6 @@ SpriteMorph.prototype.crossStitchForward = function (steps, width=10) {
   this.turn(alpha);
 }
 
-SpriteMorph.prototype.zigzagForward = function (steps, width=10) {
-  var c = Math.sqrt(steps/2*steps/2 + width * width);
-  var alpha = degrees(Math.asin(width/c));
-
-  this.turn(alpha);
-  this.doMoveForward(c);
-  this.turnLeft(2 *alpha);
-  this.doMoveForward(c);
-  this.turn(alpha);
-}
-
 SpriteMorph.prototype.crossStitchForwardStart = function (steps, width=10) {
   this.turn(-90);
   this.doMoveForward(width/2);
@@ -498,6 +528,19 @@ SpriteMorph.prototype.crossStitchForwardStop = function (steps, width=10) {
   this.doMoveForward(width/2);
   this.turn(-90);
 }
+
+
+SpriteMorph.prototype.zigzagForward = function (steps, width=10) {
+  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turn(alpha);
+  this.doMoveForward(c);
+  this.turnLeft(2 *alpha);
+  this.doMoveForward(c);
+  this.turn(alpha);
+}
+
 
 SpriteMorph.prototype.zigzagForwardStart = function (steps, width=10) {
   var c = Math.sqrt(steps/2*steps/2 + width * width);
@@ -519,6 +562,36 @@ SpriteMorph.prototype.zigzagForwardEnd = function (steps, width=10) {
   this.turn(alpha);
 }
 
+SpriteMorph.prototype.ZForward = function (steps, width=10) {
+  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turn(90);
+  this.doMoveForward(width);
+  this.turnLeft(90 + alpha);
+  this.doMoveForward(c);
+  this.turn(alpha);
+}
+
+SpriteMorph.prototype.ZForwardStart = function (steps, width=10) {
+  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turn(90);
+  this.doMoveForward(width/2);
+  this.turnLeft(90 + alpha);
+  this.doMoveForward(c);
+  this.turn(alpha);
+}
+
+SpriteMorph.prototype.ZForwardEnd = function (steps, width=10) {
+  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turn(90);
+  this.doMoveForward(width/2);
+  this.turnLeft(90);
+}
 
 SpriteMorph.prototype.moveforward = function (steps) {
   if ( this.stitchtype == "bean") {
@@ -527,6 +600,8 @@ SpriteMorph.prototype.moveforward = function (steps) {
     this.crossStitchForward(steps, this.stitchoptions.width)
   } else if ( this.stitchtype == "zigzag") {
     this.zigzagForward(steps, this.stitchoptions.width)
+  } else if ( this.stitchtype == "Z") {
+    this.ZForward(steps, this.stitchoptions.width)
   } else {
     this.doMoveForward(steps)
   }
@@ -591,62 +666,68 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
     var dist = Math.sqrt(a*a + b*b);
     if (a == 0 && b == 0) dist = 0;
 
-    if ( Math.round(dist,5) <= 0.001) {
-		// jump in place - don't add / ignore
-		//console.log("jump in place - don't add / ignore",  this.isDown,this.xPosition(), this.yPosition(), dist);
+    var deltaX = (x - this.xPosition()) * this.parent.scale;
+    var deltaY = (y - this.yPosition()) * this.parent.scale;
+    var angle = Math.abs(deltaX) < 0.0001 ? (deltaY < 0 ? 90 : 270)
+          : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
+        );
+    angle = angle + 90;
+
+    if ( Math.round(dist,5) <= 0.0001) {
+		  // jump in place - don't add / ignore
+		  //console.log("jump in place - don't add / ignore",  this.isDown,this.xPosition(), this.yPosition(), dist);
     } else {
 
-		if ( this.isRunning  && dist > this.stitchoptions.length  && this.isDown) {
-			if (this.stitchoptions.autoadjust) {
-				var real_length = dist / Math.round(dist / this.stitchoptions.length);
-				stepsize = real_length;
-			} else {
-				stepsize = this.stitchoptions.length;
-			}
-			var steps = Math.floor(dist / stepsize);
-			var rest = dist - (steps * stepsize);
+  		if ( this.isRunning  && dist > this.stitchoptions.length  && this.isDown) {
+  			if (this.stitchoptions.autoadjust) {
+  				var real_length = dist / Math.round(dist / this.stitchoptions.length);
+  				stepsize = real_length;
+  			} else {
+  				stepsize = this.stitchoptions.length;
+  			}
+  			var steps = Math.floor(dist / stepsize);
+  			var rest = dist - (steps * stepsize);
 
-      rest = Math.round(rest,8);
-      stepsize =  Math.round(stepsize,8);
+        rest = Math.round(rest,8);
+        stepsize =  Math.round(stepsize,8);
 
-			var deltaX = (x - this.xPosition()) * this.parent.scale;
-			var deltaY = (y - this.yPosition()) * this.parent.scale;
-			var angle = Math.abs(deltaX) < 0.0001 ? (deltaY < 0 ? 90 : 270)
-					  : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
-				  );
-			this.setHeading(angle + 90);
 
-			for(i=0; i < steps; i++) {
-        if (this.stitchtype == "cross" && i == 0 && this.stitchoptions.center)
-            this.crossStitchForwardStart(stepsize, this.stitchoptions.width)
+  			this.setHeading(angle);
 
-        if (this.stitchtype == "zigzag" && i == 0 && this.stitchoptions.center)
-          this.zigzagForwardStart(stepsize, this.stitchoptions.width)
-        else
-          this.moveforward(stepsize);
+        for(i=0;i<steps;i++) {
+          if (this.stitchtype == "cross" && i == 0 && this.stitchoptions.center)
+              this.crossStitchForwardStart(stepsize, this.stitchoptions.width)
 
-        if (this.stitchtype == "zigzag" && i == steps - 1 && this.stitchoptions.center)
-          this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
+          if (this.stitchtype == "zigzag" && i == 0 && this.stitchoptions.center)
+            this.zigzagForwardStart(stepsize, this.stitchoptions.width)
+          else if (this.stitchtype == "Z" && i == 0 && this.stitchoptions.center)
+            this.ZForwardStart(stepsize, this.stitchoptions.width)
+          else
+            this.moveforward(stepsize);
 
-        if (this.stitchtype == "cross" && i == steps - 1 && this.stitchoptions.center)
-            this.crossStitchForwardStop(stepsize, this.stitchoptions.width)
-			}
+          if (this.stitchtype == "zigzag" && i == steps - 1 && this.stitchoptions.center)
+            this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
 
-      console.log(x, y, this.xPosition(), this.yPosition())
-			if (rest > 0 || x != this.xPosition() || y != this.yPosition()) {
-	      this.gotoXY(x,y);
-        this.origGotoXY(x, y, justMe);
-        console.log(x, y, this.xPosition(), this.yPosition())
-			}
+          if (this.stitchtype == "Z" && i == steps - 1 && this.stitchoptions.center)
+              this.ZForwardEnd(stepsize, this.stitchoptions.width)
 
+          if (this.stitchtype == "cross" && i == steps - 1 && this.stitchoptions.center)
+              this.crossStitchForwardStop(stepsize, this.stitchoptions.width)
+      	}
+
+  			if (rest > 0 || x != this.xPosition() || y != this.yPosition()) {
+  	      this.gotoXY(x,y);
+  			}
 		} else {
 			this.origGotoXY(x, y, justMe);
+
 			warn = this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
 				oldx, oldy,
 				this.xPosition(), this.yPosition(),
 				this.isDown );
+
 			if (this.isDown) {
-				this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
+				this.addStitch(oldx, oldy, this.xPosition(), this.yPosition(), angle);
 				this.addStitchPoint(this.xPosition(), this.yPosition());
 				if (warn) {
 					this.addDensityPoint(this.xPosition(), this.yPosition());
@@ -1932,11 +2013,11 @@ SpriteMorph.prototype.initBlocks = function () {
 
     // Embroidery blocks
 
-    this.blocks.clearStitchSettings =
+    this.blocks.stopRunning =
     {
 		    only: SpriteMorph,
         type: 'command',
-        spec: 'clear stitch settings',
+        spec: 'stop running',
         category: 'embroidery',
     };
 
@@ -1976,6 +2057,15 @@ SpriteMorph.prototype.initBlocks = function () {
         defaults: [20, 20, true]
     };
 
+    this.blocks.ZStitch =
+    {
+		    only: SpriteMorph,
+        type: 'command',
+        spec: 'Z-Stitch with density %n width %n center %b',
+        category: 'embroidery',
+        defaults: [20, 10, true]
+    };
+
     this.blocks.satinStitch =
     {
 		    only: SpriteMorph,
@@ -2000,6 +2090,14 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'jump stitch %b',
         category: 'embroidery',
         defaults: [true]
+    };
+
+    this.blocks.trimStitch =
+    {
+		    only: SpriteMorph,
+        type: 'command',
+        spec: 'trim',
+        category: 'embroidery',
     };
 
 	// more blocks
@@ -2237,16 +2335,19 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 	} else if (cat === 'embroidery') {
 
         blocks.push(block('clear'));
+        blocks.push(block('stopRunning'));
         blocks.push('-');
         blocks.push(block('runningStitch'));
         blocks.push(block('beanStitch'));
         blocks.push(block('crossStitch'));
         blocks.push('-');
         blocks.push(block('zigzagStitch'));
+        blocks.push(block('ZStitch'));
         blocks.push(block('satinStitch'));
         blocks.push('-');
         blocks.push(block('jumpStitch'));
         blocks.push(block('tieStitch'));
+        blocks.push(block('trimStitch'));
         blocks.push('-');
 
   } else if (cat === 'other') {
@@ -2265,13 +2366,13 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('pickHue'));
         blocks.push(block('setHSB'));
         blocks.push(block('changeHSB'));
-		blocks.push(block('getHSB'));
+		    blocks.push(block('getHSB'));
         blocks.push('-');
 
     } else if (cat === 'control') {
 
-		blocks.push(block('resetAll'));
-		blocks.push('-');
+		    blocks.push(block('resetAll'));
+		    blocks.push('-');
         blocks.push(block('receiveGo'));
         blocks.push(block('receiveKey'));
         blocks.push(block('receiveInteraction'));
