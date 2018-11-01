@@ -19,6 +19,8 @@ SpriteMorph.prototype.categories =
 SpriteMorph.prototype.blockColor = {
     motion : new Color(74, 108, 212),
     pen : new Color(0, 161, 120),
+    looks : new Color(143, 86, 227),
+    sound : new Color(207, 74, 217),
     embroidery : new Color(0,120,0),
     control : new Color(230, 168, 34),
     sensing : new Color(4, 148, 220),
@@ -177,7 +179,6 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2, angle=false ) {
 		*/
 	}
 	this.reRender();
-    this.lastJumped = false;
 };
 
 
@@ -233,7 +234,6 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 		stage.myJumpLines.add(mesh);
 	}
 
-    this.lastJumped = true;
     this.reRender();
 };
 
@@ -563,7 +563,7 @@ SpriteMorph.prototype.zigzagForwardEnd = function (steps, width=10) {
 }
 
 SpriteMorph.prototype.ZForward = function (steps, width=10) {
-  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(90);
@@ -574,7 +574,7 @@ SpriteMorph.prototype.ZForward = function (steps, width=10) {
 }
 
 SpriteMorph.prototype.ZForwardStart = function (steps, width=10) {
-  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(90);
@@ -585,7 +585,7 @@ SpriteMorph.prototype.ZForwardStart = function (steps, width=10) {
 }
 
 SpriteMorph.prototype.ZForwardEnd = function (steps, width=10) {
-  var c = Math.sqrt(steps/2*steps/2 + width * width);
+  var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(90);
@@ -625,6 +625,8 @@ SpriteMorph.prototype.doMoveForward = function (steps) {
 
 	if (dist != 0) {
 		this.setPosition(dest);
+
+    var isFirst = this.parentThatIsA(StageMorph).turtleShepherd.isEmpty();
 		warn = stage.turtleShepherd.moveTo(
 			oldx, oldy,
 			this.xPosition(), this.yPosition(),
@@ -636,12 +638,13 @@ SpriteMorph.prototype.doMoveForward = function (steps) {
 			if (warn) {
 				this.addDensityPoint(this.xPosition(), this.yPosition());
 			}
-
-			if (this.parentThatIsA(StageMorph).turtleShepherd.isEmpty()) {
-				this.addStitchPoint(0,0);
+			if (isFirst || this.lastJumped ) {
+				this.addStitchPoint(oldx,oldy);
 			}
+      this.lastJumped = false;
 		} else {
 			this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
+      this.lastJumped = true;
 		}
 		stage.moveTurtle(this.xPosition(), this.yPosition());
 	}
@@ -732,10 +735,13 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 				if (warn) {
 					this.addDensityPoint(this.xPosition(), this.yPosition());
 				}
-				if (this.parentThatIsA(StageMorph).turtleShepherd.isEmpty())
-					this.addStitchPoint(0,0);
+
+				if (this.parentThatIsA(StageMorph).turtleShepherd.isEmpty() || this.lastJumped)
+					this.addStitchPoint(oldx, oldy);
+        this.lastJumped = false;
 			} else {
 				this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
+        this.lastJumped = true;
 			}
 			stage.moveTurtle(this.xPosition(), this.yPosition());
 		}
@@ -2025,9 +2031,9 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		    only: SpriteMorph,
         type: 'command',
-        spec: 'running by %n steps',
+        spec: 'running stitch by %n steps',
         category: 'embroidery',
-        defaults: [12]
+        defaults: [10]
     };
 
     this.blocks.beanStitch =
@@ -2036,16 +2042,16 @@ SpriteMorph.prototype.initBlocks = function () {
         type: 'command',
         spec: 'bean stitch by %n',
         category: 'embroidery',
-        defaults: [12]
+        defaults: [10]
     };
 
     this.blocks.crossStitch =
     {
 		    only: SpriteMorph,
         type: 'command',
-        spec: 'cross stitch by in %n width %n center %b',
+        spec: 'cross stitch in %n by %n center %b',
         category: 'embroidery',
-        defaults: [12 , 12, true]
+        defaults: [10, 10, true]
     };
 
     this.blocks.zigzagStitch =
@@ -2061,7 +2067,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		    only: SpriteMorph,
         type: 'command',
-        spec: 'Z-Stitch with density %n width %n center %b',
+        spec: 'Z-stitch with density %n width %n center %b',
         category: 'embroidery',
         defaults: [20, 10, true]
     };
@@ -2344,6 +2350,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('zigzagStitch'));
         blocks.push(block('ZStitch'));
         blocks.push(block('satinStitch'));
+        blocks.push('-');
         blocks.push('-');
         blocks.push(block('jumpStitch'));
         blocks.push(block('tieStitch'));
