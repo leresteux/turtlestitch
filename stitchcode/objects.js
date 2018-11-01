@@ -566,31 +566,31 @@ SpriteMorph.prototype.ZForward = function (steps, width=10) {
   var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-  this.turn(90);
-  this.doMoveForward(width);
-  this.turnLeft(90 + alpha);
-  this.doMoveForward(c);
   this.turn(alpha);
+  this.doMoveForward(c);
+  this.turnLeft(90 + alpha);
+  this.doMoveForward(width);
+  this.turn(90);
 }
 
 SpriteMorph.prototype.ZForwardStart = function (steps, width=10) {
   var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-  this.turn(90);
-  this.doMoveForward(width/2);
-  this.turnLeft(90 + alpha);
-  this.doMoveForward(c);
   this.turn(alpha);
+  this.doMoveForward(c/2);
+  this.turnLeft(90 + alpha);
+  this.doMoveForward(width);
+  this.turn(90);
 }
 
 SpriteMorph.prototype.ZForwardEnd = function (steps, width=10) {
   var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-  this.turn(90);
-  this.doMoveForward(width/2);
-  this.turnLeft(90);
+  this.turn(alpha);
+  this.doMoveForward(c/2);
+  this.turnLeft(alpha);
 }
 
 SpriteMorph.prototype.moveforward = function (steps) {
