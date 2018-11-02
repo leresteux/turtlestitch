@@ -308,13 +308,12 @@ SpriteMorph.prototype.stopRunning = function () {
 	this.stitchoptions = {};
 }
 
-SpriteMorph.prototype.runningStitch = function (length, autoadjust) {
+SpriteMorph.prototype.runningStitch = function (length, autoadjust=true) {
 	if (length > 0) {
 		this.isRunning = true;
 		this.stitchoptions = {
       length: length,
-      autoadjust: true,
-      type:"single"
+      autoadjust: autoadjust,
     }
 	} else {
 		this.stitchtype = 0;
@@ -390,6 +389,22 @@ SpriteMorph.prototype.satinStitch = function (width=10, center=true, autoadjust=
 	}
 }
 
+SpriteMorph.prototype.tatamiStitch = function (width=100, interval=30, offset=10, center=false) {
+	if (width > 0) {
+    this.stitchtype = "tatami";
+		this.isRunning = true;
+		this.stitchoptions = {
+      autoadjust: true,
+      width: width,
+      length: 5,
+      center: center,
+      interval:  Math.max(10,interval),
+      offset: Math.min(offset,interval),
+      segment_count: 0,
+    }
+	}
+}
+
 SpriteMorph.prototype.trimStitch = function (on = true) {
   var myself = this;
 	var penState = myself.isDown;
@@ -457,46 +472,50 @@ SpriteMorph.prototype.forward = function (steps) {
 };
 
 
-SpriteMorph.prototype.forwardByNr = function (totalsteps, nr_steps) {
-    stepsize = totalsteps / nr_steps;
-    for(i=0;i<nr_steps;i++) {
-        if (this.stitchtype == "zigzag" && i == 0)
-          this.zigzagForwardStart(stepsize, this.stitchoptions.width)
-        else if (this.stitchtype == "zigzag" && i == nr_steps - 1)
-            this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
-		    else
-          this.moveforward(stepsize);
-	}
+SpriteMorph.prototype.forwardByNr = function (totalsteps, steps) {
+    stepsize = totalsteps / steps;
+    this.forwardSegemensWithEndCheck(steps, stepsize)
 };
 
 SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
     steps = Math.floor(totalsteps / stepsize);
     rest = totalsteps - (steps * stepsize);
-    for(i=0;i<steps;i++) {
-      if (this.stitchtype == "cross" && i == 0 && this.stitchoptions.center)
-          this.crossStitchForwardStart(stepsize, this.stitchoptions.width)
 
-      if (this.stitchtype == "zigzag" && i == 0 && this.stitchoptions.center)
-        this.zigzagForwardStart(stepsize, this.stitchoptions.width)
-      else if (this.stitchtype == "Z" && i == 0 && this.stitchoptions.center)
-        this.ZForwardStart(stepsize, this.stitchoptions.width)
-      else
-        this.moveforward(stepsize);
+    this.forwardSegemensWithEndCheck(steps, stepsize)
 
-      if (this.stitchtype == "zigzag" && i == steps - 1 && this.stitchoptions.center)
-        this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
-
-      if (this.stitchtype == "Z" && i == steps - 1 && this.stitchoptions.center)
-          this.ZForwardEnd(stepsize, this.stitchoptions.width)
-
-      if (this.stitchtype == "cross" && i == steps - 1 && this.stitchoptions.center)
-          this.crossStitchForwardStop(stepsize, this.stitchoptions.width)
-  	}
   	if (rest > 0) {
   		this.moveforward(rest);
   	}
 
 };
+
+SpriteMorph.prototype.forwardSegemensWithEndCheck = function(steps, stepsize) {
+  for(i=0;i<steps;i++) {
+    if (this.stitchtype == "tatami" && i == 0 && this.stitchoptions.center)
+        this.tatamiForwardStart(stepsize, this.stitchoptions.width)
+
+    if (this.stitchtype == "cross" && i == 0 && this.stitchoptions.center)
+        this.crossStitchForwardStart(stepsize, this.stitchoptions.width)
+
+    if (this.stitchtype == "zigzag" && i == 0 && this.stitchoptions.center)
+      this.zigzagForwardStart(stepsize, this.stitchoptions.width)
+    else if (this.stitchtype == "Z" && i == 0 && this.stitchoptions.center)
+      this.ZForwardStart(stepsize, this.stitchoptions.width)
+    else
+      this.moveforward(stepsize);
+
+    if (this.stitchtype == "zigzag" && i == steps - 1 && this.stitchoptions.center)
+      this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
+    if (this.stitchtype == "Z" && i == steps - 1 && this.stitchoptions.center)
+        this.ZForwardEnd(stepsize, this.stitchoptions.width)
+    if (this.stitchtype == "cross" && i == steps - 1 && this.stitchoptions.center)
+        this.crossStitchForwardStop(stepsize, this.stitchoptions.width)
+    if (this.stitchtype == "tatami" && i == steps - 1 && this.stitchoptions.center)
+        this.tatamiForwardEnd(stepsize, this.stitchoptions.width)
+  }
+}
+
+
 
 SpriteMorph.prototype.beanStitchForward = function (steps) {
     this.doMoveForward(steps);
@@ -593,6 +612,73 @@ SpriteMorph.prototype.ZForwardEnd = function (steps, width=10) {
   this.turnLeft(alpha);
 }
 
+SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
+
+  // just for move to the next line in 2 bz 10
+  b = 10;
+  var c = Math.sqrt(steps/2*steps/2 + b * b);
+  var alpha = degrees(Math.asin((steps/2)/c));
+
+  var offset = (this.stitchoptions.segment_count % Math.floor(this.stitchoptions.interval / this.stitchoptions.offset)) *
+        this.stitchoptions.offset;
+  var distance = width - b - offset;
+  var interval = this.stitchoptions.interval;
+  var count = Math.floor(distance / interval);
+  var rest = distance - (count * interval);
+
+
+  this.turn(90 - alpha);
+  this.doMoveForward(c);
+  this.turn(alpha);
+
+  if (offset > 0)
+      this.doMoveForward(offset);
+
+  for(var i=0;i<count;i++) {
+    console.log(i, rest, distance);
+    this.doMoveForward(interval);
+  }
+  if (rest) {
+    this.doMoveForward(rest);
+  }
+  this.turnLeft(180 - alpha);
+  this.doMoveForward(c);
+  this.turnLeft(alpha);
+
+  if (offset > 0)
+      this.doMoveForward(offset);
+
+  for(var i=0;i<count;i++) {
+    this.doMoveForward(interval);
+  }
+  if (rest) {
+    this.doMoveForward(rest);
+  }
+  this.turn(90);
+  this.stitchoptions.segment_count+=1;
+
+}
+
+SpriteMorph.prototype.tatamiForwardStart = function (steps, width=10) {
+  var c = Math.sqrt(steps*steps + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turn(-90);
+  this.doMoveForward(width/2);
+  this.turn(90);
+}
+
+SpriteMorph.prototype.tatamiForwardEnd = function (steps, width=10) {
+  var c = Math.sqrt(steps*steps + width * width);
+  var alpha = degrees(Math.asin(width/c));
+
+  this.turn(90);
+  this.doMoveForward(c/2);
+  this.turn(-90);
+}
+
+
+
 SpriteMorph.prototype.moveforward = function (steps) {
   if ( this.stitchtype == "bean") {
     this.beanStitchForward(steps);
@@ -602,6 +688,8 @@ SpriteMorph.prototype.moveforward = function (steps) {
     this.zigzagForward(steps, this.stitchoptions.width)
   } else if ( this.stitchtype == "Z") {
     this.ZForward(steps, this.stitchoptions.width)
+  } else if ( this.stitchtype == "tatami") {
+    this.tatamiForward(steps, this.stitchoptions.width)
   } else {
     this.doMoveForward(steps)
   }
@@ -697,26 +785,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 
   			this.setHeading(angle);
 
-        for(i=0;i<steps;i++) {
-          if (this.stitchtype == "cross" && i == 0 && this.stitchoptions.center)
-              this.crossStitchForwardStart(stepsize, this.stitchoptions.width)
-
-          if (this.stitchtype == "zigzag" && i == 0 && this.stitchoptions.center)
-            this.zigzagForwardStart(stepsize, this.stitchoptions.width)
-          else if (this.stitchtype == "Z" && i == 0 && this.stitchoptions.center)
-            this.ZForwardStart(stepsize, this.stitchoptions.width)
-          else
-            this.moveforward(stepsize);
-
-          if (this.stitchtype == "zigzag" && i == steps - 1 && this.stitchoptions.center)
-            this.zigzagForwardEnd(stepsize, this.stitchoptions.width)
-
-          if (this.stitchtype == "Z" && i == steps - 1 && this.stitchoptions.center)
-              this.ZForwardEnd(stepsize, this.stitchoptions.width)
-
-          if (this.stitchtype == "cross" && i == steps - 1 && this.stitchoptions.center)
-              this.crossStitchForwardStop(stepsize, this.stitchoptions.width)
-      	}
+        this.forwardSegemensWithEndCheck(steps,stepsize);
 
   			if (rest > 0 || x != this.xPosition() || y != this.yPosition()) {
   	      this.gotoXY(x,y);
@@ -749,43 +818,18 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 };
 
 SpriteMorph.prototype.gotoXYBy = function (x, y, stepsize) {
-    var stage = this.parentThatIsA(StageMorph);
-    var dest;
-
-    if (!stage) {return; }
-
-    x = !isFinite(+x) ? 0 : +x;
-    y = !isFinite(+y) ? 0 : +y;
-
-    var dest = new Point(x, y).subtract(
-                  new Point(this.xPosition(), this.yPosition()));
-
-    var a = (x - this.xPosition());
-    var b = (y - this.yPosition());
-    var dist = Math.sqrt(a*a + b*b);
-    if (a == 0 && b == 0)
-      dist = 0;
-
-    if (dist > 0) {
-      var steps = Math.floor(dist / stepsize);
-      var rest = dist - (steps * stepsize);
-
-      var deltaX = (x - this.xPosition()) * this.parent.scale;
-      var deltaY = (y - this.yPosition()) * this.parent.scale;
-      var angle = Math.abs(deltaX) < 0.001 ? (deltaY < 0 ? 90 : 270)
-                  : Math.round(
-                  (deltaX >= 0 ? 0 : 180)
-                      - (Math.atan(deltaY / deltaX) * 57.2957795131)
-              );
-      this.setHeading(angle + 90);
-
-      for(i=0; i < steps; i++) {
-        this.forward(stepsize);
-      }
-      if (rest > 0) {
-        this.gotoXY(x,y);
-      }
-    }
+  // this block is deprecated but keep it for compatibility
+  stitchState = this.stitchtype;
+  sititchOptionState = this.stitchoptions;
+  runState = this.isRunning;
+  this.isRunning = true;
+  this.stitchtype == "";
+  this.stitchoptions.length = stepsize;
+  this.autoadjust = false;
+  this.gotoXY(x,y);
+  this.stitchtype = stitchState;
+  this.stitchoptions = sititchOptionState;
+  this.isRunning = runState;
 };
 
 SpriteMorph.prototype.gotoXYIn = function (x, y, steps) {
@@ -815,12 +859,10 @@ SpriteMorph.prototype.gotoXYIn = function (x, y, steps) {
 		  );
 	this.setHeading(angle + 90);
 
-    if (dist > 0) {
+  if (dist > 0) {
 		var stepsize =  dist / steps;
-		for(i=0; i < steps; i++) {
-			this.forward(stepsize);
-		}
-    }
+		this.forwardSegemensWithEndCheck(steps,stepsize);
+  }
 };
 
 
@@ -2040,7 +2082,7 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		    only: SpriteMorph,
         type: 'command',
-        spec: 'bean stitch by %n',
+        spec: 'triple run by %n',
         category: 'embroidery',
         defaults: [10]
     };
@@ -2079,6 +2121,15 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'satin stitch with width %n center %b',
         category: 'embroidery',
         defaults: [20, true]
+    };
+
+    this.blocks.tatamiStitch =
+    {
+		    only: SpriteMorph,
+        type: 'command',
+        spec: 'tatami stitch width %n interval %n offset %n center %b',
+        category: 'embroidery',
+        defaults: [100, 40, 10, true]
     };
 
     this.blocks.tieStitch =
@@ -2350,6 +2401,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('zigzagStitch'));
         blocks.push(block('ZStitch'));
         blocks.push(block('satinStitch'));
+        blocks.push(block('tatamiStitch'));
         blocks.push('-');
         blocks.push('-');
         blocks.push(block('jumpStitch'));
