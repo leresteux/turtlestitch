@@ -82,7 +82,7 @@ tempDict = {
 		'zeige nach x: %n y: %n',
 	'reset':
         'zur\u00fccksetzen',
-		      
+
 	// warnings
 	' are too long! (will get clamped)':
 		'sind zu lang! (werden geklammert)',
@@ -128,7 +128,7 @@ tempDict = {
         'absolute Helligkeit',
     'change hue by %n':
         '\u00e4ndere Farbton um %n',
-	
+
 	// new categories
     'Embroidery':
         'Stickerei',
@@ -136,16 +136,31 @@ tempDict = {
         'Farben',
 
 	// embroidery stuff
-    'running by %n':
-        'Steppstich mit %n',	
+    'running stitch by %n steps':
+        'Laufstich in %n er Schritten',
+		'triple run by %n':
+				'Dreifach-Laufstich mit %n',
+		'cross stitch in %n by %n center %b':
+				'Kreuzstitch %n mal %n zentriert %b',
+		'zigzag with density %n width %n center %b':
+				'Zickzack mit Dichte %n  Breite %n zentriert %b',
+		'Z-Stitch with density %n width %n center %b':
+				'Z-Sitch mit Dichte %n und Breite %n zentriert %b',
+		'satin stitch with width %n center %b':
+				'Plattstitch mit Breite %n zentriert %b',
+		'tatami stitch width %n interval %n offset %n center %b':
+				'Tatami-Stich mit Breite %n Intervall %n Versatz %n zentriert %b',
     'jump stitch %b':
         'Sprungstich %b',
     'tie stitch':
         'Riegelstich',
-
+		'trim':
+        'schneiden',
+		'stop running':
+        'stop Lauf',
 
     'draw text: %s scale: %n font: %n':
-        'Schreibe %s Skalierung: %n Schrift %n',         
+        'Schreibe %s Skalierung: %n Schrift %n',
 };
 
 // Add attributes to original SnapTranslator.dict.de

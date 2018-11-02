@@ -615,7 +615,7 @@ SpriteMorph.prototype.ZForwardEnd = function (steps, width=10) {
 SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
 
   // just for move to the next line in 2 bz 10
-  b = 10;
+  b = this.stitchoptions.offset/2;
   var c = Math.sqrt(steps/2*steps/2 + b * b);
   var alpha = degrees(Math.asin((steps/2)/c));
 
