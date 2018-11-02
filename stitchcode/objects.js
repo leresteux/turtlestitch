@@ -1202,8 +1202,20 @@ SpriteMorph.prototype.drawNew = function () {
     this.origDrawNew();
 };
 
+
+SpriteMorph.prototype.wait = function(millis)
+{
+    var date = new Date();
+    var curDate = null;
+    do { curDate = new Date(); }
+    while(curDate-date < millis);
+}
+
+
 //SpriteMorph.prototype.thumbnail = function (extentPoint) {};
 //SpriteMorph.prototype.drawNew = function () { this.hide() }
+
+
 
 // THREE additions
 
@@ -1221,620 +1233,6 @@ THREE.Object3D.prototype.addLineFromPointToPointWithColor = function (originPoin
     return line;
 };
 
-
-// ########################################################################
-/* STAGE */
-// ########################################################################
-
-
-
-// StageMorph
-
-StageMorph.prototype.originalDestroy = StageMorph.prototype.destroy;
-StageMorph.prototype.destroy = function () {
-    var myself = this;
-    this.clearAll();
-    this.children.forEach(function (eachSprite) {
-        myself.removeChild(eachSprite);
-    });
-    this.originalDestroy();
-};
-
-StageMorph.prototype.originalInit = StageMorph.prototype.init;
-StageMorph.prototype.init = function (globals) {
-    var myself = this;
-
-    this.originalInit(globals);
-    this.initScene();
-    this.initRenderer();
-    this.initCamera();
-    this.fonts = null;
-    this.stepcounter = 0;
-
-	// implement Hershey fonts.
-	// Json data from:
-	// https://techninja.github.io/hersheytextjs/
-	function loadFont(callback) {
-		var xobj = new XMLHttpRequest();
-		xobj.overrideMimeType("application/json");
-		xobj.open('GET', 'stitchcode/fonts/hershey.json', true);
-		xobj.onreadystatechange = function () {
-			  if (xobj.readyState == 4 && xobj.status == "200") {
-				callback(xobj.responseText);
-			  }
-		};
-		xobj.send(null);
-	}
-
-    if (!this.fonts) {
-		loadFont(function(response) {
-			myself.fonts = JSON.parse(response);
-		});
-	}
-
-	// load Asteroid font
-	// retrieved from https://trmm.net/Asteroids_font
-
-	function loadAsteroidFont(callback) {
-		var xobj = new XMLHttpRequest();
-		xobj.overrideMimeType("application/json");
-		xobj.open('GET', 'stitchcode/fonts/asteroid.json', true);
-		xobj.onreadystatechange = function () {
-			  if (xobj.readyState == 4 && xobj.status == "200") {
-				callback(xobj.responseText);
-			  }
-		};
-		xobj.send(null);
-	}
-
-    if (!this.afonts) {
-		loadAsteroidFont(function(response) {
-			myself.afonts = JSON.parse(response);
-		});
-	}
-
-    this.turtleShepherd = new TurtleShepherd();
-
-    this.scene.grid.draw();
-    this.myObjects = new THREE.Object3D();
-    this.myStitchPoints = new THREE.Object3D();
-    this.myDensityPoints = new THREE.Object3D();
-    this.myStitchLines = new THREE.Object3D();
-    this.myJumpLines = new THREE.Object3D();
-    this.scene.add(this.myObjects);
-    this.scene.add(this.myStitchPoints);
-    this.scene.add(this.myDensityPoints);
-    this.scene.add(this.myStitchLines);
-    this.scene.add(this.myJumpLines);
-
-    this.initTurtle();
-};
-
-StageMorph.prototype.initScene = function () {
-    var myself = this;
-    this.scene = new THREE.Scene();
-    this.scene.grid = {};
-    this.scene.grid.defaultColor = 0xe0e0e0;
-    this.scene.grid.visible = true;
-    this.scene.grid.interval = new Point(5, 5);
-
-    // Grid
-    this.scene.grid.draw = function () {
-
-        //var color = this.lines ? this.lines[0].material.color : this.defaultColor;
-        var color = 0xf6f6f6;
-        var color2 = 0xe0e0e0;
-
-        if (this.lines) {
-            this.lines.forEach(function (eachLine){
-                myself.scene.remove(eachLine);
-            });
-        }
-
-        this.lines = [];
-
-		c = 2.54;
-		if (myself.turtleShepherd.isMetric()) {
-			this.interval = new Point(5, 5);
-			limit = this.interval.x * 50;
-		} else {
-			this.interval = new Point(Math.round(5 * c), Math.round(5 * c));
-			limit = Math.round(this.interval.x * 50 * c);
-		}
-        for (x = -limit / this.interval.x; x <= limit / this.interval.x; x++) {
-            p1 = new THREE.Vector3(x * this.interval.x, -limit, 0);
-            p2 = new THREE.Vector3(x * this.interval.x, limit, 0);
-            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color);
-            l.visible = this.visible;
-            this.lines.push(l);
-        }
-
-        for (y = -limit / this.interval.y; y <= limit / this.interval.y; y++) {
-            p1 = new THREE.Vector3(-limit, y * this.interval.y, 0);
-            p2 = new THREE.Vector3(limit, y * this.interval.y, 0);
-            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color);
-            l.visible = this.visible;
-            this.lines.push(l);
-        }
-
-		if (myself.turtleShepherd.isMetric())
-			limit = this.interval.x * 200;
-		else
-			limit = Math.round(this.interval.x * 200 * c);
-
-
-        for (x = -limit/10 / this.interval.x; x <= limit/10 / this.interval.x; x++) {
-            p1 = new THREE.Vector3(x * this.interval.x * 10, -limit,0);
-            p2 = new THREE.Vector3(x * this.interval.x* 10, limit,0);
-            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
-            l.visible = this.visible;
-            this.lines.push(l);
-        }
-
-        for (y = -limit/10 / this.interval.y; y <= limit/10 / this.interval.y ; y++) {
-            p1 = new THREE.Vector3(-limit, y * this.interval.y * 10, 0);
-            p2 = new THREE.Vector3(limit, y * this.interval.y * 10, 0);
-            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
-            l.visible = this.visible;
-            this.lines.push(l);
-        }
-
-        myself.reRender();
-    };
-
-    this.scene.grid.setInterval = function (aPoint) {
-        this.interval = aPoint;
-        this.draw();
-    };
-
-    this.scene.grid.setColor = function (color) {
-        this.lines.forEach(function (eachLine) {
-            eachLine.material.color.setHex(color);
-        });
-    };
-
-    this.scene.grid.toggle = function () {
-        var myInnerSelf = this;
-        this.visible = !this.visible;
-        this.lines.forEach(function (line){ line.visible = myInnerSelf.visible; });
-        myself.reRender();
-    };
-
-};
-
-StageMorph.prototype.clearAll = function () {
-    /*for (var i = this.myObjects.children.length - 1; i >= 0; i--) {
-        this.myObjects.remove(this.myObjects.children[i]);
-    }*/
-    for (i = this.myStitchPoints.children.length - 1; i >= 0; i--) {
-        this.myStitchPoints.remove(this.myStitchPoints.children[i]);
-    }
-    for (i = this.myDensityPoints.children.length - 1; i >= 0; i--) {
-        this.myDensityPoints.remove(this.myDensityPoints.children[i]);
-    }
-    for (i = this.myStitchLines.children.length - 1; i >= 0; i--) {
-        this.myStitchLines.remove(this.myStitchLines.children[i]);
-    }
-    for (i = this.myJumpLines.children.length - 1; i >= 0; i--) {
-        this.myJumpLines.remove(this.myJumpLines.children[i]);
-    }
-
-    this.renderer.clear();
-};
-
-StageMorph.prototype.initRenderer = function () {
-    var myself = this;
-
-	console.log("set up renderer");
-    if (Detector.webgl) {
-        this.renderer = new THREE.WebGLRenderer({
-            antialias: true,
-            alpha: true,
-            canvas: this.penTrails()
-        });
-        console.log("webgl enabled");
-        this.renderer_status_msg = "webgl enabled";
-
-    } else {
-		console.log("webgl unavailable. fallback to canvas (SLOW!)");
-		this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
-        this.renderer = new THREE.CanvasRenderer(
-            {canvas: this.penTrails()});
-    }
-    this.renderer.setClearColor(0xffffff, 1);
-
-    this.renderer.changed = false;
-    this.renderer.showingAxes = true;
-    this.renderer.showingStitchPoints = true;
-    this.renderer.showingJumpLines = true;
-    this.renderer.showingTurtle = true;
-    this.renderer.isParallelProjection = true;
-
-
-    this.renderer.toggleJumpLines = function () {
-        var myInnerSelf = this;
-        this.showingJumpLines = !this.showingJumpLines;
-        myself.myJumpLines.children.forEach(function (eachObject) {
-            eachObject.visible = myInnerSelf.showingJumpLines;
-        });
-        myself.reRender();
-    };
-
-    this.renderer.toggleStitchPoints = function () {
-        var myInnerSelf = this;
-        this.showingStitchPoints = !this.showingStitchPoints;
-        myself.myStitchPoints.children.forEach(function (eachObject) {
-            eachObject.visible = myInnerSelf.showingStitchPoints;
-        });
-        myself.reRender();
-    };
-
-    this.renderer.toggleTurtle = function () {
-        var myInnerSelf = this;
-        this.showingTurtle = !this.showingTurtle;
-        myself.turtle.visible = myInnerSelf.showingTurtle;
-        myself.reRender();
-    };
-
-};
-
-
-StageMorph.prototype.render = function () {
-    this.renderer.render(this.scene, this.camera);
-};
-
-StageMorph.prototype.renderCycle = function () {
-    if (this.renderer.changed) {
-        this.render();
-        this.changed();
-        this.parentThatIsA(IDE_Morph).statusDisplay.refresh();
-        this.renderer.changed = false;
-    }
-};
-
-StageMorph.prototype.reRender = function () {
-    this.renderer.changed = true;
-};
-
-StageMorph.prototype.initCamera = function () {
-    var myself = this,
-        threeLayer;
-
-    if (this.scene.camera) { this.scene.remove(this.camera); }
-
-    var createCamera = function () {
-        threeLayer = document.createElement('div');
-
-        if (myself.renderer.isParallelProjection) {
-            var zoom = myself.camera ? myself.camera.zoomFactor : 82,
-                width = Math.max(myself.width(), 480),
-                height = Math.max(myself.height(), 360);
-
-            myself.camera = new THREE.OrthographicCamera(
-                    width / - zoom,
-                    width / zoom,
-                    height / zoom,
-                    height / - zoom,
-                    0.1,
-                    10000);
-        } else {
-            myself.camera = new THREE.PerspectiveCamera(60, 480/360);
-        }
-
-        // We need to implement zooming ourselves for parallel projection
-
-        myself.camera.zoomIn = function () {
-            this.zoomFactor /= 1.1;
-            this.applyZoom();
-        };
-        myself.camera.zoomOut = function () {
-            this.zoomFactor *= 1.1;
-            this.applyZoom();
-        };
-
-        myself.camera.applyZoom = function () {
-            var zoom = myself.camera ? myself.camera.zoomFactor : 2,
-                width = Math.max(myself.width(), 480),
-                height = Math.max(myself.height(), 360);
-            this.left = width / - zoom;
-            this.right = width / zoom;
-            this.top = height / zoom;
-            this.bottom = height / - zoom;
-            this.updateProjectionMatrix();
-        };
-
-        myself.camera.reset = function () {
-
-            myself.controls = new THREE.OrbitControls(this, threeLayer);
-            myself.controls.addEventListener('change', function (event) { myself.render(); });
-
-            if (myself.renderer.isParallelProjection) {
-                this.zoomFactor = 1.7;
-                this.applyZoom();
-                this.position.set(0,0,10);
-            } else {
-                this.position.set(0,0,10);
-            }
-
-            myself.controls.update();
-            myself.reRender();
-        };
-
-        myself.camera.fitScene = function () {
-
-
-            var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
-                boundingSphere = boundingBox.getBoundingSphere(),
-                center = boundingSphere.center,
-                distance = boundingSphere.radius;
-
-            if(distance > 0) {
-				var width = Math.max(myself.width(), 480),
-                height = Math.max(myself.height(), 360);
-
-				this.zoomFactor = Math.max(width / distance, height / distance) * 0.90;
-				this.applyZoom();
-
-				this.position.set(center.x, center.y, 10);
-				myself.controls.center.set(center.x, center.y, 10);
-
-				myself.controls.update();
-				myself.reRender();
-			}
-        };
-    };
-
-    createCamera();
-    this.scene.add(this.camera);
-    this.camera.reset();
-};
-
-StageMorph.prototype.initTurtle = function() {
-    var myself = this;
-    var geometry = new THREE.Geometry();
-    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00, opacity:0.8 } );
-
-
-    geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
-         new THREE.Vector3(-8, 8, 0.02),
-         new THREE.Vector3(-8,-8, 0.02),
-    ];
-    geometry.faces.push(new THREE.Face3(0, 1, 2));
-    geometry.verticesNeedUpdate = true;
-    this.turtle = new THREE.Mesh(new THREE.Geometry(), material);
-    this.turtle.visible = this.renderer.showingTurtle;
-    myself.myObjects.add(this.turtle);
-
-
-    if (typeof this.turtle.loaded === 'undefined') {
-
-		var mtlloader = new THREE.MTLLoader();
-		var onLoadMtl = function ( materials ) {
-			materials.preload();
-			var loader = new THREE.OBJLoader();
-			loader.setMaterials( materials )
-
-			loader.load( 'stitchcode/assets/turtle.obj',  function (object) {
-				this.turtle = object;
-				object.scale.set(4, 4, 4);
-				object.position.z = 0.02;
-				//object.position.set(0,0, 0.01);
-				object.rotation.x = 90 * Math.PI / 180;
-				object.rotation.y = 270 * Math.PI / 180;
-				myself.turtle.add(object);
-				myself.renderer.changed = true;
-				this.turtle.loaded = true;
-			}, null, null, null, false );
-		};
-		mtlloader.load( 'stitchcode/assets/turtle.mtl', onLoadMtl );
-    }
-    this.penSize = 1;
-};
-
-StageMorph.prototype.moveTurtle = function(x, y) {
-    this.turtle.position.x = x;
-    this.turtle.position.y = y;
-};
-
-StageMorph.prototype.setPenSize = function(s) {
-    this.penSize = s;
-};
-
-StageMorph.prototype.rotateTurtle = function(h) {
-    this.turtle.rotation.z = (90 -h) * Math.PI / 180;
-    this.renderer.changed = true;
-};
-
-StageMorph.prototype.originalStep = StageMorph.prototype.step;
-StageMorph.prototype.step = function () {
-    this.originalStep();
-
-    if (!(this.isFastTracked && this.threads.processes.length)) {
-		this.renderCycle();
-	} else {
-		if (this.stepcounter % 12 == 0) {
-			this.renderCycle();
-		}
-	};
-
-
-	this.stepcounter++;
-};
-
-StageMorph.prototype.referencePos = null;
-
-StageMorph.prototype.mouseScroll = function (y, x) {
-    if (this.renderer.isParallelProjection) {
-        if (y > 0) {
-            this.camera.zoomOut();
-        } else if (y < 0) {
-            this.camera.zoomIn();
-        }
-    } else {
-        if (y > 0) {
-            this.controls.dollyOut();
-        } else if (y < 0) {
-            this.controls.dollyIn();
-        }
-        this.controls.update();
-    }
-    this.renderer.changed = true;
-};
-
-StageMorph.prototype.mouseDownLeft = function (pos) {
-    this.referencePos = pos;
-};
-
-StageMorph.prototype.mouseDownRight = function (pos) {
-    this.referencePos = pos;
-};
-
-StageMorph.prototype.mouseMove = function (pos, button) {
-
-    if (this.referencePos === null) { return };
-
-    var factor = this.renderer.isParallelProjection ? 65 / this.camera.zoomFactor : this.controls.object.position.length() / 10,
-        deltaX = (pos.x - this.referencePos.x),
-        deltaY = (pos.y - this.referencePos.y);
-
-    this.referencePos = pos;
-
-    if (button === 'right' || this.world().currentKey === 16 || button === 'left') { // shiftClicked
-        this.controls.panLeft(deltaX / this.dimensions.x / this.scale * 15 * factor);
-        this.controls.panUp(deltaY / this.dimensions.y / this.scale * 10 * factor);
-    } else {
-        var horzAngle = deltaX / (this.dimensions.x * this.scale) * 360;
-        var vertAngle = deltaY / (this.dimensions.y * this.scale) * 360;
-        this.controls.rotateLeft(radians(horzAngle));
-        this.controls.rotateUp(radians(vertAngle));
-    }
-
-    this.controls.update();
-    this.reRender();
-};
-
-StageMorph.prototype.mouseLeave = function () {
-    this.referencePos = null;
-};
-
-// StageMorph Mouse Coordinates
-
-StageMorph.prototype.reportMouseX = function () {
-    var world = this.world();
-    if (world) {
-        return ((world.hand.position().x - this.center().x) / this.scale)  / this.camera.zoomFactor * 2 + this.controls.center.x;
-    }
-    return 0;
-};
-
-StageMorph.prototype.reportMouseY = function () {
-    var world = this.world();
-    if (world) {
-        return ((this.center().y - world.hand.position().y) / this.scale)  / this.camera.zoomFactor * 2 + this.controls.center.y;
-    }
-    return 0;
-};
-
-
-StageMorph.prototype.clearPenTrails = nop;
-
-StageMorph.prototype.penTrails = function () {
-    if (!this.trailsCanvas) {
-        this.trailsCanvas = newCanvas(this.dimensions, true);
-    }
-    return this.trailsCanvas;
-};
-
-// StageMorph drawing
-StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
-StageMorph.prototype.drawOn = function (aCanvas, aRect) {
-    // If the scale is lower than 1, we reuse the original method,
-    // otherwise we need to modify the renderer dimensions
-    // we do not need to render the original canvas anymore because
-    // we have removed sprites and backgrounds
-
-    var rectangle, area, delta, src, context, w, h, sl, st;
-    if (!this.isVisible) {
-        return null;
-    }
-    /*
-    if (this.scale < 1) {
-        return this.originalDrawOn(aCanvas, aRect);
-    }*/
-
-    rectangle = aRect || this.bounds;
-    area = rectangle.intersect(this.bounds).round();
-    if (area.extent().gt(new Point(0, 0))) {
-        delta = this.position().neg();
-        src = area.copy().translateBy(delta).round();
-        context = aCanvas.getContext('2d');
-        context.globalAlpha = this.alpha;
-
-        sl = src.left();
-        st = src.top();
-        w = Math.min(src.width(), this.image.width - sl);
-        h = Math.min(src.height(), this.image.height - st);
-
-        if (w < 1 || h < 1) {
-            return null;
-        }
-        // we only draw pen trails!
-        context.save();
-        context.clearRect(
-            area.left(),
-            area.top() ,
-            w,
-            h);
-        try {
-            context.drawImage(
-                this.penTrails(),
-                sl,
-                st,
-                w,
-                h,
-                area.left(),
-                area.top(),
-                w,
-                h
-            );
-        } catch (err) { // sometimes triggered only by Firefox
-            console.log(err);
-        }
-        context.restore();
-    }
-};
-
-StageMorph.prototype.originalSetScale = StageMorph.prototype.setScale;
-StageMorph.prototype.setScale = function (number) {
-    this.scaleChanged = true;
-    this.originalSetScale(number);
-    this.camera.aspect = this.extent().x / this.extent().y;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(this.extent().x, this.extent().y);
-    this.renderer.changed = true;
-};
-
-
-// Contextual menu
-StageMorph.prototype.userMenu = function () {
-    var ide = this.parentThatIsA(IDE_Morph),
-        menu = new MenuMorph(this),
-        shiftClicked = this.world().currentKey === 16,
-        myself = this;
-
-    if (ide && ide.isAppMode) {
-        menu.hide();
-        return menu;
-    }
-    menu.addItem(
-            'pic...',
-            function () {
-                window.open(myself.fullImageClassic().toDataURL());
-            },
-            'open a new window\nwith a picture of the scene'
-            );
-    return menu;
-};
 
 SpriteMorph.prototype.resetAll = function () {
   var myself = this;
@@ -2783,6 +2181,620 @@ SpriteMorph.prototype.bounceOffEdge = function () {
     this.setHeading(degrees(Math.atan2(-dirY, dirX)) + 90);
 
 };
+
+
+// ########################################################################
+/* STAGE */
+// ########################################################################
+
+// StageMorph
+
+StageMorph.prototype.originalDestroy = StageMorph.prototype.destroy;
+StageMorph.prototype.destroy = function () {
+    var myself = this;
+    this.clearAll();
+    this.children.forEach(function (eachSprite) {
+        myself.removeChild(eachSprite);
+    });
+    this.originalDestroy();
+};
+
+StageMorph.prototype.originalInit = StageMorph.prototype.init;
+StageMorph.prototype.init = function (globals) {
+    var myself = this;
+
+    this.originalInit(globals);
+    this.initScene();
+    this.initRenderer();
+    this.initCamera();
+    this.fonts = null;
+    this.stepcounter = 0;
+
+	// implement Hershey fonts.
+	// Json data from:
+	// https://techninja.github.io/hersheytextjs/
+	function loadFont(callback) {
+		var xobj = new XMLHttpRequest();
+		xobj.overrideMimeType("application/json");
+		xobj.open('GET', 'stitchcode/fonts/hershey.json', true);
+		xobj.onreadystatechange = function () {
+			  if (xobj.readyState == 4 && xobj.status == "200") {
+				callback(xobj.responseText);
+			  }
+		};
+		xobj.send(null);
+	}
+
+    if (!this.fonts) {
+		loadFont(function(response) {
+			myself.fonts = JSON.parse(response);
+		});
+	}
+
+	// load Asteroid font
+	// retrieved from https://trmm.net/Asteroids_font
+
+	function loadAsteroidFont(callback) {
+		var xobj = new XMLHttpRequest();
+		xobj.overrideMimeType("application/json");
+		xobj.open('GET', 'stitchcode/fonts/asteroid.json', true);
+		xobj.onreadystatechange = function () {
+			  if (xobj.readyState == 4 && xobj.status == "200") {
+				callback(xobj.responseText);
+			  }
+		};
+		xobj.send(null);
+	}
+
+    if (!this.afonts) {
+		loadAsteroidFont(function(response) {
+			myself.afonts = JSON.parse(response);
+		});
+	}
+
+    this.turtleShepherd = new TurtleShepherd();
+
+    this.scene.grid.draw();
+    this.myObjects = new THREE.Object3D();
+    this.myStitchPoints = new THREE.Object3D();
+    this.myDensityPoints = new THREE.Object3D();
+    this.myStitchLines = new THREE.Object3D();
+    this.myJumpLines = new THREE.Object3D();
+    this.scene.add(this.myObjects);
+    this.scene.add(this.myStitchPoints);
+    this.scene.add(this.myDensityPoints);
+    this.scene.add(this.myStitchLines);
+    this.scene.add(this.myJumpLines);
+
+    this.initTurtle();
+};
+
+StageMorph.prototype.initScene = function () {
+    var myself = this;
+    this.scene = new THREE.Scene();
+    this.scene.grid = {};
+    this.scene.grid.defaultColor = 0xe0e0e0;
+    this.scene.grid.visible = true;
+    this.scene.grid.interval = new Point(5, 5);
+
+    // Grid
+    this.scene.grid.draw = function () {
+
+        //var color = this.lines ? this.lines[0].material.color : this.defaultColor;
+        var color = 0xf6f6f6;
+        var color2 = 0xe0e0e0;
+
+        if (this.lines) {
+            this.lines.forEach(function (eachLine){
+                myself.scene.remove(eachLine);
+            });
+        }
+
+        this.lines = [];
+
+		c = 2.54;
+		if (myself.turtleShepherd.isMetric()) {
+			this.interval = new Point(5, 5);
+			limit = this.interval.x * 50;
+		} else {
+			this.interval = new Point(Math.round(5 * c), Math.round(5 * c));
+			limit = Math.round(this.interval.x * 50 * c);
+		}
+        for (x = -limit / this.interval.x; x <= limit / this.interval.x; x++) {
+            p1 = new THREE.Vector3(x * this.interval.x, -limit, 0);
+            p2 = new THREE.Vector3(x * this.interval.x, limit, 0);
+            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color);
+            l.visible = this.visible;
+            this.lines.push(l);
+        }
+
+        for (y = -limit / this.interval.y; y <= limit / this.interval.y; y++) {
+            p1 = new THREE.Vector3(-limit, y * this.interval.y, 0);
+            p2 = new THREE.Vector3(limit, y * this.interval.y, 0);
+            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color);
+            l.visible = this.visible;
+            this.lines.push(l);
+        }
+
+		if (myself.turtleShepherd.isMetric())
+			limit = this.interval.x * 200;
+		else
+			limit = Math.round(this.interval.x * 200 * c);
+
+
+        for (x = -limit/10 / this.interval.x; x <= limit/10 / this.interval.x; x++) {
+            p1 = new THREE.Vector3(x * this.interval.x * 10, -limit,0);
+            p2 = new THREE.Vector3(x * this.interval.x* 10, limit,0);
+            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
+            l.visible = this.visible;
+            this.lines.push(l);
+        }
+
+        for (y = -limit/10 / this.interval.y; y <= limit/10 / this.interval.y ; y++) {
+            p1 = new THREE.Vector3(-limit, y * this.interval.y * 10, 0);
+            p2 = new THREE.Vector3(limit, y * this.interval.y * 10, 0);
+            l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
+            l.visible = this.visible;
+            this.lines.push(l);
+        }
+
+        myself.reRender();
+    };
+
+    this.scene.grid.setInterval = function (aPoint) {
+        this.interval = aPoint;
+        this.draw();
+    };
+
+    this.scene.grid.setColor = function (color) {
+        this.lines.forEach(function (eachLine) {
+            eachLine.material.color.setHex(color);
+        });
+    };
+
+    this.scene.grid.toggle = function () {
+        var myInnerSelf = this;
+        this.visible = !this.visible;
+        this.lines.forEach(function (line){ line.visible = myInnerSelf.visible; });
+        myself.reRender();
+    };
+
+};
+
+StageMorph.prototype.clearAll = function () {
+    /*for (var i = this.myObjects.children.length - 1; i >= 0; i--) {
+        this.myObjects.remove(this.myObjects.children[i]);
+    }*/
+    for (i = this.myStitchPoints.children.length - 1; i >= 0; i--) {
+        this.myStitchPoints.remove(this.myStitchPoints.children[i]);
+    }
+    for (i = this.myDensityPoints.children.length - 1; i >= 0; i--) {
+        this.myDensityPoints.remove(this.myDensityPoints.children[i]);
+    }
+    for (i = this.myStitchLines.children.length - 1; i >= 0; i--) {
+        this.myStitchLines.remove(this.myStitchLines.children[i]);
+    }
+    for (i = this.myJumpLines.children.length - 1; i >= 0; i--) {
+        this.myJumpLines.remove(this.myJumpLines.children[i]);
+    }
+
+    this.renderer.clear();
+};
+
+StageMorph.prototype.initRenderer = function () {
+    var myself = this;
+
+	console.log("set up renderer");
+    if (Detector.webgl) {
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            canvas: this.penTrails()
+        });
+        console.log("webgl enabled");
+        this.renderer_status_msg = "webgl enabled";
+
+    } else {
+		console.log("webgl unavailable. fallback to canvas (SLOW!)");
+		this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
+        this.renderer = new THREE.CanvasRenderer(
+            {canvas: this.penTrails()});
+    }
+    this.renderer.setClearColor(0xffffff, 1);
+
+    this.renderer.changed = false;
+    this.renderer.showingAxes = true;
+    this.renderer.showingStitchPoints = true;
+    this.renderer.showingJumpLines = true;
+    this.renderer.showingTurtle = true;
+    this.renderer.isParallelProjection = true;
+
+
+    this.renderer.toggleJumpLines = function () {
+        var myInnerSelf = this;
+        this.showingJumpLines = !this.showingJumpLines;
+        myself.myJumpLines.children.forEach(function (eachObject) {
+            eachObject.visible = myInnerSelf.showingJumpLines;
+        });
+        myself.reRender();
+    };
+
+    this.renderer.toggleStitchPoints = function () {
+        var myInnerSelf = this;
+        this.showingStitchPoints = !this.showingStitchPoints;
+        myself.myStitchPoints.children.forEach(function (eachObject) {
+            eachObject.visible = myInnerSelf.showingStitchPoints;
+        });
+        myself.reRender();
+    };
+
+    this.renderer.toggleTurtle = function () {
+        var myInnerSelf = this;
+        this.showingTurtle = !this.showingTurtle;
+        myself.turtle.visible = myInnerSelf.showingTurtle;
+        myself.reRender();
+    };
+
+};
+
+
+StageMorph.prototype.render = function () {
+    this.renderer.render(this.scene, this.camera);
+};
+
+StageMorph.prototype.renderCycle = function () {
+    if (this.renderer.changed) {
+        this.render();
+        this.changed();
+        this.parentThatIsA(IDE_Morph).statusDisplay.refresh();
+        this.renderer.changed = false;
+    }
+};
+
+StageMorph.prototype.reRender = function () {
+    this.renderer.changed = true;
+};
+
+StageMorph.prototype.initCamera = function () {
+    var myself = this,
+        threeLayer;
+
+    if (this.scene.camera) { this.scene.remove(this.camera); }
+
+    var createCamera = function () {
+        threeLayer = document.createElement('div');
+
+        if (myself.renderer.isParallelProjection) {
+            var zoom = myself.camera ? myself.camera.zoomFactor : 82,
+                width = Math.max(myself.width(), 480),
+                height = Math.max(myself.height(), 360);
+
+            myself.camera = new THREE.OrthographicCamera(
+                    width / - zoom,
+                    width / zoom,
+                    height / zoom,
+                    height / - zoom,
+                    0.1,
+                    10000);
+        } else {
+            myself.camera = new THREE.PerspectiveCamera(60, 480/360);
+        }
+
+        // We need to implement zooming ourselves for parallel projection
+
+        myself.camera.zoomIn = function () {
+            this.zoomFactor /= 1.1;
+            this.applyZoom();
+        };
+        myself.camera.zoomOut = function () {
+            this.zoomFactor *= 1.1;
+            this.applyZoom();
+        };
+
+        myself.camera.applyZoom = function () {
+            var zoom = myself.camera ? myself.camera.zoomFactor : 2,
+                width = Math.max(myself.width(), 480),
+                height = Math.max(myself.height(), 360);
+            this.left = width / - zoom;
+            this.right = width / zoom;
+            this.top = height / zoom;
+            this.bottom = height / - zoom;
+            this.updateProjectionMatrix();
+        };
+
+        myself.camera.reset = function () {
+
+            myself.controls = new THREE.OrbitControls(this, threeLayer);
+            myself.controls.addEventListener('change', function (event) { myself.render(); });
+
+            if (myself.renderer.isParallelProjection) {
+                this.zoomFactor = 1.7;
+                this.applyZoom();
+                this.position.set(0,0,10);
+            } else {
+                this.position.set(0,0,10);
+            }
+
+            myself.controls.update();
+            myself.reRender();
+        };
+
+        myself.camera.fitScene = function () {
+
+
+            var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
+                boundingSphere = boundingBox.getBoundingSphere(),
+                center = boundingSphere.center,
+                distance = boundingSphere.radius;
+
+            if(distance > 0) {
+				var width = Math.max(myself.width(), 480),
+                height = Math.max(myself.height(), 360);
+
+				this.zoomFactor = Math.max(width / distance, height / distance) * 0.90;
+				this.applyZoom();
+
+				this.position.set(center.x, center.y, 10);
+				myself.controls.center.set(center.x, center.y, 10);
+
+				myself.controls.update();
+				myself.reRender();
+			}
+        };
+    };
+
+    createCamera();
+    this.scene.add(this.camera);
+    this.camera.reset();
+};
+
+StageMorph.prototype.initTurtle = function() {
+    var myself = this;
+    var geometry = new THREE.Geometry();
+    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00, opacity:0.8 } );
+
+
+    geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
+         new THREE.Vector3(-8, 8, 0.02),
+         new THREE.Vector3(-8,-8, 0.02),
+    ];
+    geometry.faces.push(new THREE.Face3(0, 1, 2));
+    geometry.verticesNeedUpdate = true;
+    this.turtle = new THREE.Mesh(new THREE.Geometry(), material);
+    this.turtle.visible = this.renderer.showingTurtle;
+    myself.myObjects.add(this.turtle);
+
+
+    if (typeof this.turtle.loaded === 'undefined') {
+
+		var mtlloader = new THREE.MTLLoader();
+		var onLoadMtl = function ( materials ) {
+			materials.preload();
+			var loader = new THREE.OBJLoader();
+			loader.setMaterials( materials )
+
+			loader.load( 'stitchcode/assets/turtle.obj',  function (object) {
+				this.turtle = object;
+				object.scale.set(4, 4, 4);
+				object.position.z = 0.02;
+				//object.position.set(0,0, 0.01);
+				object.rotation.x = 90 * Math.PI / 180;
+				object.rotation.y = 270 * Math.PI / 180;
+				myself.turtle.add(object);
+				myself.renderer.changed = true;
+				this.turtle.loaded = true;
+			}, null, null, null, false );
+		};
+		mtlloader.load( 'stitchcode/assets/turtle.mtl', onLoadMtl );
+    }
+    this.penSize = 1;
+};
+
+StageMorph.prototype.moveTurtle = function(x, y) {
+    this.turtle.position.x = x;
+    this.turtle.position.y = y;
+};
+
+StageMorph.prototype.setPenSize = function(s) {
+    this.penSize = s;
+};
+
+StageMorph.prototype.rotateTurtle = function(h) {
+    this.turtle.rotation.z = (90 -h) * Math.PI / 180;
+    this.renderer.changed = true;
+};
+
+StageMorph.prototype.originalStep = StageMorph.prototype.step;
+StageMorph.prototype.step = function () {
+    this.originalStep();
+
+    if (!(this.isFastTracked && this.threads.processes.length)) {
+		this.renderCycle();
+	} else {
+		if (this.stepcounter % 12 == 0) {
+			this.renderCycle();
+		}
+	};
+
+
+	this.stepcounter++;
+};
+
+StageMorph.prototype.referencePos = null;
+
+StageMorph.prototype.mouseScroll = function (y, x) {
+    if (this.renderer.isParallelProjection) {
+        if (y > 0) {
+            this.camera.zoomOut();
+        } else if (y < 0) {
+            this.camera.zoomIn();
+        }
+    } else {
+        if (y > 0) {
+            this.controls.dollyOut();
+        } else if (y < 0) {
+            this.controls.dollyIn();
+        }
+        this.controls.update();
+    }
+    this.renderer.changed = true;
+};
+
+StageMorph.prototype.mouseDownLeft = function (pos) {
+    this.referencePos = pos;
+};
+
+StageMorph.prototype.mouseDownRight = function (pos) {
+    this.referencePos = pos;
+};
+
+StageMorph.prototype.mouseMove = function (pos, button) {
+
+    if (this.referencePos === null) { return };
+
+    var factor = this.renderer.isParallelProjection ? 65 / this.camera.zoomFactor : this.controls.object.position.length() / 10,
+        deltaX = (pos.x - this.referencePos.x),
+        deltaY = (pos.y - this.referencePos.y);
+
+    this.referencePos = pos;
+
+    if (button === 'right' || this.world().currentKey === 16 || button === 'left') { // shiftClicked
+        this.controls.panLeft(deltaX / this.dimensions.x / this.scale * 15 * factor);
+        this.controls.panUp(deltaY / this.dimensions.y / this.scale * 10 * factor);
+    } else {
+        var horzAngle = deltaX / (this.dimensions.x * this.scale) * 360;
+        var vertAngle = deltaY / (this.dimensions.y * this.scale) * 360;
+        this.controls.rotateLeft(radians(horzAngle));
+        this.controls.rotateUp(radians(vertAngle));
+    }
+
+    this.controls.update();
+    this.reRender();
+};
+
+StageMorph.prototype.mouseLeave = function () {
+    this.referencePos = null;
+};
+
+// StageMorph Mouse Coordinates
+
+StageMorph.prototype.reportMouseX = function () {
+    var world = this.world();
+    if (world) {
+        return ((world.hand.position().x - this.center().x) / this.scale)  / this.camera.zoomFactor * 2 + this.controls.center.x;
+    }
+    return 0;
+};
+
+StageMorph.prototype.reportMouseY = function () {
+    var world = this.world();
+    if (world) {
+        return ((this.center().y - world.hand.position().y) / this.scale)  / this.camera.zoomFactor * 2 + this.controls.center.y;
+    }
+    return 0;
+};
+
+
+StageMorph.prototype.clearPenTrails = nop;
+
+StageMorph.prototype.penTrails = function () {
+    if (!this.trailsCanvas) {
+        this.trailsCanvas = newCanvas(this.dimensions, true);
+    }
+    return this.trailsCanvas;
+};
+
+// StageMorph drawing
+StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
+StageMorph.prototype.drawOn = function (aCanvas, aRect) {
+    // If the scale is lower than 1, we reuse the original method,
+    // otherwise we need to modify the renderer dimensions
+    // we do not need to render the original canvas anymore because
+    // we have removed sprites and backgrounds
+
+    var rectangle, area, delta, src, context, w, h, sl, st;
+    if (!this.isVisible) {
+        return null;
+    }
+    /*
+    if (this.scale < 1) {
+        return this.originalDrawOn(aCanvas, aRect);
+    }*/
+
+    rectangle = aRect || this.bounds;
+    area = rectangle.intersect(this.bounds).round();
+    if (area.extent().gt(new Point(0, 0))) {
+        delta = this.position().neg();
+        src = area.copy().translateBy(delta).round();
+        context = aCanvas.getContext('2d');
+        context.globalAlpha = this.alpha;
+
+        sl = src.left();
+        st = src.top();
+        w = Math.min(src.width(), this.image.width - sl);
+        h = Math.min(src.height(), this.image.height - st);
+
+        if (w < 1 || h < 1) {
+            return null;
+        }
+        // we only draw pen trails!
+        context.save();
+        context.clearRect(
+            area.left(),
+            area.top() ,
+            w,
+            h);
+        try {
+            context.drawImage(
+                this.penTrails(),
+                sl,
+                st,
+                w,
+                h,
+                area.left(),
+                area.top(),
+                w,
+                h
+            );
+        } catch (err) { // sometimes triggered only by Firefox
+            console.log(err);
+        }
+        context.restore();
+    }
+};
+
+StageMorph.prototype.originalSetScale = StageMorph.prototype.setScale;
+StageMorph.prototype.setScale = function (number) {
+    this.scaleChanged = true;
+    this.originalSetScale(number);
+    this.camera.aspect = this.extent().x / this.extent().y;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(this.extent().x, this.extent().y);
+    this.renderer.changed = true;
+};
+
+
+// Contextual menu
+StageMorph.prototype.userMenu = function () {
+    var ide = this.parentThatIsA(IDE_Morph),
+        menu = new MenuMorph(this),
+        shiftClicked = this.world().currentKey === 16,
+        myself = this;
+
+    if (ide && ide.isAppMode) {
+        menu.hide();
+        return menu;
+    }
+    menu.addItem(
+            'pic...',
+            function () {
+                window.open(myself.fullImageClassic().toDataURL());
+            },
+            'open a new window\nwith a picture of the scene'
+            );
+    return menu;
+};
+
 
 // Caches
 
