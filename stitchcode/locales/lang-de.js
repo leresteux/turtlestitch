@@ -137,26 +137,26 @@ tempDict = {
 
 	// embroidery stuff
     'running stitch by %n steps':
-        'Laufstich in %n er Schritten',
-		'triple run by %n':
-				'Dreifach-Laufstich mit %n',
-		'cross stitch in %n by %n center %b':
-				'Kreuzstitch %n mal %n zentriert %b',
-		'zigzag with density %n width %n center %b':
-				'Zickzack mit Dichte %n  Breite %n zentriert %b',
-		'Z-Stitch with density %n width %n center %b':
-				'Z-Sitch mit Dichte %n und Breite %n zentriert %b',
-		'satin stitch with width %n center %b':
-				'Plattstitch mit Breite %n zentriert %b',
-		'tatami stitch width %n interval %n offset %n center %b':
-				'Tatami-Stich mit Breite %n Intervall %n Versatz %n zentriert %b',
+	'	Laufstich in %n er Schritten',
+	'triple run by %n':
+			'Dreifach-Laufstich in %n er Schritten',
+	'cross stitch in %n by %n center %b':
+			'Kreuzstich %n mal %n zentriert %b',
+	'zigzag with density %n width %n center %b':
+			'Zickzack mit Dichte %n Breite %n zentriert %b',
+	'Z-stitch with density %n width %n center %b':
+			'Z-Sitch mit Dichte %n Breite %n zentriert %b',
+	'satin stitch with width %n center %b':
+			'Plattstitch mit Breite %n zentriert %b',
+	'tatami stitch width %n interval %n offset %n center %b':
+			'Tatami-Stich mit Breite %n Intervall %n Versatz %n zentriert %b',
     'jump stitch %b':
         'Sprungstich %b',
     'tie stitch':
         'Riegelstich',
-		'trim':
+	'trim':
         'schneiden',
-		'stop running':
+	'stop running':
         'stop Lauf',
 
     'draw text: %s scale: %n font: %n':
