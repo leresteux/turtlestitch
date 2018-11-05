@@ -9,17 +9,14 @@
 */
 
 tempDict = {
-	// UI stuff
+
+	// UI strings
 	'About Snap!...':
 		'\u00dcber Snap!...',
 	'About TurtleStitch...':
 		'\u00dcber TurtleStitch!...',
 	'About TurtleStitch':
 		' \u00dcber TurtleStitch',
-	'Save to Disk':
-		'Sichern auf Festplatte',
-	'Save to Disk':
-		'Sichern auf Festplatte',
 	' Stitches : ':
 		' Stiche : ',
 	'Jumps':
@@ -36,8 +33,6 @@ tempDict = {
 		'passend zoomen',
 	'Size : ':
 		'Gr\u00f6\u00dfe : ',
-	'clear':
-		'l\u00f6schen',
 	'Imperial units':
 		'Ang/Amerik. Einheiten',
 	'Turtle':
@@ -69,7 +64,9 @@ tempDict = {
 	'Ignore colors during export':
 		'Ignoriere Farben beim Export',
 
-	// new blocks
+	// legacy blocks
+	'clear':
+		'l\u00f6schen',
 	'move %n steps by %n steps':
 		'gehe %n Schritte in %n er Schritten',
 	'move %n steps in %n':
@@ -78,6 +75,8 @@ tempDict = {
 		'gehe zu x: %n y: %n in %n er Schritten',
 	'go to x: %n y: %n in %n':
 		'gehe zu x: %n y: %n in %n Stichen',
+
+	// new blocks
   	'point towards x: %n y: %n':
 		'zeige nach x: %n y: %n',
 	'reset':
@@ -135,7 +134,7 @@ tempDict = {
     'Colors':
         'Farben',
 
-	// embroidery stuff
+	// embroidery blocks and stuff
     'running stitch by %n steps':
 	'	Laufstich in %n er Schritten',
 	'triple run by %n':
@@ -147,17 +146,17 @@ tempDict = {
 	'Z-stitch with density %n width %n center %b':
 			'Z-Sitch mit Dichte %n Breite %n zentriert %b',
 	'satin stitch with width %n center %b':
-			'Plattstitch mit Breite %n zentriert %b',
+			'Satinstich mit Breite %n zentriert %b',
 	'tatami stitch width %n interval %n offset %n center %b':
 			'Tatami-Stich mit Breite %n Intervall %n Versatz %n zentriert %b',
     'jump stitch %b':
         'Sprungstich %b',
     'tie stitch':
-        'Riegelstich',
+        'Vern\u00e4hstich',
 	'trim':
         'schneiden',
 	'stop running':
-        'stop Lauf',
+        'stop',
 
     'draw text: %s scale: %n font: %n':
         'Schreibe %s Skalierung: %n Schrift %n',

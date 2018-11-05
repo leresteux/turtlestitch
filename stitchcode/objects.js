@@ -396,7 +396,7 @@ SpriteMorph.prototype.tatamiStitch = function (width=100, interval=30, offset=10
 		this.stitchoptions = {
       autoadjust: true,
       width: width,
-      length: 5,
+      length: 2,
       center: center,
       interval:  Math.max(10,interval),
       offset: Math.min(offset,interval),
@@ -615,17 +615,18 @@ SpriteMorph.prototype.ZForwardEnd = function (steps, width=10) {
 SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
 
   // just for move to the next line in 2 bz 10
-  b = this.stitchoptions.offset/2;
-  var c = Math.sqrt(steps/2*steps/2 + b * b);
-  var alpha = degrees(Math.asin((steps/2)/c));
 
   var offset = (this.stitchoptions.segment_count % Math.floor(this.stitchoptions.interval / this.stitchoptions.offset)) *
         this.stitchoptions.offset;
+        
+  b = Math.max(2, offset + this.stitchoptions.offset / 2)
+  var c = Math.sqrt(steps/2*steps/2 + b * b);
+  var alpha = degrees(Math.asin((steps/2)/c));
+        
   var distance = width - b - offset;
   var interval = this.stitchoptions.interval;
   var count = Math.floor(distance / interval);
   var rest = distance - (count * interval);
-
 
   this.turn(90 - alpha);
   this.doMoveForward(c);
@@ -641,6 +642,22 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
   if (rest) {
     this.doMoveForward(rest);
   }
+  
+  this.stitchoptions.segment_count+=1;
+  
+  offset = (this.stitchoptions.segment_count % Math.floor(this.stitchoptions.interval / this.stitchoptions.offset)) *
+        this.stitchoptions.offset;
+        
+  b = Math.max(2, offset + this.stitchoptions.offset / 2)
+  c = Math.sqrt(steps/2*steps/2 + b * b);
+  alpha = degrees(Math.asin((steps/2)/c));
+        
+  distance = width - b - offset;
+  interval = this.stitchoptions.interval;
+  count = Math.floor(distance / interval);
+  rest = distance - (count * interval);
+  
+    
   this.turnLeft(180 - alpha);
   this.doMoveForward(c);
   this.turnLeft(alpha);
@@ -655,6 +672,7 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
     this.doMoveForward(rest);
   }
   this.turn(90);
+  
   this.stitchoptions.segment_count+=1;
 
 }
