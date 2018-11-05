@@ -618,11 +618,11 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
 
   var offset = (this.stitchoptions.segment_count % Math.floor(this.stitchoptions.interval / this.stitchoptions.offset)) *
         this.stitchoptions.offset;
-        
+
   b = Math.max(2, offset + this.stitchoptions.offset / 2)
   var c = Math.sqrt(steps/2*steps/2 + b * b);
   var alpha = degrees(Math.asin((steps/2)/c));
-        
+
   var distance = width - b - offset;
   var interval = this.stitchoptions.interval;
   var count = Math.floor(distance / interval);
@@ -642,22 +642,22 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
   if (rest) {
     this.doMoveForward(rest);
   }
-  
+
   this.stitchoptions.segment_count+=1;
-  
+
   offset = (this.stitchoptions.segment_count % Math.floor(this.stitchoptions.interval / this.stitchoptions.offset)) *
         this.stitchoptions.offset;
-        
+
   b = Math.max(2, offset + this.stitchoptions.offset / 2)
   c = Math.sqrt(steps/2*steps/2 + b * b);
   alpha = degrees(Math.asin((steps/2)/c));
-        
+
   distance = width - b - offset;
   interval = this.stitchoptions.interval;
   count = Math.floor(distance / interval);
   rest = distance - (count * interval);
-  
-    
+
+
   this.turnLeft(180 - alpha);
   this.doMoveForward(c);
   this.turnLeft(alpha);
@@ -672,7 +672,7 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
     this.doMoveForward(rest);
   }
   this.turn(90);
-  
+
   this.stitchoptions.segment_count+=1;
 
 }
@@ -838,7 +838,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 SpriteMorph.prototype.gotoXYBy = function (x, y, stepsize) {
   // this block is deprecated but keep it for compatibility
   stitchState = this.stitchtype;
-  sititchOptionState = this.stitchoptions;
+  stitchOptionState = this.stitchoptions;
   runState = this.isRunning;
   this.isRunning = true;
   this.stitchtype == "";
@@ -846,7 +846,7 @@ SpriteMorph.prototype.gotoXYBy = function (x, y, stepsize) {
   this.autoadjust = false;
   this.gotoXY(x,y);
   this.stitchtype = stitchState;
-  this.stitchoptions = sititchOptionState;
+  this.stitchoptions = stitchOptionState;
   this.isRunning = runState;
 };
 
@@ -2402,31 +2402,33 @@ StageMorph.prototype.clearAll = function () {
 StageMorph.prototype.initRenderer = function () {
     var myself = this;
 
-	console.log("set up renderer");
-    if (Detector.webgl) {
-        this.renderer = new THREE.WebGLRenderer({
-            antialias: true,
-            alpha: true,
-            canvas: this.penTrails()
-        });
-        console.log("webgl enabled");
-        this.renderer_status_msg = "webgl enabled";
+	   console.log("set up renderer");
 
-    } else {
-		console.log("webgl unavailable. fallback to canvas (SLOW!)");
-		this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
-        this.renderer = new THREE.CanvasRenderer(
-            {canvas: this.penTrails()});
+    if(!this.renderer) {
+      if (Detector.webgl) {
+          this.renderer = new THREE.WebGLRenderer({
+              antialias: true,
+              alpha: true,
+              canvas: this.penTrails()
+          });
+          console.log("webgl enabled");
+          this.renderer_status_msg = "webgl enabled";
+
+      } else {
+  		console.log("webgl unavailable. fallback to canvas (SLOW!)");
+  		this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
+          this.renderer = new THREE.CanvasRenderer(
+              {canvas: this.penTrails()});
+      }
+      this.renderer.setClearColor(0xffffff, 1);
+
+      this.renderer.changed = false;
+      this.renderer.showingAxes = true;
+      this.renderer.showingStitchPoints = true;
+      this.renderer.showingJumpLines = true;
+      this.renderer.showingTurtle = true;
+      this.renderer.isParallelProjection = true;
     }
-    this.renderer.setClearColor(0xffffff, 1);
-
-    this.renderer.changed = false;
-    this.renderer.showingAxes = true;
-    this.renderer.showingStitchPoints = true;
-    this.renderer.showingJumpLines = true;
-    this.renderer.showingTurtle = true;
-    this.renderer.isParallelProjection = true;
-
 
     this.renderer.toggleJumpLines = function () {
         var myInnerSelf = this;

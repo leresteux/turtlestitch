@@ -15,8 +15,8 @@ IDE_Morph.prototype.init = function(isAutoFill) {
 	 this.droppedText(
 		this.getURL(this.resourceURL('stitchcode/embroidery-library.xml')),
 		'Embroidery tools'
-	); 
-	*/   
+	);
+	*/
 	//this.isAnimating = false;
     this.paletteWidth = 250; // initially same as logo width
     //MorphicPreferences.globalFontFamily = 'Sans, Helvetica, Arial';
@@ -142,8 +142,84 @@ IDE_Morph.prototype.buildPanes = function () {
     this.createStatusDisplay();
     this.createStageHandle();
     this.createPaletteHandle();
-	
+    this.applySavedTurtleStitchSettings();
+
 };
+
+IDE_Morph.prototype.applySavedTurtleStitchSettings = function () {
+  units = this.getSetting('units'),
+  hidegrid = this.getSetting('hidegrid');
+  hidejumps = this.getSetting('hidejumps');
+  hideturtle = this.getSetting('hideturtle');
+  hidestitches = this.getSetting('hidestitches');
+  warnings = this.getSetting('ignoreWarning');
+
+  if(hidegrid) {
+    this.stage.scene.grid.visible = false;
+  }
+  else {
+    this.stage.scene.grid.visible = true;
+  }
+
+  if(hidejumps) {
+      this.stage.renderer.showingJumpLines = false;
+  } else {
+      this.stage.renderer.showingJumpLines = true;
+  }
+
+  if(hideturtle) {
+      this.stage.renderer.showingTurtle = false;
+  } else {
+      this.stage.renderer.showingTurtle = true;
+  }
+
+  if(hidestitches) {
+      this.stage.renderer.showingStitchPoints = false;
+  } else {
+      this.stage.renderer.showingStitchPoints = true;
+  }
+
+  if(warnings) {
+      this.stage.turtleShepherd.ignoreWarning = true;
+  } else {
+      this.stage.turtleShepherd.ignoreWarning = false;
+  }
+
+
+}
+
+IDE_Morph.prototype.unitsMenu = function () {
+    var menu = new MenuMorph(this),
+        world = this.world(),
+        pos = this.controlBar.turtlestitchButton.bottomLeft(),
+        myself = this;
+
+    menu.addItem(
+        (true ? '\u2713 ' : '    ') +   "pixel",
+        function () {
+            myself.setUnits("pixel");
+        }
+    );
+    menu.addItem(
+        (this.units === "millimeter" ? '\u2713 ' : '    ') +   "millimeter",
+        function () {
+            myself.setUnits("millimeter");
+        }
+    );
+    menu.addItem(
+        (this.units === "inch" ? '\u2713 ' : '    ') +   "inch",
+        function () {
+            myself.setUnits("inch");
+        }
+    );
+    menu.popup(world, pos);
+};
+
+
+IDE_Morph.prototype.setUnits = function (unit) {
+   // TODO:
+}
+
 
 StageHandleMorph.prototype.init = function (target) {
     this.target = target || null;
@@ -290,7 +366,7 @@ IDE_Morph.prototype.createControlBar = function () {
             return myself.isAppMode;
         }
     );
-    
+
     button.corner = 12;
     button.color = colors[0];
     button.highlightColor = colors[1];
@@ -313,7 +389,7 @@ IDE_Morph.prototype.createControlBar = function () {
 
     // zoomToFitButton
     //appModeButton
-    
+
     button = new ToggleButtonMorph(
         null, //colors,
         this, // the IDE is the target
@@ -322,7 +398,7 @@ IDE_Morph.prototype.createControlBar = function () {
             return false;
         }
     );
-    
+
     button.corner = 12;
     button.color = colors[0];
     button.highlightColor = colors[1];
@@ -339,9 +415,9 @@ IDE_Morph.prototype.createControlBar = function () {
     button.refresh();
     zoomToFitButton = button;
     this.controlBar.add(zoomToFitButton);
-    this.controlBar.zoomToFitButton = zoomToFitButton; // for refreshing    
-    
-    
+    this.controlBar.zoomToFitButton = zoomToFitButton; // for refreshing
+
+
     //steppingButton
     button = new ToggleButtonMorph(
         null, //colors,
@@ -374,7 +450,7 @@ IDE_Morph.prototype.createControlBar = function () {
     steppingButton = button;
     this.controlBar.add(steppingButton);
     this.controlBar.steppingButton = steppingButton; // for refreshing
-    
+
     // stopButton
     button = new ToggleButtonMorph(
         null, // colors
@@ -530,6 +606,34 @@ IDE_Morph.prototype.createControlBar = function () {
     this.controlBar.add(settingsButton);
     this.controlBar.settingsButton = settingsButton; // for menu positioning
 
+
+    // settingsButton
+    button = new PushButtonMorph(
+        this,
+        'turtlestitchMenu',
+        new SymbolMorph('turtle', 14)
+        //new Morph.fromImageURL('stitchcode/assets/turtles.png')
+        //'\u2699'
+    );
+    button.corner = 12;
+    button.color = colors[0];
+    button.highlightColor = colors[1];
+    button.pressColor = colors[2];
+    button.labelMinExtent = new Point(36, 18);
+    button.padding = 0;
+    button.labelShadowOffset = new Point(-1, -1);
+    button.labelShadowColor = colors[1];
+    button.labelColor = this.buttonLabelColor;
+    button.contrast = this.buttonContrast;
+    button.drawNew();
+    // button.hint = 'edit settings';
+    button.fixLayout();
+    turtlestitchButton = button;
+    this.controlBar.add(turtlestitchButton);
+    this.controlBar.turtlestitchButton = turtlestitchButton; // for menu positioning
+
+
+
     this.controlBar.fixLayout = function () {
         x = this.right() - padding;
         [stopButton, pauseButton, startButton].forEach(
@@ -563,6 +667,9 @@ IDE_Morph.prototype.createControlBar = function () {
 
         settingsButton.setCenter(myself.controlBar.center());
         settingsButton.setLeft(this.left());
+
+        turtlestitchButton.setCenter(myself.controlBar.center());
+        turtlestitchButton.setLeft(settingsButton.right() + padding);
 
         projectButton.setCenter(myself.controlBar.center());
         projectButton.setRight(settingsButton.left() - padding);
@@ -627,9 +734,109 @@ IDE_Morph.prototype.createControlBar = function () {
         this.label.drawNew();
         this.add(this.label);
         this.label.setCenter(this.center());
-        this.label.setLeft(this.settingsButton.right() + padding);
+        this.label.setLeft(this.turtlestitchButton.right() + padding);
     };
 };
+
+IDE_Morph.prototype.turtlestitchMenu = function () {
+    var menu,
+        stage = this.stage,
+        world = this.world(),
+        myself = this,
+        pos = this.controlBar.settingsButton.bottomLeft(),
+        shiftClicked = (world.currentKey === 16);
+
+    function addPreference(label, toggle, test, onHint, offHint, hide) {
+        var on = '\u2611 ',
+            off = '\u2610 ';
+        if (!hide || shiftClicked) {
+            menu.addItem(
+                (test ? on : off) + localize(label),
+                toggle,
+                test ? onHint : offHint,
+                hide ? new Color(100, 0, 0) : null
+            );
+        }
+    }
+
+    menu = new MenuMorph(this);
+
+    menu.addItem('Units...', 'unitsMenu');
+    menu.addLine();
+    addPreference(
+        'Hide grid',
+        function () {
+            this.stage.scene.grid.toggle();
+            if (this.stage.scene.grid.visible) {
+                myself.saveSetting('hidegrid', true);
+            } else {
+                myself.removeSetting('hidegrid');
+            }
+        },
+        !this.stage.scene.grid.visible,
+        'check to hide grid',
+        'uncheck to show grid'
+    );
+    addPreference(
+        'Hide jump stitches',
+        function () {
+            this.stage.renderer.toggleJumpLines();
+            if (stage.renderer.showingJumpLines) {
+                myself.saveSetting('hidegrid', true);
+            } else {
+                myself.removeSetting('hidejumps');
+            }
+        },
+        !this.stage.renderer.showingJumpLines,
+        'check to hide grid',
+        'uncheck to show grid'
+    );
+    addPreference(
+        'Hide stitch points',
+        function () {
+            this.stage.renderer.toggleStitchPoints();
+            if (stage.renderer.showingStitchPoints) {
+                myself.saveSetting('hidestitches', true);
+            } else {
+                myself.removeSetting('hidestitches');
+            }
+        },
+        !this.stage.renderer.showingStitchPoints,
+        'check to hide stitch points',
+        'uncheck to show stitch points'
+    );
+    addPreference(
+        'Hide turtle',
+        function () {
+            this.stage.renderer.toggleTurtle();
+            if (stage.renderer.showingTurtle) {
+                myself.saveSetting('hideturtle', true);
+            } else {
+                myself.removeSetting('hideturtle');
+            }
+        },
+        !this.stage.renderer.showingTurtle,
+        'check to hide turtle',
+        'uncheck to show turtle'
+    );
+    addPreference(
+        'Ignore embroidery warnings',
+        function () {
+            this.stage.turtleShepherd.ignoreWarning =
+              !this.stage.turtleShepherd.ignoreWarning
+            if (this.stage.turtleShepherd.ignoreWarning) {
+                myself.saveSetting('ignoreWarning', true);
+            } else {
+                myself.removeSetting('ignoreWarning');
+            }
+        },
+        !this.stage.renderer.showingTurtle,
+        'check to hide turtle',
+        'uncheck to show turtle'
+    );
+    menu.popup(world, pos);
+};
+
 
 IDE_Morph.prototype.toggleAppMode = function (appMode) {
     var world = this.world(),
@@ -644,7 +851,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         this.paletteHandle,
         this.stageHandle,
         this.palette,
-        this.statusDisplay, 
+        this.statusDisplay,
         this.categories ];
 
         this.isAppMode = isNil(appMode) ? !this.isAppMode : appMode;
@@ -667,7 +874,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         } else {
 			this.controlBar.setColor(this.controlBar.color);
 			this.add(this.controlBar);
-            
+
             elements.forEach(function (e) {
                 e.show();
             });
@@ -713,16 +920,16 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
 
         dlg = new DialogBoxMorph();
     dlg.inform(localize('About TurtleStitch'), localize(aboutTxt), world, pic);
-	
+
     btn1 = dlg.addButton(this.aboutSnap,
         'About Snap!...'
-    ); 
+    );
     btn2 = dlg.addButton(
 		function () {
             window.open('http://www.turtlestitch.com', 'TurtleStitchWebsite');
         },
         'TurtleStitch Website',
-    ); 
+    );
     dlg.fixLayout();
 };
 
@@ -868,12 +1075,12 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     elements.push(space);
 
     elements.push(' Stitches : ');
-    element = new StringMorph();    
+    element = new StringMorph();
     element.update = function () {
         this.text = (stage.turtleShepherd.getStepCount()).toString()+ "        ";
     };
     element.columns = 3;
-    element.newColumn = 1;      
+    element.newColumn = 1;
     elements.push(element);
 
 
@@ -883,7 +1090,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         this.text = (stage.turtleShepherd.getJumpCount()).toString()+ "        ";
     };
     element.columns = 3;
-    element.newColumn = 2;  
+    element.newColumn = 2;
     elements.push(element);
 
     elements.push('Size : ');
@@ -891,11 +1098,11 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     element.update = function () {
         this.text = (stage.turtleShepherd.getDimensions());
     };
-	element.newLines = 1;  
+	  element.newLines = 1;
     elements.push(element);
     element.newLines = 1;
     elements.push('-');
-    
+
     // too long
     elements.push('  ');
     element = new StringMorph();
@@ -904,9 +1111,9 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         this.text = "" + (stage.turtleShepherd.getTooLongStr());
     };
     element.columns = 2;
-    element.newColumn = 1;    
-    elements.push(element);       
- 
+    element.newColumn = 1;
+    elements.push(element);
+
      // density warning
     elements.push('');
     element = new StringMorph();
@@ -915,7 +1122,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         this.text = "" + (stage.turtleShepherd.getDensityWarningStr());
     };
     element.columns = 2;
-    element.newColumn = 2; 
+    element.newColumn = 2;
     elements.push(element);
 
      // density warning
@@ -923,7 +1130,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     element = new StringMorph("");
     element.newLines = 2;
     elements.push(element);
-    
+
 
     var toogleShowStitchPointsButton = new ToggleMorph(
             'checkbox',
@@ -1007,10 +1214,10 @@ IDE_Morph.prototype.createStatusDisplay = function () {
             function () { stage.camera.fitScene(); },
             'Zoom to fit'
             );
-    elements.push(fitScreenButton); 
+    elements.push(fitScreenButton);
     fitScreenButton.columns = 4;
-    fitScreenButton.newColumn = 2;  
-   
+    fitScreenButton.newColumn = 2;
+
 	var toggleTurboButton = new ToggleMorph(
             'checkbox',
             null,
@@ -1024,7 +1231,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     toggleTurboButton.columns = 4;
     toggleTurboButton.newColumn = 3;
     elements.push(toggleTurboButton);
-    
+
     var toggleUnitButton = new ToggleMorph(
             'checkbox',
             null,
@@ -1038,15 +1245,15 @@ IDE_Morph.prototype.createStatusDisplay = function () {
                 return !stage.turtleShepherd.isMetric();
             });
     toggleUnitButton.newLines = 2;
-    elements.push(toggleUnitButton); 
-        
+    elements.push(toggleUnitButton);
+
     var resetCameraButton = new PushButtonMorph(
             null,
             function () { stage.camera.reset(); },
             'Reset View'
             );
     elements.push(resetCameraButton);
-    resetCameraButton.newLines = 3;    
+    resetCameraButton.newLines = 3;
 
     var downloadSVGButton = new PushButtonMorph(
         null,
@@ -1056,7 +1263,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     downloadSVGButton.columns = 6;
     downloadSVGButton.newColumn = 2;
     elements.push(downloadSVGButton);
-    
+
 	var ignoreColorsButton = new ToggleMorph(
 		'checkbox',
 		null,
@@ -1067,7 +1274,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
 		function () {
 			return stage.turtleShepherd.getIgnoreColors();
 		});
-    
+
     ignoreColorsButton.newLines = 1.7;
     elements.push(ignoreColorsButton);
 
@@ -1202,7 +1409,7 @@ IDE_Morph.prototype.downloadDST = function() {
 
 IDE_Morph.prototype.setProjectName = function (string) {
 	if (string.replace(/['"]/g, '') != this.projectName || SnapCloud.username != this.creator) {
-		this.remixHistory = this.creator + ":" + this.projectName + ";"  + this.remixHistory 
+		this.remixHistory = this.creator + ":" + this.projectName + ";"  + this.remixHistory
 		this.origName =  this.projectName;
 	}
 	this.origName =  this.projectName;
@@ -1727,9 +1934,9 @@ IDE_Morph.prototype.projectMenu = function () {
         },
         'Select categories of additional blocks to add to this project.'
     );
-    
+
     menu.addLine();
-    
+
 	if (shiftClicked) {
 		menu.addItem(
 			'Cloud url...',
@@ -1851,7 +2058,7 @@ IDE_Morph.prototype.projectMenu = function () {
             new Color(100, 0, 0)
         );
     }
-    
+
     menu.popup(world, pos);
 };
 
@@ -1862,7 +2069,7 @@ IDE_Morph.prototype.snapMenu = function () {
     menu = new MenuMorph(this);
     menu.addItem('About TurtleStitch...', 'aboutTurtleStitch');
     menu.addItem('About Snap!...', 'aboutSnap');
-    
+
     menu.addLine();
     menu.addItem(
         'Reference manual',
@@ -2120,7 +2327,7 @@ DialogBoxMorph.prototype.promptOrder = function (
         chk_pub.fixLayout();
         bdy.add(chk_pub);
     }
-    
+
     if (TOSCheckBoxLabel) {
         chk_tos = new ToggleMorph(
             'checkbox',
@@ -2139,7 +2346,7 @@ DialogBoxMorph.prototype.promptOrder = function (
         bdy.add(chk_tos);
     }
 
-   
+
     mCol.fixLayout();
     yCol.fixLayout();
     lnk.fixLayout();
@@ -2162,7 +2369,7 @@ DialogBoxMorph.prototype.promptOrder = function (
     this.fixLayout();
 
     function validInputs() {
-           
+
         function indicate(morph, string) {
             var bubble = new SpeechBubbleMorph(localize(string));
             bubble.isPointingRight = false;
@@ -2215,10 +2422,10 @@ IDE_Morph.prototype.uploadOrder = function () {
         world = this.world();
 
     if (window.location.hostname.endsWith("localhost")) {
-		 SHOP_URL = 'http://shop.stitchcode.localhost/ext.php'; 
+		 SHOP_URL = 'http://shop.stitchcode.localhost/ext.php';
 	} else {
-		SHOP_URL = 'http://shop.stitchcode.com/ext.php';  
-	}  
+		SHOP_URL = 'http://shop.stitchcode.com/ext.php';
+	}
 
 	if (myself.stage.turtleShepherd.hasSteps()) {
 		new DialogBoxMorph(
@@ -2227,20 +2434,20 @@ IDE_Morph.prototype.uploadOrder = function () {
 				expUintArr = this.stage.turtleShepherd.toDST();
 				blob_dst = new Blob([expUintArr], {type: 'application/octet-stream'});
 				expUintArr = this.stage.turtleShepherd.toEXP();
-				blob_exp = new Blob([expUintArr], {type: 'application/octet-stream'});				
-			
+				blob_exp = new Blob([expUintArr], {type: 'application/octet-stream'});
+
 				var fd = new FormData;
 				var name = (this.projectName ? this.projectName : 'turtlestitch')
 				fd.append('public', userdata.choice_pub);
 				fd.append('filename', name + ".dst");
-				fd.append('projectname', name);		
-				fd.append('source', 'turtlestitch');	
+				fd.append('projectname', name);
+				fd.append('source', 'turtlestitch');
 				fd.append('url', window.location.href);
 				fd.append('dstfile', blob_dst, name + ".dst");
 				fd.append('expfile', blob_exp, name + ".exp");
 				if (SnapCloud.username)
 					fd.append('username', SnapCloud.username);
-			
+
 				var request = new XMLHttpRequest();
 
 				request.onreadystatechange = function () {
@@ -2251,19 +2458,19 @@ IDE_Morph.prototype.uploadOrder = function () {
 								if (!response.error) {
 									new  DialogBoxMorph().informWithLink(
 									'Upload success',
-									'Your embroidery was successully uploaded.\n\n Procceed to order opening a new window.\n' 
+									'Your embroidery was successully uploaded.\n\n Procceed to order opening a new window.\n'
 									+ 'If it does not open automatically, click here:' ,
 									response.url,
 									world);
 									window.open(response.url);
-								} 								
+								}
 							} catch(e) {
 								new  DialogBoxMorph().inform(
 									'Upload Error',
 									'Sorry. There was an Error during upload: \n' + request.responseText,
 									world);
 							}
-														
+
 
 						} else {
 							new  DialogBoxMorph().inform(
@@ -2277,7 +2484,7 @@ IDE_Morph.prototype.uploadOrder = function () {
 				};
 
 				//url = url + ((/\?x=/).test(url) ? "&" : "?") + (new Date()).getTime();
-				request.open('POST', SHOP_URL, true);		
+				request.open('POST', SHOP_URL, true);
 				request.send(fd);
 			}, // fntion
 			this
@@ -2323,7 +2530,7 @@ DialogBoxMorph.prototype.informWithLink = function (
 		),
 	  bdy = new AlignmentMorph('column', this.padding),
       myself = this;
-    
+
 	function linkButton(label, url) {
         var btn = new PushButtonMorph(
             myself,
@@ -2343,7 +2550,7 @@ DialogBoxMorph.prototype.informWithLink = function (
         btn.drawNew();
         btn.fixLayout();
         return btn;
-    }    
+    }
 
     if (!this.key) {
         this.key = 'inform' + title + textString;
@@ -2356,7 +2563,7 @@ DialogBoxMorph.prototype.informWithLink = function (
     if (textString) {
          bdy.add(txt)
     }
-	   
+
     if (url) {
 		lnk.add(linkButton(url, url));
 		bdy.add(lnk);
@@ -2365,7 +2572,7 @@ DialogBoxMorph.prototype.informWithLink = function (
 	bdy.fixLayout();
 
 	this.addBody(bdy);
-	
+
     this.addButton('ok', 'OK');
     this.drawNew();
     this.fixLayout();
@@ -2464,11 +2671,11 @@ ProjectDialogMorph.prototype.buildContents = function () {
     this.body.add(this.tagsLabelField);
     this.notesLabelField = new TextMorph("Notes");
     this.notesLabelField.edge = InputFieldMorph.prototype.edge;
-    this.body.add(this.notesLabelField);    
+    this.body.add(this.notesLabelField);
     this.tagsField = new InputFieldMorph("");
     this.tagsField.edge = InputFieldMorph.prototype.edge;
     this.tagsField.contrast = InputFieldMorph.prototype.contrast;
-    this.tagsField.drawNew = InputFieldMorph.prototype.drawNew;    
+    this.tagsField.drawNew = InputFieldMorph.prototype.drawNew;
     this.body.add(this.tagsField);
 	this.fixLayout();
 };
@@ -2478,25 +2685,25 @@ ProjectDialogMorph.prototype.fixLayout = function () {
     var th = fontHeight(this.titleFontSize) + this.titlePadding * 2,
         thin = this.padding / 2,
         oldFlag = Morph.prototype.trackChanges;
-        
+
 	if (this.body && this.tagsField) {
 		this.notesLabelField.setTop(this.preview.bottom() + thin);
-        this.notesLabelField.setLeft(this.preview.left() + 1);        
-        
+        this.notesLabelField.setLeft(this.preview.left() + 1);
+
         this.notesField.setTop(this.notesLabelField.bottom());
         this.notesField.setLeft(this.preview.left());
-        this.notesField.setHeight(this.body.bottom() - this.notesLabelField.bottom() - this.notesLabelField.height() - thin);	
-		
+        this.notesField.setHeight(this.body.bottom() - this.notesLabelField.bottom() - this.notesLabelField.height() - thin);
+
 		this.tagsLabelField.setTop(this.notesField.bottom() + thin);
         this.tagsLabelField.setLeft(this.notesField.left()  + 1);
-        		
+
 		this.tagsField.setTop(this.notesField.bottom() + 2);
         this.tagsField.setLeft(this.tagsLabelField.right());
         this.tagsField.setWidth(this.notesField.width() -  this.tagsLabelField.width() - 1);
-        
+
 
     }
-    this.changed();		
+    this.changed();
 }
 
 
@@ -2504,8 +2711,8 @@ ProjectDialogMorph.prototype.init = function (ide, task) {
 	this.initOrig (ide, task);
 	this.tagsText = "Tags?";
 }
-	
-ProjectDialogMorph.prototype.saveProjectOrig = ProjectDialogMorph.prototype.saveProject;	
+
+ProjectDialogMorph.prototype.saveProjectOrig = ProjectDialogMorph.prototype.saveProject;
 ProjectDialogMorph.prototype.saveProject = function () {
 	this.ide.tags = this.tagsField.contents().text.text;
 	console.log(this.ide.tags);

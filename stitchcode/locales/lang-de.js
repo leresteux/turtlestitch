@@ -149,17 +149,18 @@ tempDict = {
 			'Satinstich mit Breite %n zentriert %b',
 	'tatami stitch width %n interval %n offset %n center %b':
 			'Tatami-Stich mit Breite %n Intervall %n Versatz %n zentriert %b',
-    'jump stitch %b':
-        'Sprungstich %b',
-    'tie stitch':
-        'Vern\u00e4hstich',
+  'jump stitch %b':
+      'Sprungstich %b',
+  'tie stitch':
+      'Vern\u00e4hstich',
 	'trim':
-        'schneiden',
+      'schneiden',
 	'stop running':
-        'stop',
+      'stop',
 
-    'draw text: %s scale: %n font: %n':
-        'Schreibe %s Skalierung: %n Schrift %n',
+
+  'draw text: %s scale: %n font: %n':
+      'Schreibe %s Skalierung: %n Schrift %n',
 };
 
 // Add attributes to original SnapTranslator.dict.de

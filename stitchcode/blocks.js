@@ -6,8 +6,10 @@ SymbolMorph.prototype.symbolCanvasColored = function (aColor) {
     if (this.name == 'largeStage') {
         return this.drawSymbolLargeStage(newCanvas(new Point(this.symbolWidth(), this.size)), aColor);
     } else if (this.name == 'zoomToFit') {
-		return this.drawSymbolZoomToFit(newCanvas(new Point(this.symbolWidth(), this.size)), aColor);
-	} else {
+		    return this.drawSymbolZoomToFit(newCanvas(new Point(this.symbolWidth(), this.size)), aColor);
+	  } else if (this.name == 'turtle') {
+      return this.drawSymbolTurtle(newCanvas(new Point(this.symbolWidth(), this.size)), aColor);
+    } else {
         return this.originalSymbolCanvasColored(aColor)
     }
 }
@@ -270,6 +272,39 @@ SymbolMorph.prototype.drawSymbolGears = function (canvas, color) {
 
     return canvas;
 };
+
+SymbolMorph.prototype.drawSymbolTurtle = function (canvas, color) {
+    var ctx = canvas.getContext('2d'),
+        w = canvas.width / 2,
+        r = w / 2,
+        e = w / 6,
+        triangleX = w * 7/6;
+
+    ctx.fillStyle = 'rgba(0,0,0,0)';
+    ctx.fillRect(0, 0, w, w);
+    this.drawTexture('stitchcode/assets/turtles16.png');
+
+    ctx.globalCompositeOperation = 'destination-out';
+
+    ctx.beginPath();
+    ctx.arc(r, r, e * 1.5, radians(0), radians(360), true);
+    ctx.fill();
+
+    ctx.globalCompositeOperation = 'source-over';
+
+    // triangle
+    ctx.beginPath();
+    ctx.moveTo(triangleX + 1, canvas.height / 5 * 2);
+    ctx.lineTo(triangleX + 1 + (canvas.width - triangleX - 2) / 2, canvas.height / 5 * 4);
+    ctx.lineTo(canvas.width - 1, canvas.height / 5 * 2);
+    ctx.lineTo(triangleX + 1, canvas.height / 5 * 2);
+    ctx.closePath();
+    ctx.fill();
+
+    return canvas;
+};
+
+
 
 SymbolMorph.prototype.drawSymbolFile = function (canvas, color) {
     // overriden to add a small triangle to its right
