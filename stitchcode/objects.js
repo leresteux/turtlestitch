@@ -315,6 +315,7 @@ SpriteMorph.prototype.runningStitch = function (length, autoadjust=true) {
       length: length,
       autoadjust: autoadjust,
     }
+    this.stitchtype = 0;
 	} else {
 		this.stitchtype = 0;
 		this.stitchoptions = {};
@@ -838,15 +839,16 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 SpriteMorph.prototype.gotoXYBy = function (x, y, stepsize) {
   // this block is deprecated but keep it for compatibility
   stitchState = this.stitchtype;
-  stitchOptionState = this.stitchoptions;
+  stitchLength = this.stitchoptions.length;
   runState = this.isRunning;
   this.isRunning = true;
-  this.stitchtype == "";
+  this.stitchtype = "";
   this.stitchoptions.length = stepsize;
   this.autoadjust = false;
   this.gotoXY(x,y);
   this.stitchtype = stitchState;
-  this.stitchoptions = stitchOptionState;
+  this.autoadjust = false;
+  this.stitchoptions.length = stitchLength;
   this.isRunning = runState;
 };
 
@@ -904,37 +906,19 @@ SpriteMorph.prototype.pointTowards = function (x, y) {
 	this.setHeading(angle + 90);
 };
 
-SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
-    var stage = this.parentThatIsA(StageMorph);
-    var dest;
-    var myself = this;
+SpriteMorph.prototype.drawText = function (text, scale) {
+  var stage = this.parentThatIsA(StageMorph);
+  var dest;
+  var myself = this;
 
-    if (!stage) {return; }
-
-
-	// a few basic Hershey fonts.
-	// https://en.wikipedia.org/wiki/Hershey_fonts
-	// retrieved from
-	// https://techninja.github.io/hersheytextjs/
-
-    var font = "futuram"
-	if (fontnr == 1) font = "scripts"
-	if (fontnr == 2) font = "futural"
-
-	// Asteroid font
-	// retrieved from https://trmm.net/Asteroids_font
-	if (fontnr == 3) font = "asteroid"
-
-	if (fontnr == 3) {
-		scale = scale * 2;
-	}
+  if (!stage) {return; }
 
 	function doAJump(x, y) {
 		var penState = myself.isDown;
 		myself.isDown = false;
 		myself.gotoXY(x, y);
-		myself.gotoXY(x+2, y+2);
-		myself.gotoXY(x, y);
+		//lf.gotoXY(x+2, y+2);
+		//myself.gotoXY(x, y);
 		myself.isDown = penState;
 	}
 
@@ -944,60 +928,62 @@ SpriteMorph.prototype.drawText = function (text, scale, fontnr) {
 			var x = this.xPosition();
 			var y = this.yPosition();
 			var maxx = 0, maxy = 0;
-			var nextPenIsUp = false;
-			if (fontnr == 3) {
-				if (stage.afonts[text[i].toUpperCase()]){
-					coords = stage.afonts[text[i].toUpperCase()];
-					for (var j=0; j<coords.length; j++) {
-						if (coords[j] == "FONT_UP") {
-							nextPenIsUp = true;
-						} else if (coords[j] == "FONT_LAST") {
-							// ignore last
+			var nextIsPenUp = false;
+
+			if (stage.fonts[text[i]]){
+				if (this.isRunning)
+          coords = stage.fonts[text[i]]["stitch"];
+        else {
+          lines = stage.fonts[text[i]]["orig"];
+          coords = [];
+          for (var j=0; j<lines.length; j++) {
+            coords.push("jump");
+            for (var k=0; k<lines[j].length; k++) {
+              coords.push(lines[j][k])
+              if (k==0)
+                coords.push("move");
+            }
+          }
+        }
+
+
+				for (var j=0; j<coords.length; j++) {
+					if (coords[j] == "jump") {
+						nextIsPenUp = true;
+            nextIsStitch = false;
+					} else if (coords[j] == "move") {
+						nextIsStitch = false;
+            nextIsPenUp = false;
+          } else if (coords[j] == "stitch") {
+						nextIsStitch = true;
+            nextIsPenUp = false;
+					} else {
+            maxx = Math.max(maxx, coords[j][0]);
+						if (nextIsPenUp || j == 0  ) {
+							doAJump(
+                x + coords[j][0] * scale,
+                y - coords[j][1] * scale )
+
+						} else if (nextIsStitch)	{
+							this.gotoXY(
+                  x + coords[j][0] * scale,
+                  y - coords[j][1] * scale)
 						} else {
-							if (nextPenIsUp || j == 0  ) {
-								doAJump(x + coords[j][0] * scale, y + coords[j][1] * scale )
-								nextPenIsUp = false;
-							} else 	{
-								this.gotoXYBy(x + coords[j][0] * scale, y + coords[j][1] * scale, 10 )
-							}
-						}
+              var runState = this.isRunning;
+              this.isRunning = false;
+              this.gotoXYBy(
+                  x + coords[j][0] * scale,
+                  y - coords[j][1] * scale, 40 );
+              this.isRunning = runState;
+            }
 					}
 				}
-				if (i < text.length) {
-					doAJump(x + (10 * scale), y );
-				}
-			} else  {
-				if (stage.fonts[font].chars[index]){
-					commands = stage.fonts[font].chars[index].d.split(' ');
-					for (var i =0; i<commands.length; i++) {
-						var coord = commands[i].split(',');
-						if (coord[0][0] == "M") {
-							coord[0] = coord[0].replace('M','')
-						} else if (coord[0][0] == "L") {
-							coord[0] = coord[0].replace('L','');
-						}
-						maxx = Math.max(maxx, parseInt(coord[0]))
-						maxy = Math.max(maxy, parseInt(coord[1]))
-					}
-					for (var i =0; i<commands.length; i++) {
-						var coord = commands[i].split(',');
-						if (coord[0][0] == "M") {
-							coord[0] = coord[0].replace('M','')
-							doAJump(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale,)
-						} else if (coord[0][0] == "L") {
-							coord[0] = coord[0].replace('L','');
-							this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
-						} else {
-							this.gotoXYBy(x + parseInt(coord[0]) * scale, y + (maxy - parseInt(coord[1])) * scale, 10 )
-						}
-					}
-					doAJump(x + (stage.fonts[font].chars[index].o * 1.7) * scale, y)
-				} else {
-					doAJump(x + 10 * scale, y)
-				}
+        doAJump(x + (maxx + 5) * scale, y );
+			} else {
+				doAJump(x + (10 * scale), y );
 			}
-		}
-	} else {
+	  }
+  } else {
 		console.log("no fonts loaded");
 		console.log(stage.fonts);
 	}
@@ -1335,8 +1321,8 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command',
         category: 'motion',
-        spec: 'draw text: %s scale: %n font: %n',
-        defaults: ["hello", 2, 0]
+        spec: 'draw text: %s scale: %n',
+        defaults: ["hello", 2]
     };
 
     // pen blocks
@@ -2234,7 +2220,7 @@ StageMorph.prototype.init = function (globals) {
 	function loadFont(callback) {
 		var xobj = new XMLHttpRequest();
 		xobj.overrideMimeType("application/json");
-		xobj.open('GET', 'stitchcode/fonts/hershey.json', true);
+		xobj.open('GET', 'stitchcode/fonts/simplex.json', true);
 		xobj.onreadystatechange = function () {
 			  if (xobj.readyState == 4 && xobj.status == "200") {
 				callback(xobj.responseText);
@@ -2246,27 +2232,6 @@ StageMorph.prototype.init = function (globals) {
     if (!this.fonts) {
 		loadFont(function(response) {
 			myself.fonts = JSON.parse(response);
-		});
-	}
-
-	// load Asteroid font
-	// retrieved from https://trmm.net/Asteroids_font
-
-	function loadAsteroidFont(callback) {
-		var xobj = new XMLHttpRequest();
-		xobj.overrideMimeType("application/json");
-		xobj.open('GET', 'stitchcode/fonts/asteroid.json', true);
-		xobj.onreadystatechange = function () {
-			  if (xobj.readyState == 4 && xobj.status == "200") {
-				callback(xobj.responseText);
-			  }
-		};
-		xobj.send(null);
-	}
-
-    if (!this.afonts) {
-		loadAsteroidFont(function(response) {
-			myself.afonts = JSON.parse(response);
 		});
 	}
 

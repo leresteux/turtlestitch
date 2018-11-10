@@ -196,9 +196,8 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 	}
 
 	if ( this.calcTooLong && penState) {
-		if ( (Math.max(
-			Math.abs(x2 - x1), Math.abs(y2 - y1)
-			) / this.pixels_per_millimeter * 10) / this.maxLength > 1)
+    dist = Math.sqrt( (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1) );
+		if ( (dist / this.pixels_per_millimeter * 10) > this.maxLength)
 			this.tooLongCount += 1;
 	}
 
