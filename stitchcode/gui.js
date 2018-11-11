@@ -11,6 +11,12 @@ IDE_Morph.prototype.originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(isAutoFill) {
     this.originalInit();
     this.padding = 1;
+    this.hideGrid = false;
+    this.hideJumps = false;
+    this.hideTurtle = false;
+    this.hidestitches = false;
+    this.defaultStageColor = new Color(255,255,255);
+    this.defaultPenColor = new Color(255,255,255);
 	/*
 	 this.droppedText(
 		this.getURL(this.resourceURL('stitchcode/embroidery-library.xml')),
