@@ -923,12 +923,20 @@ SpriteMorph.prototype.drawText = function (text, scale) {
 	}
 
 	if (stage.fonts) {
+    heading = this.heading;
+    vx = Math.cos(radians(this.heading - 90));
+    vy = Math.sin(radians(this.heading - 90));
+    nx = Math.cos(radians(this.heading ));
+    ny = Math.sin(radians(this.heading ));
+
 		for(var i in text) {
 			var index = text.charCodeAt(i) - 33;
 			var x = this.xPosition();
 			var y = this.yPosition();
 			var maxx = 0, maxy = 0;
 			var nextIsPenUp = false;
+
+
 
 			if (stage.fonts[text[i]]){
 				if (this.isRunning)
@@ -959,30 +967,40 @@ SpriteMorph.prototype.drawText = function (text, scale) {
             nextIsPenUp = false;
 					} else {
             maxx = Math.max(maxx, coords[j][0]);
+            dx = coords[j][0] * scale * vx - coords[j][1] * scale * vy;
+            dy = coords[j][1] * scale * ny - coords[j][0] * scale * nx;
 						if (nextIsPenUp || j == 0  ) {
 							doAJump(
-                x + coords[j][0] * scale,
-                y - coords[j][1] * scale )
+                x + dx,
+                y - dy
+              )
 
 						} else if (nextIsStitch)	{
 							this.gotoXY(
-                  x + coords[j][0] * scale,
-                  y - coords[j][1] * scale)
+                x + dx,
+                y - dy
+              )
 						} else {
               var runState = this.isRunning;
               this.isRunning = false;
               this.gotoXYBy(
-                  x + coords[j][0] * scale,
-                  y - coords[j][1] * scale, 40 );
+                x + dx,
+                y - dy,
+                  40 );
               this.isRunning = runState;
             }
 					}
 				}
-        doAJump(x + (maxx + 5) * scale, y );
+        dx = (maxx+5) * scale * vx;
+        dy = 0 - (maxx+5) * scale * nx;
+        doAJump(x + dx, y - dy);
 			} else {
-				doAJump(x + (10 * scale), y );
+        dx = 10 * scale * vx;
+        dy = 0 - 10 * scale * nx;
+				doAJump(x + dx, y - dy);
 			}
 	  }
+    this.setHeading(heading);
   } else {
 		console.log("no fonts loaded");
 		console.log(stage.fonts);
