@@ -123,7 +123,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2, angle=false ) {
 		w = Math.round((w + 0.00001) * 100) / 100;
 		h = stage.penSize;
 		if (stage.penSize <= 1)
-			w = w - s;
+			w = w; //- s;
 
 		var geometry = this.cache.findGeometry('plane', [w, h]);
 		if (!geometry) {
@@ -744,7 +744,7 @@ SpriteMorph.prototype.doMoveForward = function (steps) {
 		if (this.isDown) {
 			this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
 			this.addStitchPoint(this.xPosition(), this.yPosition());
-			if (warn) {
+      if (warn && !stage.turtleShepherd.ignoreWarning) {
 				this.addDensityPoint(this.xPosition(), this.yPosition());
 			}
 			if (isFirst || this.lastJumped ) {
@@ -789,28 +789,28 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 		  // jump in place - don't add / ignore
 		  //console.log("jump in place - don't add / ignore",  this.isDown,this.xPosition(), this.yPosition(), dist);
     } else {
-  		if ( this.isRunning  && this.isDown) {
-  			if (this.stitchoptions.autoadjust) {
-  				var real_length = dist /
-            Math.round(dist / this.stitchoptions.length);
-          if (dist < this.stitchoptions.length)
-            stepsize = dist;
-          else
-            stepsize = real_length;
-  			} else {
-  				stepsize = this.stitchoptions.length;
-  			}
-  			var steps = Math.floor(dist / stepsize);
-  			var rest = dist - (steps * stepsize);
+      if (this.stitchoptions.autoadjust) {
+        var real_length = dist /
+          Math.round(dist / this.stitchoptions.length);
+        if (dist < this.stitchoptions.length)
+          stepsize = dist;
+        else
+          stepsize = real_length;
+      } else {
+        stepsize = this.stitchoptions.length;
+      }
+      var steps = Math.floor(dist / stepsize);
+      var rest = dist - (steps * stepsize);
 
+  		if ( this.isRunning  && this.isDown && steps > 0 ) {
         rest = Math.round(rest,8);
         stepsize =  Math.round(stepsize,8);
 
   			this.setHeading(angle);
         this.forwardSegemensWithEndCheck(steps,stepsize);
 
-  			if (rest > 0 || x != this.xPosition() || y != this.yPosition()) {
-  	      this.gotoXY(x,y);
+  			if (steps == 0 && rest > 0 || x != this.xPosition() || y != this.yPosition()) {
+          this.gotoXY(x,y);
   			}
 		} else {
 			this.origGotoXY(x, y, justMe);
@@ -823,7 +823,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 			if (this.isDown) {
 				this.addStitch(oldx, oldy, this.xPosition(), this.yPosition(), angle);
 				this.addStitchPoint(this.xPosition(), this.yPosition());
-				if (warn) {
+				if (warn && !stage.turtleShepherd.ignoreWarning) {
 					this.addDensityPoint(this.xPosition(), this.yPosition());
 				}
 
@@ -939,8 +939,6 @@ SpriteMorph.prototype.drawText = function (text, scale) {
 			var maxx = 0, maxy = 0;
 			var nextIsPenUp = false;
 
-
-
 			if (stage.fonts[text[i]]){
 				if (this.isRunning)
           coords = stage.fonts[text[i]]["stitch"];
@@ -956,7 +954,6 @@ SpriteMorph.prototype.drawText = function (text, scale) {
             }
           }
         }
-
 
 				for (var j=0; j<coords.length; j++) {
 					if (coords[j] == "jump") {
@@ -977,7 +974,6 @@ SpriteMorph.prototype.drawText = function (text, scale) {
                 x + dx,
                 y - dy
               )
-
 						} else if (nextIsStitch)	{
 							this.gotoXY(
                 x + dx,
@@ -2236,9 +2232,8 @@ StageMorph.prototype.init = function (globals) {
     this.fonts = null;
     this.stepcounter = 0;
 
-	// implement Hershey fonts.
-	// Json data from:
-	// https://techninja.github.io/hersheytextjs/
+	// load customized fonts based on Hershey's fonts.
+
 	function loadFont(callback) {
 		var xobj = new XMLHttpRequest();
 		xobj.overrideMimeType("application/json");
@@ -2271,7 +2266,6 @@ StageMorph.prototype.init = function (globals) {
     this.scene.add(this.myJumpLines);
 
     this.initTurtle();
-
 };
 
 StageMorph.prototype.initScene = function () {
@@ -2309,7 +2303,7 @@ StageMorph.prototype.initScene = function () {
             p1 = new THREE.Vector3(x * this.interval.x, -limit, 0);
             p2 = new THREE.Vector3(x * this.interval.x, limit, 0);
             l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color);
-            l.visible = this.visible;
+            l.visible = !StageMorph.prototype.hideGrid;
             this.lines.push(l);
         }
 
@@ -2317,7 +2311,7 @@ StageMorph.prototype.initScene = function () {
             p1 = new THREE.Vector3(-limit, y * this.interval.y, 0);
             p2 = new THREE.Vector3(limit, y * this.interval.y, 0);
             l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color);
-            l.visible = this.visible;
+            l.visible = !StageMorph.prototype.hideGrid;
             this.lines.push(l);
         }
 
@@ -2331,7 +2325,7 @@ StageMorph.prototype.initScene = function () {
             p1 = new THREE.Vector3(x * this.interval.x * 10, -limit,0);
             p2 = new THREE.Vector3(x * this.interval.x* 10, limit,0);
             l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
-            l.visible = this.visible;
+            l.visible = !StageMorph.prototype.hideGrid;
             this.lines.push(l);
         }
 
@@ -2339,7 +2333,7 @@ StageMorph.prototype.initScene = function () {
             p1 = new THREE.Vector3(-limit, y * this.interval.y * 10, 0);
             p2 = new THREE.Vector3(limit, y * this.interval.y * 10, 0);
             l = myself.scene.addLineFromPointToPointWithColor(p1, p2, color2);
-            l.visible = this.visible;
+            l.visible = !StageMorph.prototype.hideGrid;
             this.lines.push(l);
         }
 
@@ -2358,9 +2352,11 @@ StageMorph.prototype.initScene = function () {
     };
 
     this.scene.grid.toggle = function () {
-        var myInnerSelf = this;
-        this.visible = !this.visible;
-        this.lines.forEach(function (line){ line.visible = myInnerSelf.visible; });
+        StageMorph.prototype.hideGrid = !StageMorph.prototype.hideGrid;
+        console.log(  StageMorph.prototype.hideGrid);
+        this.lines.forEach(function (line){
+          line.visible = !StageMorph.prototype.hideGrid;
+        });
         myself.reRender();
     };
 
@@ -2418,34 +2414,28 @@ StageMorph.prototype.initRenderer = function () {
 
       this.renderer.changed = false;
       this.renderer.showingAxes = true;
-      this.renderer.showingStitchPoints = true;
-      this.renderer.showingJumpLines = true;
-      this.renderer.showingTurtle = true;
       this.renderer.isParallelProjection = true;
     }
 
     this.renderer.toggleJumpLines = function () {
-        var myInnerSelf = this;
-        this.showingJumpLines = !this.showingJumpLines;
+        StageMorph.prototype.hideJumps = !StageMorph.prototype.hideJumps;
         myself.myJumpLines.children.forEach(function (eachObject) {
-            eachObject.visible = myInnerSelf.showingJumpLines;
+            eachObject.visible = !StageMorph.prototype.hideJumps
         });
         myself.reRender();
     };
 
     this.renderer.toggleStitchPoints = function () {
-        var myInnerSelf = this;
-        this.showingStitchPoints = !this.showingStitchPoints;
+        StageMorph.prototype.hideStitches = !StageMorph.prototype.hideStitches;
         myself.myStitchPoints.children.forEach(function (eachObject) {
-            eachObject.visible = myInnerSelf.showingStitchPoints;
+            eachObject.visible = !StageMorph.prototype.hideStitches;
         });
         myself.reRender();
     };
 
     this.renderer.toggleTurtle = function () {
-        var myInnerSelf = this;
-        this.showingTurtle = !this.showingTurtle;
-        myself.turtle.visible = myInnerSelf.showingTurtle;
+        StageMorph.prototype.hideTurtle = !StageMorph.prototype.hideTurtle;
+        myself.turtle.visible = !StageMorph.prototype.hideTurtle;
         myself.reRender();
     };
 

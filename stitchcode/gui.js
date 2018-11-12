@@ -11,12 +11,6 @@ IDE_Morph.prototype.originalInit = IDE_Morph.prototype.init;
 IDE_Morph.prototype.init = function(isAutoFill) {
     this.originalInit();
     this.padding = 1;
-    this.hideGrid = false;
-    this.hideJumps = false;
-    this.hideTurtle = false;
-    this.hidestitches = false;
-    this.defaultStageColor = new Color(255,255,255);
-    this.defaultPenColor = new Color(255,255,255);
 	/*
 	 this.droppedText(
 		this.getURL(this.resourceURL('stitchcode/embroidery-library.xml')),
@@ -161,28 +155,28 @@ IDE_Morph.prototype.applySavedTurtleStitchSettings = function () {
   warnings = this.getSetting('ignoreWarning');
 
   if(hidegrid) {
-    this.stage.scene.grid.visible = false;
+    StageMorph.prototype.hideGrid = true;
   }
   else {
-    this.stage.scene.grid.visible = true;
+    StageMorph.prototype.hideGrid = false;
   }
 
   if(hidejumps) {
-      this.stage.renderer.showingJumpLines = false;
+    StageMorph.prototype.hideJumps = true;
   } else {
-      this.stage.renderer.showingJumpLines = true;
+    StageMorph.prototype.hideJumps = false;
   }
 
   if(hideturtle) {
-      this.stage.renderer.showingTurtle = false;
+    StageMorph.prototype.hideTurtle = true;
   } else {
-      this.stage.renderer.showingTurtle = true;
+    StageMorph.prototype.hideTurtle = false;
   }
 
   if(hidestitches) {
-      this.stage.renderer.showingStitchPoints = false;
+    StageMorph.prototype.hideStitches = true;
   } else {
-      this.stage.renderer.showingStitchPoints = true;
+    StageMorph.prototype.hideStitches = false;
   }
 
   if(warnings) {
@@ -254,7 +248,42 @@ IDE_Morph.prototype.setStageExtent = function (aPoint) {
 
 IDE_Morph.prototype.origNewProject = IDE_Morph.prototype.newProject;
 IDE_Morph.prototype.newProject = function () {
-    this.origNewProject();
+    //this.origNewProject();
+    this.source = this.cloud.username ? 'cloud' : 'local';
+    if (this.stage) {
+        this.stage.destroy();
+    }
+    if (location.hash.substr(0, 6) !== '#lang:') {
+        location.hash = '';
+    }
+    this.globalVariables = new VariableFrame();
+    this.currentSprite = new SpriteMorph(this.globalVariables);
+    this.sprites = new List([this.currentSprite]);
+    StageMorph.prototype.dimensions = new Point(480, 360);
+    StageMorph.prototype.hiddenPrimitives = {};
+    StageMorph.prototype.codeMappings = {};
+    StageMorph.prototype.codeHeaders = {};
+    StageMorph.prototype.enableCodeMapping = false;
+    StageMorph.prototype.enableInheritance = true;
+    StageMorph.prototype.enableSublistIDs = false;
+
+    StageMorph.prototype.hideGrid = false;
+    StageMorph.prototype.hideJumps = false;
+    StageMorph.prototype.hideTurtle = false;
+    StageMorph.prototype.hidestitches = false;
+    StageMorph.prototype.backgroundColor = new Color(255,255,255);
+    StageMorph.prototype.penColor = new Color(255,255,255);
+
+    SpriteMorph.prototype.useFlatLineEnds = false;
+
+    Process.prototype.enableLiveCoding = false;
+    this.setProjectName('');
+    this.projectNotes = '';
+    this.createStage();
+    this.add(this.stage);
+    this.createCorral();
+    this.selectSprite(this.stage.children[0]);
+    this.fixLayout();
     this.stage.reRender();
     this.createStatusDisplay();
 };
@@ -773,57 +802,59 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
         'Hide grid',
         function () {
             this.stage.scene.grid.toggle();
-            if (this.stage.scene.grid.visible) {
+            if (StageMorph.prototype.hideGrid) {
                 myself.saveSetting('hidegrid', true);
             } else {
                 myself.removeSetting('hidegrid');
             }
         },
-        !this.stage.scene.grid.visible,
+        StageMorph.prototype.hideGrid,
+        'uncheck to show grid',
         'check to hide grid',
-        'uncheck to show grid'
     );
+
+
     addPreference(
         'Hide jump stitches',
         function () {
             this.stage.renderer.toggleJumpLines();
-            if (stage.renderer.showingJumpLines) {
+            if (StageMorph.prototype.hideJumps) {
                 myself.saveSetting('hidegrid', true);
             } else {
                 myself.removeSetting('hidejumps');
             }
         },
-        !this.stage.renderer.showingJumpLines,
-        'check to hide grid',
-        'uncheck to show grid'
+        StageMorph.prototype.hideJumps ,
+        'uncheck to show jump stitches',
+        'check to hide jump stitches'
     );
     addPreference(
         'Hide stitch points',
         function () {
             this.stage.renderer.toggleStitchPoints();
-            if (stage.renderer.showingStitchPoints) {
+            if (StageMorph.prototype.hideStitches) {
                 myself.saveSetting('hidestitches', true);
             } else {
                 myself.removeSetting('hidestitches');
             }
         },
-        !this.stage.renderer.showingStitchPoints,
-        'check to hide stitch points',
-        'uncheck to show stitch points'
+        StageMorph.prototype.hideStitches,
+        'uncheck to show stitch points',
+        'check to hide stitch points'
     );
     addPreference(
         'Hide turtle',
         function () {
             this.stage.renderer.toggleTurtle();
-            if (stage.renderer.showingTurtle) {
+            if (StageMorph.prototype.hideTurtle) {
                 myself.saveSetting('hideturtle', true);
             } else {
                 myself.removeSetting('hideturtle');
             }
         },
-        !this.stage.renderer.showingTurtle,
-        'check to hide turtle',
-        'uncheck to show turtle'
+        StageMorph.prototype.hideTurtle,
+        'uncheck to show turtle',
+        'check to hide turtle'
     );
     addPreference(
         'Ignore embroidery warnings',
@@ -836,11 +867,10 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
                 myself.removeSetting('ignoreWarning');
             }
         },
-        !this.stage.renderer.showingTurtle,
-        'check to hide turtle',
-        'uncheck to show turtle'
-    );
-    menu.popup(world, pos);
+        this.stage.turtleShepherd.ignoreWarning,
+
+        'uncheck to show turtle',
+          'check to hide turtle',    );    menu.popup(world, pos);
 };
 
 
