@@ -30,6 +30,8 @@ tempDict = {
 	'Reset View':
 		'Anzeige zur\u00fccksetzen',
 	'Zoom to fit':
+		'Passend zoomen',
+	'zoom to fit':
 		'passend zoomen',
 	'Size : ':
 		'Gr\u00f6\u00dfe : ',
@@ -63,7 +65,23 @@ tempDict = {
 		'Exportiert die aktuelle Zeichnung zum stitchcode.com Ausstickservice',
 	'Ignore colors during export':
 		'Ignoriere Farben beim Export',
-
+		
+	// settings
+	'Units..':
+      'Masseinheiten...',
+	'Display dimension in Inch':
+		'Dimensionen in Zoll anzeigen',      
+	'Hide grid':
+		'Raster nicht anzeigen',      
+	'Hide turtle':
+		'Schildkr\u00f6te verstecken',      
+	'Hide jump stitches':
+		'Sprungstiche nicht anzeigen',    	
+	'Hide stitch points':
+		'Stichpunkte nicht anzeigen',	
+	'Ignore embroidery warnings':
+		'Stickereiwarnungen ignorieren',
+	
 	// legacy blocks
 	'clear':
 		'l\u00f6schen',
@@ -136,7 +154,7 @@ tempDict = {
 
 	// embroidery blocks and stuff
     'running stitch by %n steps':
-	'	Laufstich in %n er Schritten',
+		'Laufstich in %n er Schritten',
 	'triple run by %n':
 			'Dreifach-Laufstich in %n er Schritten',
 	'cross stitch in %n by %n center %b':
@@ -144,7 +162,7 @@ tempDict = {
 	'zigzag with density %n width %n center %b':
 			'Zickzack mit Dichte %n Breite %n zentriert %b',
 	'Z-stitch with density %n width %n center %b':
-			'Z-Sitch mit Dichte %n Breite %n zentriert %b',
+			'Z-Stich mit Dichte %n Breite %n zentriert %b',
 	'satin stitch with width %n center %b':
 			'Satinstich mit Breite %n zentriert %b',
 	'tatami stitch width %n interval %n offset %n center %b':
@@ -156,11 +174,11 @@ tempDict = {
 	'trim':
       'schneiden',
 	'stop running':
-      'stop',
-
-
-  'draw text: %s scale: %n font: %n':
-      'Schreibe %s Skalierung: %n Schrift %n',
+      'Stickeinstellungen zur\u00fccksetzen',
+  'draw text: %s scale: %n':
+      'Schreibe Text: %s mit Gr\u00f6sse: %n',
+      
+    
 };
 
 // Add attributes to original SnapTranslator.dict.de
