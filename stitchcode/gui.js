@@ -153,36 +153,52 @@ IDE_Morph.prototype.applySavedTurtleStitchSettings = function () {
   hideturtle = this.getSetting('hideturtle');
   hidestitches = this.getSetting('hidestitches');
   warnings = this.getSetting('ignoreWarning');
+  isImperial = this.getSetting('isImperial');
+
+  console.log("apply settings");
 
   if(hidegrid) {
-    StageMorph.prototype.hideGrid = true;
+    this.stage.scene.grid.toggle();
+    //StageMorph.prototype.hideGrid = true;
   }
   else {
     StageMorph.prototype.hideGrid = false;
   }
 
   if(hidejumps) {
-    StageMorph.prototype.hideJumps = true;
+    //StageMorph.prototype.hideJumps = true;
+    this.stage.renderer.toggleJumpLines()
   } else {
     StageMorph.prototype.hideJumps = false;
   }
 
   if(hideturtle) {
-    StageMorph.prototype.hideTurtle = true;
+    this.stage.renderer.toggleTurtle()
+    //StageMorph.prototype.hideTurtle = true;
   } else {
     StageMorph.prototype.hideTurtle = false;
   }
 
   if(hidestitches) {
-    StageMorph.prototype.hideStitches = true;
+    this.stage.renderer.toggleStitchPoints()
+    //StageMorph.prototype.hideStitches = true;
   } else {
     StageMorph.prototype.hideStitches = false;
   }
 
   if(warnings) {
-      this.stage.turtleShepherd.ignoreWarning = true;
+   this.stage.toggleIgnoreWarnings();
+	 //StageMorph.prototype.ignoreWarnings = true;
   } else {
-      this.stage.turtleShepherd.ignoreWarning = false;
+	 StageMorph.prototype.ignoreWarnings = false;
+  }
+
+  if(isImperial) {
+    this.stage.turtleShepherd.toggleMetric();
+    this.stage.scene.grid.draw();
+    this.stage.renderer.changed = true;
+  } else {
+    this.stage.turtleShepherd.sMetric = true;
   }
 
 
@@ -271,6 +287,8 @@ IDE_Morph.prototype.newProject = function () {
     StageMorph.prototype.hideJumps = false;
     StageMorph.prototype.hideTurtle = false;
     StageMorph.prototype.hidestitches = false;
+    StageMorph.prototype.ignoreWarnings = false;
+
     StageMorph.prototype.backgroundColor = new Color(255,255,255);
     StageMorph.prototype.penColor = new Color(255,255,255);
 
@@ -796,7 +814,24 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
 
     menu = new MenuMorph(this);
 
-    menu.addItem('Units...', 'unitsMenu');
+    //menu.addItem('Units...', 'unitsMenu');
+    //menu.addLine();
+    addPreference(
+        'Display dimension in Inch',
+        function () {
+            stage.turtleShepherd.toggleMetric();
+            stage.scene.grid.draw();
+            stage.renderer.changed = true;
+            if (!stage.turtleShepherd.isMetric() ) {
+                myself.saveSetting('isImperial', true);
+            } else {
+                myself.removeSetting('isImperial');
+            }
+        },
+        !stage.turtleShepherd.isMetric() ,
+        'uncheck to display dimensions in millimeters',
+        'check to show dimensions in inch', );
+
     menu.addLine();
     addPreference(
         'Hide grid',
@@ -819,7 +854,7 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
         function () {
             this.stage.renderer.toggleJumpLines();
             if (StageMorph.prototype.hideJumps) {
-                myself.saveSetting('hidegrid', true);
+                myself.saveSetting('hidejumps', true);
             } else {
                 myself.removeSetting('hidejumps');
             }
@@ -859,18 +894,19 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
     addPreference(
         'Ignore embroidery warnings',
         function () {
-            this.stage.turtleShepherd.ignoreWarning =
-              !this.stage.turtleShepherd.ignoreWarning
-            if (this.stage.turtleShepherd.ignoreWarning) {
+           this.stage.toggleIgnoreWarnings();
+            if (StageMorph.prototype.ignoreWarnings ) {
                 myself.saveSetting('ignoreWarning', true);
             } else {
                 myself.removeSetting('ignoreWarning');
             }
         },
-        this.stage.turtleShepherd.ignoreWarning,
+        StageMorph.prototype.ignoreWarnings ,
 
         'uncheck to show turtle',
-          'check to hide turtle',    );    menu.popup(world, pos);
+        'check to hide turtle',    );
+
+    menu.popup(world, pos);
 };
 
 
@@ -1168,63 +1204,6 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     elements.push(element);
 
 
-    var toogleShowStitchPointsButton = new ToggleMorph(
-            'checkbox',
-            null,
-            function () {
-                stage.renderer.toggleStitchPoints();
-            },
-            'Stitchpoints',
-            function () {
-                return stage.renderer.showingStitchPoints;
-            });
-    toogleShowStitchPointsButton.columns = 4;
-    toogleShowStitchPointsButton.newColumn = 1;
-    elements.push(toogleShowStitchPointsButton);
-
-    var toogleShowJumpLinesButton = new ToggleMorph(
-            'checkbox',
-            null,
-            function () {
-                stage.renderer.toggleJumpLines();
-            },
-            'Jumps',
-            function () {
-                return stage.renderer.showingJumpLines;
-            });
-    toogleShowJumpLinesButton.columns = 4;
-    toogleShowJumpLinesButton.newColumn = 2;
-    elements.push(toogleShowJumpLinesButton);
-
-    var toggleGridButton = new ToggleMorph(
-            'checkbox',
-            null,
-            function () {
-                stage.scene.grid.toggle();
-            },
-            'Grid',
-            function () {
-                return stage.scene.grid.visible;
-            });
-    toggleGridButton.columns = 4;
-    toggleGridButton.newColumn = 3;
-    elements.push(toggleGridButton);
-
-    var toogleTurtleButton = new ToggleMorph(
-            'checkbox',
-            null,
-            function () {
-                stage.renderer.toggleTurtle();
-            },
-            'Turtle',
-            function () {
-                return stage.renderer.showingTurtle;
-            });
-
-    toogleTurtleButton.newLines = 1;
-    elements.push(toogleTurtleButton);
-    elements.push('-');
-
     var zoomInButton = new PushButtonMorph(
             null,
             function () {
@@ -1244,15 +1223,15 @@ IDE_Morph.prototype.createStatusDisplay = function () {
             );
     elements.push(zoomOutButton);
 
-
-    var fitScreenButton = new PushButtonMorph(
+    var resetCameraButton = new PushButtonMorph(
             null,
-            function () { stage.camera.fitScene(); },
-            'Zoom to fit'
+            function () { stage.camera.reset(); },
+            'Reset View'
             );
-    elements.push(fitScreenButton);
-    fitScreenButton.columns = 4;
-    fitScreenButton.newColumn = 2;
+    elements.push(resetCameraButton);
+    resetCameraButton.columns = 4;
+    resetCameraButton.newColumn = 3;
+
 
 	var toggleTurboButton = new ToggleMorph(
             'checkbox',
@@ -1264,32 +1243,20 @@ IDE_Morph.prototype.createStatusDisplay = function () {
             function () {
                 return stage.isFastTracked;
             });
-    toggleTurboButton.columns = 4;
-    toggleTurboButton.newColumn = 3;
+    toggleTurboButton.newLines = 2;
     elements.push(toggleTurboButton);
 
-    var toggleUnitButton = new ToggleMorph(
-            'checkbox',
-            null,
-            function () {
-                stage.turtleShepherd.toggleMetric();
-                stage.scene.grid.draw();
-                stage.renderer.changed = true;
-            },
-            'Imperial units',
-            function () {
-                return !stage.turtleShepherd.isMetric();
-            });
-    toggleUnitButton.newLines = 2;
-    elements.push(toggleUnitButton);
 
-    var resetCameraButton = new PushButtonMorph(
+    var fitScreenButton = new PushButtonMorph(
             null,
-            function () { stage.camera.reset(); },
-            'Reset View'
+            function () { stage.camera.fitScene(); },
+            'Zoom to fit'
             );
-    elements.push(resetCameraButton);
-    resetCameraButton.newLines = 3;
+    elements.push(fitScreenButton);
+    fitScreenButton.newLines = 3;
+
+    elements.push('-');
+
 
     var downloadSVGButton = new PushButtonMorph(
         null,

@@ -230,7 +230,7 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 		});
 		material.transparent = true;
 		var mesh = new THREE.Mesh( g.geometry, material );
-		mesh.visible = stage.renderer.showingJumpLines;
+		mesh.visible = !StageMorph.prototype.hideJumps;
 		stage.myJumpLines.add(mesh);
 	}
 
@@ -268,7 +268,7 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
     line = new THREE.Mesh(geometry, material);
     line.rotation.z = (45 - this.heading) * Math.PI / 180;
     line.position.set(x2,y2,0.01);
-    line.visible = stage.renderer.showingStitchPoints;
+    line.visible = !StageMorph.prototype.hideStitches;
     //if (stage.penSize <= 1)
 		stage.myStitchPoints.add(line);
     this.reRender();
@@ -295,7 +295,7 @@ SpriteMorph.prototype.addDensityPoint = function(x1, y1) {
     circle.translateX(x1);
     circle.translateY(y1);
     circle.translateZ(0.03);
-    circle.visible = true;
+    circle.visible = !StageMorph.prototype.ignoreWarnings;
     stage.myDensityPoints.add(circle);
     this.reRender();
 };
@@ -2253,6 +2253,7 @@ StageMorph.prototype.init = function (globals) {
 	}
 
     this.turtleShepherd = new TurtleShepherd();
+    this.turtleShepherd.ignoreWarning = StageMorph.prototype.ignoreWarnings;
     this.scene.grid.draw();
     this.myObjects = new THREE.Object3D();
     this.myStitchPoints = new THREE.Object3D();
@@ -2273,11 +2274,12 @@ StageMorph.prototype.initScene = function () {
     this.scene = new THREE.Scene();
     this.scene.grid = {};
     this.scene.grid.defaultColor = 0xe0e0e0;
-    this.scene.grid.visible = true;
     this.scene.grid.interval = new Point(5, 5);
+    console.log("init scene");
 
     // Grid
     this.scene.grid.draw = function () {
+      console.log("draw grid");
 
         //var color = this.lines ? this.lines[0].material.color : this.defaultColor;
         var color = 0xf6f6f6;
@@ -2353,7 +2355,6 @@ StageMorph.prototype.initScene = function () {
 
     this.scene.grid.toggle = function () {
         StageMorph.prototype.hideGrid = !StageMorph.prototype.hideGrid;
-        console.log(  StageMorph.prototype.hideGrid);
         this.lines.forEach(function (line){
           line.visible = !StageMorph.prototype.hideGrid;
         });
@@ -2591,6 +2592,7 @@ StageMorph.prototype.initTurtle = function() {
 				object.rotation.x = 90 * Math.PI / 180;
 				object.rotation.y = 270 * Math.PI / 180;
 				myself.turtle.add(object);
+				myself.turtle.visible = !StageMorph.prototype.hideTurtle;
 				myself.renderer.changed = true;
 				this.turtle.loaded = true;
 			}, null, null, null, false );
@@ -2804,6 +2806,12 @@ StageMorph.prototype.userMenu = function () {
             );
     return menu;
 };
+
+
+StageMorph.prototype.toggleIgnoreWarnings = function () {
+	StageMorph.prototype.ignoreWarnings = !StageMorph.prototype.ignoreWarnings;
+	this.turtleShepherd.ignoreWarning = StageMorph.prototype.ignoreWarnings;
+}
 
 
 // Caches

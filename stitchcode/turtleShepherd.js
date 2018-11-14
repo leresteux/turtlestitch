@@ -95,7 +95,7 @@ TurtleShepherd.prototype.getTooLongCount = function() {
 TurtleShepherd.prototype.getTooLongStr = function() {
     if (this.tooLongCount > 1 && !this.ignoreWarning)
 		return this.tooLongCount +  " are too long! (will get clamped)"
-	else if (this.tooLongCount == 1)
+	else if (this.tooLongCount == 1 && !this.ignoreWarning)
 		return this.tooLongCount +  " is too long! (will get clamped)"
 	else
 		return "";
