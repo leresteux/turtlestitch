@@ -830,7 +830,8 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
         },
         !stage.turtleShepherd.isMetric() ,
         'uncheck to display dimensions in millimeters',
-        'check to show dimensions in inch', );
+        'check to show dimensions in inch'
+    );
 
     menu.addLine();
     addPreference(
@@ -902,9 +903,9 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
             }
         },
         StageMorph.prototype.ignoreWarnings ,
-
-        'uncheck to show turtle',
-        'check to hide turtle',    );
+        'uncheck to show embroidery specific warnings',
+        'check to ignore embroidery specific warnings',    
+    );
 
     menu.popup(world, pos);
 };

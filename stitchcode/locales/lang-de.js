@@ -65,7 +65,7 @@ tempDict = {
 		'Exportiert die aktuelle Zeichnung zum stitchcode.com Ausstickservice',
 	'Ignore colors during export':
 		'Ignoriere Farben beim Export',
-		
+
 	// settings
 	'Units..':
       'Masseinheiten...',
@@ -81,7 +81,31 @@ tempDict = {
 		'Stichpunkte nicht anzeigen',	
 	'Ignore embroidery warnings':
 		'Stickereiwarnungen ignorieren',
-	
+	'uncheck to show embroidery specific warnings':
+		'ausschalten um Stickerei-Warnungen anzuzeigen',
+	 'check to ignore embroidery specific warnings':
+		'einschalten um Stickerei-Warnungen zu ignorieren',
+	'uncheck to show grid':
+		'ausschalten um Raster anzuzeigen',
+	'check to hide grid':
+		'einschalten um Raster zu verstecken',
+	 'uncheck to show jump stitches':
+		'ausschalten um Sprungstiche anzuzeigen',
+     'check to hide jump stitches':
+		'einschalten um Sprungstiche zu verstecken',
+	 'uncheck to show stitch points':
+		'ausschalten um Stichpunkte anzuzeigen',
+     'check to hide stitch points':
+		'einschalten um Stichpunkte zu verstecken',
+	 'uncheck to show turtle':
+		'ausschalten um Schildkr\u00f6te anzuzeigen',
+     'check to hide turtle':
+		'einschalten um Schildkr\u00f6te zu verstecken',
+	 'uncheck to display dimensions in millimeters':
+		'ausschalten um Dimensionen in Millimeter anzuzeigen',
+     'check to show dimensions in inch':
+		'einschalten um Dimensionen in Zoll anzuzeigen',
+
 	// legacy blocks
 	'clear':
 		'l\u00f6schen',
@@ -167,18 +191,17 @@ tempDict = {
 			'Satinstich mit Breite %n zentriert %b',
 	'tatami stitch width %n interval %n offset %n center %b':
 			'Tatami-Stich mit Breite %n Intervall %n Versatz %n zentriert %b',
-  'jump stitch %b':
-      'Sprungstich %b',
-  'tie stitch':
-      'Vern\u00e4hstich',
+	'jump stitch %b':
+		'Sprungstich %b',
+	'tie stitch':
+		'Vern\u00e4hstich',
 	'trim':
-      'schneiden',
+		'schneiden',
 	'stop running':
-      'Stickeinstellungen zur\u00fccksetzen',
-  'draw text: %s scale: %n':
-      'Schreibe Text: %s mit Gr\u00f6sse: %n',
-      
-    
+		'Stickeinstellungen zur\u00fccksetzen',
+	'draw text: %s scale: %n':
+		'schreibe Text: %s mit Gr\u00f6sse: %n',
+
 };
 
 // Add attributes to original SnapTranslator.dict.de
