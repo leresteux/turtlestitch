@@ -921,8 +921,8 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
         'check to hide turtle',
     );
     menu.addLine();
-    menu.addItem('default background color...', 'userSetBackgroundColor');
-    menu.addItem('default pen color...', 'userSetPenColor');
+    menu.addItem('Default background color...', 'userSetBackgroundColor');
+    menu.addItem('Default pen color...', 'userSetPenColor');
 
 
     menu.popup(world, pos);

@@ -105,6 +105,14 @@ tempDict = {
 		'ausschalten um Dimensionen in Millimeter anzuzeigen',
      'check to show dimensions in inch':
 		'einschalten um Dimensionen in Zoll anzuzeigen',
+	'Default background color':
+		'Hintergrundfarbe',		
+	'Default pen color':
+		'Vorgabewert Stiftfarbe',
+	'Default background color...':
+		'Hintergrundfarbe...',
+	'Default pen color...':
+		'Vorgabewert Stiftfarbe...',
 
 	// legacy blocks
 	'clear':
