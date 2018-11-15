@@ -154,6 +154,8 @@ IDE_Morph.prototype.applySavedTurtleStitchSettings = function () {
   hidestitches = this.getSetting('hidestitches');
   warnings = this.getSetting('ignoreWarning');
   isImperial = this.getSetting('isImperial');
+  backgroundColor = this.getSetting('backgroundColor')
+  defaultPenColor = this.getSetting('defaultPenColor')
 
   console.log("apply settings");
 
@@ -201,6 +203,18 @@ IDE_Morph.prototype.applySavedTurtleStitchSettings = function () {
     this.stage.turtleShepherd.sMetric = true;
   }
 
+  if (backgroundColor) {
+    this.stage.renderer.setBackgroundColorHex(backgroundColor);
+  } else {
+    this.stage.renderer.setBackgroundColorHex('#fffffff');
+  }
+
+  if (defaultPenColor) {
+    this.stage.renderer.setDefaultPenColorHex(defaultPenColor);
+    this.currentSprite.setColor(StageMorph.prototype.defaultPenColor);
+  } else {
+    this.stage.renderer.setDefaultPenColorHex('#000000');
+  }
 
 }
 
@@ -830,8 +844,7 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
         },
         !stage.turtleShepherd.isMetric() ,
         'uncheck to display dimensions in millimeters',
-        'check to show dimensions in inch'
-    );
+        'check to show dimensions in inch', );
 
     menu.addLine();
     addPreference(
@@ -903,12 +916,19 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
             }
         },
         StageMorph.prototype.ignoreWarnings ,
-        'uncheck to show embroidery specific warnings',
-        'check to ignore embroidery specific warnings',    
+
+        'uncheck to show turtle',
+        'check to hide turtle',
     );
+    menu.addLine();
+    menu.addItem('default background color...', 'userSetBackgroundColor');
+    menu.addItem('default pen color...', 'userSetPenColor');
+
 
     menu.popup(world, pos);
 };
+
+
 
 
 IDE_Morph.prototype.toggleAppMode = function (appMode) {
@@ -2722,4 +2742,60 @@ ProjectDialogMorph.prototype.saveProject = function () {
 	console.log(this.ide.tags);
 
     this.saveProjectOrig();
+};
+
+StageMorph.prototype.backgroundColor = new Color(255,255,255);
+StageMorph.prototype.defaultPenColor = new Color(0,0,0,1);
+
+IDE_Morph.prototype.userSetBackgroundColor = function () {
+    new DialogBoxMorph(
+        this,
+        function (value) {
+            this.stage.renderer.setBackgroundColorHex(value);
+            if (value != '#ffffff')
+              this.saveSetting('backgroundColor', value);
+            else {
+                this.removeSetting('backgroundColor');
+            }
+        },
+        this
+    ).prompt(
+        "Default background color",
+        new String("#" + ((1 << 24)
+          + (Math.round(StageMorph.prototype.backgroundColor.r) << 16)
+          + (Math.round(StageMorph.prototype.backgroundColor.g) << 8)
+      	  + Math.round(StageMorph.prototype.backgroundColor.b)).toString(16).slice(1)),
+        this.world(),
+        null, // pic
+        null, // choices
+        null, // read only
+        false // numeric
+    );
+};
+
+IDE_Morph.prototype.userSetPenColor = function () {
+    new DialogBoxMorph(
+        this,
+        function (value) {
+            this.stage.renderer.setDefaultPenColorHex(value);
+            this.currentSprite.setColor(StageMorph.prototype.defaultPenColor);
+            if (value != '#000000')
+              this.saveSetting('defaultPenColor', value);
+            else {
+                this.removeSetting('defaultPenColor');
+            }
+        },
+        this
+    ).prompt(
+        "Default pen color",
+        new String("#" + ((1 << 24)
+          + (Math.round(StageMorph.prototype.defaultPenColor.r) << 16)
+          + (Math.round(StageMorph.prototype.defaultPenColor.g) << 8)
+      	  + Math.round(StageMorph.prototype.defaultPenColor.b)).toString(16).slice(1)),
+        this.world(),
+        null, // pic
+        null, // choices
+        null, // read only
+        false // numeric
+    );
 };

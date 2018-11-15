@@ -24,6 +24,8 @@ TurtleShepherd.prototype.init = function() {
     this.densityMax = 15;
     this.ignoreColors = false;
     this.ignoreWarning = false;
+    this.backgroundColor = {r:0,g:0,b:0,a:1};
+    this.defaultColor = {r:0,g:0,b:0,a:1};
 };
 
 TurtleShepherd.prototype.clear = function() {
@@ -50,6 +52,7 @@ TurtleShepherd.prototype.clear = function() {
     this.oldColor = 0;
 	  this.penSize = 1;
     this.newPenSize = 0;
+
 };
 
 TurtleShepherd.prototype.toggleMetric = function() {
@@ -164,7 +167,7 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 				this.colors.push(this.newColor);
 				this.newColor = false;
 			} else {
-				this.colors.push({r:0,g:0,b:0,a:1});
+				this.colors.push(this.defaultColor);
 			}
 			this.oldColor = this.colors[this.colors.length-1];
 		}
@@ -230,6 +233,45 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
 	this.lastY = y2;
 };
 
+TurtleShepherd.prototype.setDefaultColor= function(color) {
+	var c = {
+		r: Math.round(color.r),
+		g: Math.round(color.g),
+		b: Math.round(color.b),
+		a: color.a
+	};
+	this.defaultColor = c;
+};
+
+TurtleShepherd.prototype.getDefaultColorAsHex = function (){
+	return new String(
+    "#" + (
+      (1 << 24)
+    + (Math.round(this.defaultColor.r) << 16)
+    + (Math.round(this.defaultColor.g) << 8)
+	  + Math.round(this.defaultColor.b)
+   ).toString(16).slice(1));
+};
+
+TurtleShepherd.prototype.setBackgroundColor= function(color) {
+	var c = {
+		r: Math.round(color.r),
+		g: Math.round(color.g),
+		b: Math.round(color.b),
+		a: color.a
+	};
+	this.backgroundColor = c;
+};
+
+TurtleShepherd.prototype.getBackgroundColorAsHex = function (){
+	return new String(
+    "#" + (
+      (1 << 24)
+    + (Math.round(this.backgroundColor.r) << 16)
+    + (Math.round(this.backgroundColor.g) << 8)
+	  + Math.round(this.backgroundColor.b)
+   ).toString(16).slice(1));
+}
 
 TurtleShepherd.prototype.addColorChange= function(color) {
 	var c = {
@@ -239,7 +281,6 @@ TurtleShepherd.prototype.addColorChange= function(color) {
 		a: color.a
 	};
 	this.newColor = c;
-
 };
 
 TurtleShepherd.prototype.pushColorChangeNow = function() {
@@ -307,7 +348,7 @@ TurtleShepherd.prototype.toSVG = function() {
     var svgStr = "<?xml version=\"1.0\" standalone=\"no\"?>\n";
     svgStr += "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \n\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
     svgStr += '<svg width="' + (this.w) + '" height="' + (this.h) + '"' +
-        ' viewBox="0 0 ' + (this.w) + ' ' + (this.h) + '"';
+        ' viewBox="0 0 ' + (this.w) + ' ' + (this.h) + '" style="background-color:' + this.getBackgroundColorAsHex() + '"';
     svgStr += ' xmlns="http://www.w3.org/2000/svg" version="1.1">\n';
     svgStr += '<title>Embroidery export</title>\n';
 
@@ -317,14 +358,14 @@ TurtleShepherd.prototype.toSVG = function() {
     penSizeChanged = false;
     penSize = 1;
     lastStitch = null;
-    color = { r:0, g:0, b:0, a:1 };
+    color = this.defaultColor;
 
     for (var i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "color" && !this.ignoreColors) {
-			color = this.cache[i].color;
-			colorChanged = true;
-			if (tagOpen) svgStr += '" />\n';
-			tagOpen = false;
+    			color = this.cache[i].color;
+    			colorChanged = true;
+    			if (tagOpen) svgStr += '" />\n';
+    			tagOpen = false;
         } else if (this.cache[i].cmd == "pensize") {
 			penSize = this.cache[i].pensize;
 			penSizeChanged = true;

@@ -40,7 +40,7 @@ SpriteMorph.prototype.init = function(globals) {
     this.turtle = null;
     this.isDown = true;
     this.cache = new Cache;
-    this.color = new Color(0,0,0,1);
+    this.color = StageMorph.prototype.defaultPenColor;
     this.stitchtype = 0;
     this.isRunning = false;
     this.stitchoptions = {};
@@ -1260,13 +1260,12 @@ SpriteMorph.prototype.resetAll = function () {
   myself.stitchtype = 0;
 	myself.stitchoptions = {};
   myself.isRunning = false;
-  myself.setColor(new Color(0, 0, 0, 1.0));
+  myself.setColor(StageMorph.prototype.defaultPenColor);
 	myself.gotoXY(0,0);
 	myself.setHeading(90);
   myself.clear();
 	myself.isDown = true;
 }
-
 
 SpriteMorph.prototype.resetStitchSettings = function () {
   var myself = this;
@@ -2225,6 +2224,10 @@ StageMorph.prototype.init = function (globals) {
     var myself = this;
 
     console.log("init stage");
+    this.turtleShepherd = new TurtleShepherd();
+    this.turtleShepherd.ignoreWarning = StageMorph.prototype.ignoreWarnings;
+    this.turtleShepherd.setDefaultColor(StageMorph.prototype.defaultPenColor);
+
     this.originalInit(globals);
     this.initScene();
     this.initRenderer();
@@ -2252,8 +2255,6 @@ StageMorph.prototype.init = function (globals) {
 		});
 	}
 
-    this.turtleShepherd = new TurtleShepherd();
-    this.turtleShepherd.ignoreWarning = StageMorph.prototype.ignoreWarnings;
     this.scene.grid.draw();
     this.myObjects = new THREE.Object3D();
     this.myStitchPoints = new THREE.Object3D();
@@ -2386,7 +2387,7 @@ StageMorph.prototype.clearAll = function () {
 StageMorph.prototype.initRenderer = function () {
     var myself = this;
 
-	   console.log("set up renderer");
+    console.log("set up renderer");
 
     if(!this.renderer) {
       if (Detector.webgl) {
@@ -2405,13 +2406,17 @@ StageMorph.prototype.initRenderer = function () {
               {canvas: this.penTrails()});
       }
 
-    /*  console.log(myself);
-      this.renderer.setBackgroundColor(
-        myself.parentThatIsA(IDE_Morph).defaultStageColor
-      );
-*/
 
-      this.renderer.setClearColor(0xffffff, 1);
+      this.renderer.setBackgroundColor = function(color) {
+        StageMorph.prototype.backgroundColor  = color;
+        myself.turtleShepherd.setBackgroundColor(color);
+        myself.renderer.setClearColor(
+            new THREE.Color("rgb("+color.r + "," + color.g + "," + color.b + ")"),
+        1);
+        myself.reRender();
+      }
+
+      this.renderer.setBackgroundColor(StageMorph.prototype.backgroundColor);
 
       this.renderer.changed = false;
       this.renderer.showingAxes = true;
@@ -2440,10 +2445,44 @@ StageMorph.prototype.initRenderer = function () {
         myself.reRender();
     };
 
-    this.renderer.setBackgroundColor = function(color) {
-      this.renderer.setClearColor(
-          new THREE.Color("rgb("+c.r + "," + c.g + "," + c.b + ")"),
-      1);
+
+    this.renderer.setBackgroundColorHex = function(hex) {
+        // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+
+    	hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+    		return r + r + g + g + b + b;
+    	});
+
+    	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    	if (result) {
+    		r = parseInt(result[1], 16);
+    		g = parseInt(result[2], 16);
+    		b = parseInt(result[3], 16);
+        StageMorph.prototype.backgroundColor = new Color(r, g, b);
+        myself.turtleShepherd.setBackgroundColor(StageMorph.prototype.backgroundColor);
+    		myself.renderer.setBackgroundColor(StageMorph.prototype.backgroundColor);
+      }
+      myself.reRender();
+    }
+
+    this.renderer.setDefaultPenColorHex = function(hex) {
+        // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+      var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+
+      hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+      });
+
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if (result) {
+        r = parseInt(result[1], 16);
+        g = parseInt(result[2], 16);
+        b = parseInt(result[3], 16);
+        StageMorph.prototype.defaultPenColor = new Color(r, g, b);
+        myself.turtleShepherd.setDefaultColor(StageMorph.prototype.defaultPenColor);
+      }
+      myself.reRender();
     }
 
 };
