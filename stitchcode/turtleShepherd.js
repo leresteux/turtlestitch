@@ -428,6 +428,59 @@ TurtleShepherd.prototype.toSVG = function() {
     return svgStr;
 };
 
+        
+TurtleShepherd.prototype.toPNG = function() {
+		var color = this.defaultColor;
+		var hasFirst = false;
+		var colorChanged = false;
+		var cnv = document.createElement('canvas');
+		cnv.width = Math.round(this.w);
+		cnv.height = Math.round(this.h);
+        ctx = cnv.getContext('2d');
+		ctx.strokeStyle = "rgb(" + color.r + ","  + color.g + ","  + color.b + ")";
+		ctx.lineWidth = 1.0;
+		ctx.beginPath();
+			
+		for (var i=0; i < this.cache.length; i++) {
+			if (this.cache[i].cmd == "color" && !this.ignoreColors) {
+				if (hasFirst) {
+					ctx.stroke();
+					ctx.beginPath();
+					colorChanged = true;
+				}
+				color = this.cache[i].color;
+				ctx.strokeStyle = "rgb(" + color.r + ","  + color.g + ","  + color.b + ")";
+			} else if (this.cache[i].cmd == "pensize") {
+				if (hasFirst) {
+					ctx.stroke();
+					ctx.beginPath();
+					colorChanged = true;
+				}
+				ctx.lineWidth = this.cache[i].pensize;
+			} else if (this.cache[i].cmd == "move") {
+				stitch = this.cache[i];
+				if (stitch.penDown) {
+					if (colorChanged) {
+						ctx.moveTo(lastStitch.x - this.minX, this.maxY -  lastStitch.y);
+						colorChanged = false;
+					}
+					ctx.lineTo( stitch.x - this.minX, this.maxY -  stitch.y);
+					hasFirst = true;
+				} else {
+					ctx.moveTo(stitch.x - this.minX, this.maxY -  stitch.y);
+					hasFirst = true;
+					lastJumped = true;
+				}
+				lastStitch = stitch;
+			}
+		}
+		ctx.stroke();
+		
+		console.log(cnv);
+		return cnv.toDataURL();
+}
+
+        
 TurtleShepherd.prototype.toEXP = function() {
     var expArr = [];
     pixels_per_millimeter = this.pixels_per_millimeter;

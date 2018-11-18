@@ -1431,6 +1431,24 @@ IDE_Morph.prototype.downloadDST = function() {
     saveAs(blob, name + '.dst');
 };
 
+// PNG export
+IDE_Morph.prototype.downloadPNG = function() {
+	var name = this.projectName ? this.projectName : 'turtlestitch';
+
+	dataURL = this.stage.turtleShepherd.toPNG(name);
+	var binary = atob( dataURL.substr( dataURL.indexOf(',') + 1 ) ),
+        i = binary.length,
+        view = new Uint8Array(i);
+
+    while (i--) {
+        view[i] = binary.charCodeAt(i);
+    }
+    
+    blob = new Blob([view], {type: 'image/png'});
+    saveAs(blob, name + '.png');
+};
+
+
 IDE_Morph.prototype.setProjectName = function (string) {
 	if (string.replace(/['"]/g, '') != this.projectName || SnapCloud.username != this.creator) {
 		this.remixHistory = this.creator + ":" + this.projectName + ";"  + this.remixHistory
@@ -1840,6 +1858,11 @@ IDE_Morph.prototype.projectMenu = function () {
             'Export as SVG',
             function() { myself.downloadSVG(); },
             'Export current drawing as SVG Vector file'
+    );
+    menu.addItem(
+            'Export as PNG',
+            function() { myself.downloadPNG(); },
+            'Export current drawing as PNG image Vector file'
     );
     menu.addItem(
             'Export as Melco/EXP',

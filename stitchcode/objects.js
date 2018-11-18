@@ -264,13 +264,13 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
 		geometry.faces.push(new THREE.Face3(0, 1, 2));
 		geometry.faces.push(new THREE.Face3(0, 2, 3));
 	}
-
+	
     line = new THREE.Mesh(geometry, material);
     line.rotation.z = (45 - this.heading) * Math.PI / 180;
     line.position.set(x2,y2,0.01);
     line.visible = !StageMorph.prototype.hideStitches;
     //if (stage.penSize <= 1)
-		stage.myStitchPoints.add(line);
+	stage.myStitchPoints.add(line);
     this.reRender();
 
 };
@@ -423,7 +423,16 @@ SpriteMorph.prototype.trimStitch = function (on = true) {
 }
 
 SpriteMorph.prototype.jumpStitch = function (on = true) {
+	var stage = this.parentThatIsA(StageMorph);
 	this.isDown = !on;
+	if (on) {
+		stage.turtle.material.color = new THREE.Color("rgb(255,0,0)");
+		stage.turtle.material.opacity = 0.3;
+	} else {
+		stage.turtle.material.color = new THREE.Color("rgb("+this.color.r + "," + this.color.g + "," + this.color.b + ")");
+		stage.turtle.material.opacity = 0.7;
+	}
+    this.reRender();
 }
 
 SpriteMorph.prototype.tieStitch = function () {
@@ -765,6 +774,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
     var dest;
     var oldx = this.xPosition();
     var oldy = this.yPosition();
+    var oldheading = this.heading;
     var warn = false;
 
     if (!stage) {return; }
@@ -789,29 +799,38 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 		  // jump in place - don't add / ignore
 		  //console.log("jump in place - don't add / ignore",  this.isDown,this.xPosition(), this.yPosition(), dist);
     } else {
-      if (this.stitchoptions.autoadjust) {
-        var real_length = dist /
-          Math.round(dist / this.stitchoptions.length);
-        if (dist < this.stitchoptions.length)
-          stepsize = dist;
-        else
-          stepsize = real_length;
-      } else {
-        stepsize = this.stitchoptions.length;
-      }
-      var steps = Math.floor(dist / stepsize);
-      var rest = dist - (steps * stepsize);
+		if (this.stitchoptions.autoadjust) {
+			real_length = 0;
+			if ( Math.round(dist / this.stitchoptions.length) > 0)
+				real_length = dist / Math.round(dist / this.stitchoptions.length);
+			else 
+				real_length = dist 
+				
+			if (dist < this.stitchoptions.length )
+			  stepsize = dist;
+			else
+			  stepsize = real_length;
+			  
+		} else {
+			stepsize = this.stitchoptions.length;
+		}
+		
+		var steps = Math.floor(dist / stepsize);
+		var rest = dist - (steps * stepsize);
+      
+      
 
-  		if ( this.isRunning  && this.isDown && steps > 0 ) {
-        rest = Math.round(rest,8);
-        stepsize =  Math.round(stepsize,8);
+		if ( this.isRunning  && this.isDown && steps > 0 ) {
+			rest = Math.round(rest,8);
+			
+			//stepsize =  Math.round(stepsize,8);
+			this.setHeading(angle);
+			this.forwardSegemensWithEndCheck(steps, stepsize);
 
-  			this.setHeading(angle);
-        this.forwardSegemensWithEndCheck(steps,stepsize);
-
-  			if (steps == 0 && rest > 0 || x != this.xPosition() || y != this.yPosition()) {
-          this.gotoXY(x,y);
-  			}
+			if (steps == 0 && rest > 0 || x != this.xPosition() || y != this.yPosition()) {
+				console.log("goto",x,y);
+				this.gotoXY(x,y);
+			}
 		} else {
 			this.origGotoXY(x, y, justMe);
 
@@ -829,13 +848,15 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 
 				if (this.parentThatIsA(StageMorph).turtleShepherd.isEmpty() || this.lastJumped)
 					this.addStitchPoint(oldx, oldy);
-        this.lastJumped = false;
+				this.lastJumped = false;
 			} else {
 				this.addJumpLine(oldx, oldy, this.xPosition(), this.yPosition());
-        this.lastJumped = true;
+				this.lastJumped = true;
 			}
 			stage.moveTurtle(this.xPosition(), this.yPosition());
 		}
+		
+		this.setHeading(oldheading);
 	}
 };
 
@@ -1022,6 +1043,8 @@ SpriteMorph.prototype.setColor = function (aColor) {
     var stage = this.parentThatIsA(StageMorph);
     this.color = aColor;
     stage.turtleShepherd.addColorChange(this.color);
+    stage.turtle.material.color = new THREE.Color("rgb("+this.color.r + "," + this.color.g + "," + this.color.b + ")");
+    this.reRender();
 };
 
 
@@ -2601,42 +2624,42 @@ StageMorph.prototype.initCamera = function () {
 StageMorph.prototype.initTurtle = function() {
     var myself = this;
     var geometry = new THREE.Geometry();
-    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00, opacity:0.8 } );
-
-
-    geometry.vertices = [ new THREE.Vector3(10, 0, 0.01),
-         new THREE.Vector3(-8, 8, 0.02),
-         new THREE.Vector3(-8,-8, 0.02),
-    ];
-    geometry.faces.push(new THREE.Face3(0, 1, 2));
-    geometry.verticesNeedUpdate = true;
-    this.turtle = new THREE.Mesh(new THREE.Geometry(), material);
-    this.turtle.visible = this.renderer.showingTurtle;
-    myself.myObjects.add(this.turtle);
-
+    var material = new THREE.MeshBasicMaterial( { color: 0x000000, opacity:0.7,side:THREE.DoubleSide, transparent:true } );
+	this.turtle = new THREE.Mesh(new THREE.Geometry(), material);
 
     if (typeof this.turtle.loaded === 'undefined') {
 
-		var mtlloader = new THREE.MTLLoader();
-		var onLoadMtl = function ( materials ) {
-			materials.preload();
-			var loader = new THREE.OBJLoader();
-			loader.setMaterials( materials )
+		var loader = new THREE.JSONLoader();
 
-			loader.load( 'stitchcode/assets/turtle.obj',  function (object) {
-				this.turtle = object;
-				object.scale.set(4, 4, 4);
-				object.position.z = 0.02;
-				//object.position.set(0,0, 0.01);
-				object.rotation.x = 90 * Math.PI / 180;
-				object.rotation.y = 270 * Math.PI / 180;
-				myself.turtle.add(object);
+		loader.load( 'stitchcode/assets/turtle.js',
+
+			function ( geometry, materials ) {
+				//var material = materials[ 0 ];
+				this.turtle = new THREE.Mesh(geometry,material);
+				this.turtle.scale.set(4, 4, 4);
+				this.turtle.position.z = 0.02;
+				this.turtle.rotation.x = 90 * Math.PI / 180;
+				this.turtle.rotation.y = 270 * Math.PI / 180;
+				//this.turtle.material.color = new THREE.Color("rgb(1,0,0)" );
+
+				myself.turtle = this.turtle;
 				myself.turtle.visible = !StageMorph.prototype.hideTurtle;
 				myself.renderer.changed = true;
+				myself.myObjects.add(this.turtle);
 				this.turtle.loaded = true;
-			}, null, null, null, false );
-		};
-		mtlloader.load( 'stitchcode/assets/turtle.mtl', onLoadMtl );
+			},
+
+			// onProgress callback
+			function ( xhr ) {
+				//console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+			},
+
+			// onError callback
+			function( err ) {
+				console.log( 'error loading turtle shpe' );
+			}
+		);	
+		
     }
     this.penSize = 1;
 };
