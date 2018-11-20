@@ -83,7 +83,7 @@ BlockEditorMorph, BlockDialogMorph, PrototypeHatBlockMorph, localize,
 TableMorph, TableFrameMorph, normalizeCanvas, BooleanSlotMorph, HandleMorph,
 AlignmentMorph, Process, XML_Element, VectorPaintEditorMorph*/
 
-modules.objects = '2018-October-05';
+modules.objects = '2018-November-12';
 
 var SpriteMorph;
 var StageMorph;
@@ -3633,6 +3633,10 @@ SpriteMorph.prototype.doStamp = function () {
         isWarped = this.isWarped,
         originalAlpha = context.globalAlpha;
 
+    if (this.image.width < 1 || (this.image.height < 1)) {
+        // too small to draw
+        return;
+    }
     if (isWarped) {
         this.endWarp();
     }
@@ -4030,6 +4034,10 @@ SpriteMorph.prototype.applyGraphicsEffects = function (canvas) {
     }
 
     if (this.graphicsChanged()) {
+        if (!canvas.width || !canvas.height) {
+            // too small to get image data, abort
+            return canvas;
+        }
         ctx = canvas.getContext("2d");
         imagedata = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -5462,7 +5470,7 @@ SpriteMorph.prototype.setExemplar = function (another) {
     if (!this.isTemporary) {
         ide = this.parentThatIsA(IDE_Morph);
         if (ide) {
-            ide.flushBlocksCache('variables');
+            ide.flushBlocksCache();
             ide.refreshPalette();
         }
     }

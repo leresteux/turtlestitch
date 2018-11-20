@@ -60,9 +60,9 @@ degrees, detect, nop, radians, ReporterSlotMorph, CSlotMorph, RingMorph, Sound,
 IDE_Morph, ArgLabelMorph, localize, XML_Element, hex_sha512, TableDialogMorph,
 StageMorph, SpriteMorph, StagePrompterMorph, Note, modules, isString, copy,
 isNil, WatcherMorph, List, ListWatcherMorph, alert, console, TableMorph,
-TableFrameMorph, ColorSlotMorph, isSnapObject*/
+TableFrameMorph, ColorSlotMorph, isSnapObject, Map*/
 
-modules.threads = '2018-October-03';
+modules.threads = '2018-October-26';
 
 var ThreadManager;
 var Process;
@@ -2777,12 +2777,19 @@ Process.prototype.reportTextSplit = function (string, delimiter) {
         break;
     case 'csv':
         return this.parseCSV(string);
+    /*
+    case 'csv records':
+        return this.parseCSVrecords(string);
+    case 'csv fields':
+        return this.parseCSVfields(string);
+    */
     default:
         del = isNil(delimiter) ? '' : delimiter.toString();
     }
     return new List(str.split(del));
 };
 
+<<<<<<< HEAD
 Process.prototype.parseCSV = function (string) {
     // parse a single row of CSV data into a one-dimensional list
     // this assumes that the whole csv data has already been split
@@ -2808,16 +2815,125 @@ Process.prototype.parseCSV = function (string) {
                 a.push(m2.replace(/\\"/g, '"'));
             } else if (m3 !== undefined) {
                 a.push(m3);
+=======
+Process.prototype.parseCSV = function (text) {
+    // RFC 4180
+    // parse a csv table into a two-dimensional list.
+    // if the table contains just a single row return it a one-dimensional
+    // list of fields instead (for backwards-compatibility)
+    var prev = '',
+        fields = [''],
+        records = [fields],
+        col = 0,
+        r = 0,
+        esc = true,
+        len = text.length,
+        idx,
+        char;
+    for (idx = 0; idx < len; idx += 1) {
+        char = text[idx];
+        if (char === '"') {
+            if (esc && char === prev) {
+                fields[col] += char;
+>>>>>>> 07d344603614403e8f4cc46593db93ea1c4598ea
             }
-            return '';
+            esc = !esc;
+        } else if (char === ',' && esc) {
+            char = '';
+            col += 1;
+            fields[col] = char;
+
+        } else if (char === '\n' && esc) {
+            if (prev === '\r') {
+                fields[col] = fields[col].slice(0, -1);
+            }
+            char = '';
+            r += 1;
+            records[r] = [char];
+            fields = records[r];
+            col = 0;
+
+        } else {
+            fields[col] += char;
         }
-    );
-    // special case: empty last value.
-    if (/,\s*$/.test(string)) {
-        a.push('');
+        prev = char;
     }
-    return new List(a);
+
+    // remove the last record, if it is empty
+    if (records[records.length - 1].length === 1 &&
+            records[records.length - 1][0] === '')
+    {
+        records.pop();
+    }
+
+    // convert arrays to Snap! Lists
+    records = new List(records.map(
+        function (row) {return new List(row); })
+    );
+
+    // for backwards compatibility return the first row if it is the only one
+    if (records.length() === 1) {
+        return records.at(1);
+    }
+    return records;
 };
+
+/*
+Process.prototype.parseCSVrecords = function (string) {
+    // RFC 4180
+    // currently unused
+    // parse csv formatted text into a one-dimensional list of records
+    var lines = this.reportTextSplit(string, ['line']).asArray(),
+        len = lines.length,
+        i = 0,
+        cur,
+        records = [];
+    while (i < len) {
+        cur = lines[i];
+        while ((cur.split('"').length - 1) % 2 > 0) {
+            i += 1;
+            cur += '\n';
+            cur += lines[i];
+        }
+        records.push(cur);
+        i += 1;
+    }
+    if (records[records.length - 1].length < 1) {
+        records.pop();
+    }
+    return new List(records);
+};
+
+Process.prototype.parseCSVfields = function (text) {
+    // RFC 4180
+    // currently unused
+    // parse a single record of csv into a one-dimensional list of fields
+    var prev = '',
+        fields = [''],
+        col = 0,
+        esc = true,
+        len = text.length,
+        idx,
+        char;
+    for (idx = 0; idx < len; idx += 1) {
+        char = text[idx];
+        if (char === '"') {
+            if (esc && char === prev) {
+                fields[col] += char;
+            }
+            esc = !esc;
+        } else if (char === ',' && esc) {
+            char = '';
+            col += 1;
+            fields[col] = char;
+        } else {
+            fields[col] += char;
+        }
+        prev = char;
+    }
+    return new List(fields);
+};
+*/
 
 // Process debugging
 
@@ -3803,6 +3919,22 @@ Process.prototype.reportCompiled = function (context, implicitParamCount) {
     return new JSCompiler(this).compileFunction(context, implicitParamCount);
 };
 
+Process.prototype.capture = function (aContext) {
+    // private - answer a new process on a full copy of the given context
+    // while retaining the lexical variable scope
+    var proc = new Process(this.topBlock, this.receiver);
+    var clos = new Context(
+        aContext.parentContext,
+        aContext.expression,
+        aContext.outerContext,
+        aContext.receiver
+    );
+    clos.variables = aContext.variables.fullCopy();
+    clos.variables.root().parentFrame = proc.variables;
+    proc.context = clos;
+    return proc;
+};
+
 Process.prototype.getVarNamed = function (name) {
     // private - special form for compiled expressions
     // DO NOT use except in compiled methods!
@@ -3867,6 +3999,7 @@ Process.prototype.reportAtomicMap = function (reporter, list) {
 
 	// iterate over the data in a single frame:
  	// to do: Insert some kind of user escape mechanism
+
 	for (i = 0; i < len; i += 1) {
   		result.push(
         	invoke(
@@ -3876,7 +4009,7 @@ Process.prototype.reportAtomicMap = function (reporter, list) {
                 null,
                 null,
                 null,
-                this // process
+                this.capture(reporter) // process
             )
         );
 	}
@@ -3911,7 +4044,7 @@ Process.prototype.reportAtomicKeep = function (reporter, list) {
                 null,
                 null,
                 null,
-                this // process
+                this.capture(reporter) // process
             )
         ) {
      		result.push(src[i]);
@@ -3952,7 +4085,7 @@ Process.prototype.reportAtomicCombine = function (reporter, list) {
             null,
             null,
             null,
-            this // process
+            this.capture(reporter) // process
         );
     }
     return result;
@@ -3983,11 +4116,56 @@ Process.prototype.reportAtomicSort = function (list, reporter) {
                     null,
                     null,
                     null,
-                    myself // process
+                    myself.capture(reporter) // process
                 ) ? -1 : 1;
             }
         )
     );
+};
+
+Process.prototype.reportAtomicGroup = function (list, reporter) {
+    this.assertType(list, 'list');
+    var result = [],
+        dict = new Map(),
+        groupKey,
+        src = list.asArray(),
+        len = src.length,
+        func,
+        i;
+
+    // try compiling the reporter into generic JavaScript
+    // fall back to the morphic reporter if unsuccessful
+    try {
+        func = this.reportCompiled(reporter, 1); // a single expected input
+    } catch (err) {
+        console.log(err.message);
+         func = reporter;
+    }
+
+    // iterate over the data in a single frame:
+    // to do: Insert some kind of user escape mechanism
+
+    for (i = 0; i < len; i += 1) {
+        groupKey = invoke(
+            func,
+            new List([src[i]]),
+            null,
+            null,
+            null,
+            null,
+            this.capture(reporter) // process
+        );
+        if (dict.has(groupKey)) {
+            dict.get(groupKey).push(src[i]);
+        } else {
+            dict.set(groupKey, [src[i]]);
+        }
+    }
+
+    dict.forEach(function (value, key) {
+        result.push(new List([key, value.length, new List(value)]));
+    });
+    return new List(result);
 };
 
 // Context /////////////////////////////////////////////////////////////
@@ -4249,16 +4427,23 @@ VariableFrame.prototype.copy = function () {
     return frame;
 };
 
-VariableFrame.prototype.deepCopy = function () {
-    // currently unused
+VariableFrame.prototype.fullCopy = function () {
+    // experimental - for compiling to JS
     var frame;
     if (this.parentFrame) {
-        frame = new VariableFrame(this.parentFrame.deepCopy());
+        frame = new VariableFrame(this.parentFrame.fullCopy());
     } else {
-        frame = new VariableFrame(this.parentFrame);
+        frame = new VariableFrame();
     }
     frame.vars = copy(this.vars);
     return frame;
+};
+
+VariableFrame.prototype.root = function () {
+    if (this.parentFrame) {
+        return this.parentFrame.root();
+    }
+    return this;
 };
 
 VariableFrame.prototype.find = function (name) {

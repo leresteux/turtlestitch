@@ -1,5 +1,73 @@
 # Snap<em>!</em> (BYOB) History
 
+## v4.2.2.7
+### 2018-11-13
+* Blocks: fixed #2261 (check for selectedBlock before declaring an InputSlotMorph to be "empty")
+
+### 2018-11-12
+* new dev version
+* BYOB: updated version date
+* Objects: fixed #2250
+* Frequency Distribution Analysis library: added "pipe" and "lower case" blocks
+* Store, XML: fixed #2251 (sorta, load project anyway even though costumes / sounds are missing)
+* BYOB: fixed #2260
+
+## v4.2.2.6
+### 2018-11-06
+* prepared release
+
+### 2018-11-06
+* new dev version
+* Blocks: fixed a scope issue introduced in v4.2.2.4
+* Blocks: enabled "duplicate block definition" in the palette
+* updated German translation
+
+## v4.2.2.5
+### 2018-11-02
+* new library: Frequency Distribution Analysis, separated from "Bigger Data"
+* Objects: avoid rendering graphic effects for null-extent canvasses
+
+## v4.2.2.4
+### 2018-10-29
+* Blocks: fixed #2234 (display all reachable local variables in drop-down menu)
+* new "does variable _ exist" predicate in var-library, thanks, Brian!
+
+## v4.2.2.3
+* New Features:
+    * new fast atomic "analyze" and "group" reporters in the "Bigger Data" library
+* Notable Changes:
+    * don't stamp if the canvas is too small, avoid a JS error message
+    * changed "csv" option in SPLIT to comply with RFC 4180 and parse the whole table
+* Notable Fix:
+    * help for local custom blocks 
+* Translation Update:
+    * Japanese, thanks Yoshiteru Nakamura!
+
+### 2018-10-26
+* Blocks, Threads: changed SPLIT "csv" to comply with RFC 4180, took out others options
+* fixed #2235 (help for local custom blocks)
+
+### 2018-10-24
+* Blocks, Threads: added "csv records" to SPLIT options, renamed "csv" to "csv fields"
+
+### 2018-10-23
+* Objects: Don't stamp if the canvas is too small (and would throw an error)
+* Threads: New "reportAtomicGroup" HOF primitive using the JIT compiler
+* "Bigger Data" library: Added "group" function for fast data drill-down analyses
+* Japanese translation updates, thanks, Yoshiteru Nakamura!
+
+### 2018-10-22
+* "Bigger Data" library: Added "analyze" function for fast frequency distributions
+
+## v4.2.2.2
+### 2018-10-19
+* Threads: fixed #2227 - capture argument reporter's lexical environment in JIT-compiler
+
+## v4.2.2.1
+### 2018-10-16
+* New translation for Ukrainian, thanks, Serhiy Kryzhanovsky, for the contribution!
+* added timed FOR-loop to Animation library
+
 ## v4.2.2
 * New Feature:
     * support for stand-alone offline usage (open file snap.html in a web browser)
