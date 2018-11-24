@@ -1305,6 +1305,13 @@ SpriteMorph.prototype.initBlocks = function () {
     var myself = this;
     this.originalInitBlocks();
 
+    this.blocks.reportProxiedURL = {
+		type: 'reporter',
+        spec: 'proxied URL %s',
+        category: 'sensing',
+        defaults: ["snap.berkley.edu"]
+	}
+
 	// sprite movements
 
     this.blocks.resetAll =
@@ -1959,6 +1966,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
 
         blocks.push(block('reportURL'));
+        blocks.push(block('reportProxiedURL'));
         blocks.push('-');
         blocks.push(block('reportIsFastTracking'));
         blocks.push(block('doSetFastTracking'));

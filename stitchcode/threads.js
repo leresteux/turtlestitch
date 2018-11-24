@@ -1,3 +1,6 @@
+
+Process.prototype.proxy = 'https://turtlestitch.org:8080';
+
 Process.prototype.reportMouseX = function () {
     var stage, world;
     if (this.homeContext.receiver) {
@@ -39,3 +42,6 @@ Process.prototype.reportPi = function (min, max) {
     return Math.PI;
 };
 
+Process.prototype.reportProxiedURL = function (url) {
+    return this.reportURL(this.proxy + '/' + url);
+};
