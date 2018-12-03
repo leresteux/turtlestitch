@@ -939,6 +939,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         this.controlBar.settingsButton,
         this.controlBar.stageSizeButton,
         this.controlBar.steppingButton,
+        this.controlBar.turtlestitchButton,
         //this.controlBar.largeStageSizeButton,
         this.spriteEditor,
         this.paletteHandle,
