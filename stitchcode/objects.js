@@ -264,7 +264,7 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
 		geometry.faces.push(new THREE.Face3(0, 1, 2));
 		geometry.faces.push(new THREE.Face3(0, 2, 3));
 	}
-	
+
     line = new THREE.Mesh(geometry, material);
     line.rotation.z = (45 - this.heading) * Math.PI / 180;
     line.position.set(x2,y2,0.01);
@@ -390,14 +390,14 @@ SpriteMorph.prototype.satinStitch = function (width=10, center=true, autoadjust=
 	}
 }
 
-SpriteMorph.prototype.tatamiStitch = function (width=100, interval=30, offset=10, center=false) {
+SpriteMorph.prototype.tatamiStitch = function (width=100, interval=30, offset=0, center=false) {
 	if (width > 0) {
     this.stitchtype = "tatami";
 		this.isRunning = true;
 		this.stitchoptions = {
       autoadjust: true,
       width: width,
-      length: 2,
+      length: 4,
       center: center,
       interval:  Math.max(10,interval),
       offset: Math.min(offset,interval),
@@ -803,26 +803,26 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 			real_length = 0;
 			if ( Math.round(dist / this.stitchoptions.length) > 0)
 				real_length = dist / Math.round(dist / this.stitchoptions.length);
-			else 
-				real_length = dist 
-				
+			else
+				real_length = dist
+
 			if (dist < this.stitchoptions.length )
 			  stepsize = dist;
 			else
 			  stepsize = real_length;
-			  
+
 		} else {
 			stepsize = this.stitchoptions.length;
 		}
-		
+
 		var steps = Math.floor(dist / stepsize);
 		var rest = dist - (steps * stepsize);
-      
-      
+
+
 
 		if ( this.isRunning  && this.isDown && steps > 0 ) {
 			rest = Math.round(rest,8);
-			
+
 			//stepsize =  Math.round(stepsize,8);
 			this.setHeading(angle);
 			this.forwardSegemensWithEndCheck(steps, stepsize);
@@ -855,7 +855,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 			}
 			stage.moveTurtle(this.xPosition(), this.yPosition());
 		}
-		
+
 		this.setHeading(oldheading);
 	}
 };
@@ -1575,9 +1575,9 @@ SpriteMorph.prototype.initBlocks = function () {
     {
 		    only: SpriteMorph,
         type: 'command',
-        spec: 'tatami stitch width %n interval %n offset %n center %b',
+        spec: 'tatami stitch width %n interval %n center %b',
         category: 'embroidery',
-        defaults: [100, 40, 10, true]
+        defaults: [100, 40, true]
     };
 
     this.blocks.tieStitch =
@@ -2666,8 +2666,8 @@ StageMorph.prototype.initTurtle = function() {
 			function( err ) {
 				console.log( 'error loading turtle shpe' );
 			}
-		);	
-		
+		);
+
     }
     this.penSize = 1;
 };
