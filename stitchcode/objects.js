@@ -930,7 +930,12 @@ SpriteMorph.prototype.pointTowards = function (x, y) {
 	this.setHeading(angle + 90);
 };
 
-SpriteMorph.prototype.drawText = function (text, scale) {
+SpriteMorph.prototype.drawText = function (text, size) {
+  size = Math.max(21, size);
+  return this.drawTextScale(text, size/21.0);
+}
+
+SpriteMorph.prototype.drawTextScale = function (text, scale) {
   var stage = this.parentThatIsA(StageMorph);
   var dest;
   var myself = this;
@@ -1362,13 +1367,21 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'point towards x: %n y: %n',
         defaults: [0, 0]
     };
-    this.blocks.drawText =
+    this.blocks.drawTextScale =
     {
-		only: SpriteMorph,
+		    only: SpriteMorph,
         type: 'command',
         category: 'motion',
         spec: 'draw text: %s scale: %n',
         defaults: ["hello", 2]
+    };
+    this.blocks.drawText =
+    {
+		    only: SpriteMorph,
+        type: 'command',
+        category: 'motion',
+        spec: 'draw text: %s size: %n',
+        defaults: ["hello", 21]
     };
 
     // pen blocks
