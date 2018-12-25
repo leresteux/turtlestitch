@@ -1016,8 +1016,13 @@ SpriteMorph.prototype.drawTextScale = function (text, scale) {
             }
 					}
 				}
-        dx = (maxx+5) * scale * vx;
-        dy = 0 - (maxx+5) * scale * nx;
+        if (i == text.length - 1) {
+          dx = (maxx) * scale * vx;
+          dy = 0 - (maxx) * scale * nx;
+        } else {
+          dx = (maxx+5) * scale * vx;
+          dy = 0 - (maxx+5) * scale * nx;
+        }
         doAJump(x + dx, y - dy);
 			} else {
         dx = 10 * scale * vx;
@@ -1029,6 +1034,60 @@ SpriteMorph.prototype.drawTextScale = function (text, scale) {
   } else {
 		console.log("no fonts loaded");
 		console.log(stage.fonts);
+	}
+};
+
+
+SpriteMorph.prototype.getTextLength = function (text, size) {
+
+  scale = size/21.0;
+
+  var stage = this.parentThatIsA(StageMorph);
+  var dest;
+  var myself = this;
+
+  if (!stage) {return; }
+
+
+	if (stage.fonts) {
+    var x = 0;
+
+		for(var i in text) {
+			var index = text.charCodeAt(i) - 33;
+			var maxx = 0, maxy = 0;
+      var charwidth = 0;
+
+			if (stage.fonts[text[i]]){
+        if (this.isRunning)
+          coords = stage.fonts[text[i]]["stitch"];
+        else {
+          lines = stage.fonts[text[i]]["orig"];
+          coords = [];
+          for (var j=0; j<lines.length; j++) {
+            coords.push("jump");
+            for (var k=0; k<lines[j].length; k++) {
+              coords.push(lines[j][k])
+              if (k==0)
+                coords.push("move");
+            }
+          }
+        }
+
+				for (var j=0; j<coords.length; j++) {
+          if (coords[j] != "jump" && coords[j] != "move" && coords[j] != "sttich") {
+            maxx = Math.max(maxx, coords[j][0]);
+          }
+				}
+        x = x + maxx * scale;
+        if (i < text.length - 1)
+          x = x + 5 * scale;
+			} else {
+        x = x + 10 * scale;
+			}
+	  }
+    return x;
+  } else {
+		return 0;
 	}
 };
 
@@ -1381,6 +1440,14 @@ SpriteMorph.prototype.initBlocks = function () {
         type: 'command',
         category: 'motion',
         spec: 'draw text: %s size: %n',
+        defaults: ["hello", 21]
+    };
+    this.blocks.getTextLength =
+    {
+		    only: SpriteMorph,
+        type: 'reporter',
+        category: 'motion',
+        spec: 'text length of %s with size %n',
         defaults: ["hello", 21]
     };
 
@@ -1736,6 +1803,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('doFaceTowards'));
         blocks.push(block('pointTowards'));
         blocks.push(block('drawText'));
+        blocks.push(block('getTextLength'))
         blocks.push('-');
         blocks.push(block('gotoXY'));
         //blocks.push(block('gotoXYIn'));
@@ -2695,7 +2763,7 @@ StageMorph.prototype.setPenSize = function(s) {
 };
 
 StageMorph.prototype.rotateTurtle = function(h) {
-    this.turtle.rotation.z = (90 -h) * Math.PI / 180;
+    this.turtle.rotation.y = (-h) * Math.PI / 180;
     this.renderer.changed = true;
 };
 
