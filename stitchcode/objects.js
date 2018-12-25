@@ -134,7 +134,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2, angle=false ) {
 		line = new THREE.Mesh(geometry, material);
 		line.translateX(x1 + (x2 - x1)/2);
 		line.translateY(y1 + (y2 - y1)/2);
-    if (!angle) angle = this.heading;
+    if (!angle) angle = this.heading + 90;
 		line.rotation.z = (90 - angle) * Math.PI / 180;
 		stage.myStitchLines.add(line);
 
@@ -828,7 +828,6 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 			this.forwardSegemensWithEndCheck(steps, stepsize);
 
 			if (steps == 0 && rest > 0 || x != this.xPosition() || y != this.yPosition()) {
-				console.log("goto",x,y);
 				this.gotoXY(x,y);
 			}
 		} else {
@@ -1802,8 +1801,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setHeading'));
         blocks.push(block('doFaceTowards'));
         blocks.push(block('pointTowards'));
-        blocks.push(block('drawText'));
-        blocks.push(block('getTextLength'))
         blocks.push('-');
         blocks.push(block('gotoXY'));
         //blocks.push(block('gotoXYIn'));
@@ -1815,6 +1812,9 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setXPosition'));
         blocks.push(block('changeYPosition'));
         blocks.push(block('setYPosition'));
+        blocks.push('-');
+        blocks.push(block('drawText'));
+        blocks.push(block('getTextLength'))
         blocks.push('-');
         blocks.push(block('bounceOffEdge'));
         blocks.push('-');
