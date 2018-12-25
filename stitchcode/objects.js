@@ -134,7 +134,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2, angle=false ) {
 		line = new THREE.Mesh(geometry, material);
 		line.translateX(x1 + (x2 - x1)/2);
 		line.translateY(y1 + (y2 - y1)/2);
-    if (!angle) angle = this.heading + 90;
+    //if (!angle) angle = this.heading;
 		line.rotation.z = (90 - angle) * Math.PI / 180;
 		stage.myStitchLines.add(line);
 
@@ -751,7 +751,7 @@ SpriteMorph.prototype.doMoveForward = function (steps) {
 			this.isDown );
 
 		if (this.isDown) {
-			this.addStitch(oldx, oldy, this.xPosition(), this.yPosition());
+			this.addStitch(oldx, oldy, this.xPosition(), this.yPosition(), this.heading);
 			this.addStitchPoint(this.xPosition(), this.yPosition());
       if (warn && !stage.turtleShepherd.ignoreWarning) {
 				this.addDensityPoint(this.xPosition(), this.yPosition());
@@ -794,6 +794,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
           : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
         );
     angle = angle + 90;
+    //if (angle==-90) angle = 270;
 
     if ( Math.round(dist,5) <= 0.0001) {
 		  // jump in place - don't add / ignore
@@ -817,7 +818,6 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 
 		var steps = Math.floor(dist / stepsize);
 		var rest = dist - (steps * stepsize);
-
 
 
 		if ( this.isRunning  && this.isDown && steps > 0 ) {
