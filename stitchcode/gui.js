@@ -1252,7 +1252,25 @@ IDE_Morph.prototype.createStatusDisplay = function () {
             );
     elements.push(resetCameraButton);
     resetCameraButton.columns = 4;
-    resetCameraButton.newColumn = 3;
+    resetCameraButton.newColumn = 2;
+
+    var XRayButton = new ToggleMorph(
+              'checkbox',
+              null,
+              function () {
+                if (stage.isXRay) {
+                  stage.turnXRayOff()
+                } else {
+                  stage.turnXRayOn()
+                }
+              },
+              'X-Ray',
+              function () {
+                  return stage.isXRay;
+              });
+    elements.push(XRayButton);
+    XRayButton.columns = 4;
+    XRayButton.newColumn = 3;
 
 
 	var toggleTurboButton = new ToggleMorph(
@@ -1444,7 +1462,7 @@ IDE_Morph.prototype.downloadPNG = function() {
     while (i--) {
         view[i] = binary.charCodeAt(i);
     }
-    
+
     blob = new Blob([view], {type: 'image/png'});
     saveAs(blob, name + '.png');
 };

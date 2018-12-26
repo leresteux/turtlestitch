@@ -47,22 +47,28 @@ SpriteMorph.prototype.init = function(globals) {
 };
 
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2, angle=false ) {
-    var stage = this.parentThatIsA(StageMorph);
+  var stage = this.parentThatIsA(StageMorph);
 
-    if (this.stitchLines === null) {
-        this.stitchLines = new THREE.Group();
-    }
+  if (this.stitchLines === null) {
+    this.stitchLines = new THREE.Group();
+  }
 	color = new THREE.Color("rgb("+
-            Math.round(this.color.r) + "," +
-            Math.round(this.color.g) + "," +
-            Math.round(this.color.b)  + ")" )
+    Math.round(this.color.r) + "," +
+    Math.round(this.color.g) + "," +
+    Math.round(this.color.b)  + ")" );
+  opacity = this.color.a;
 
-	var material = this.cache.findMaterial(color,this.color.a);
+  if (stage.isXRay) {
+    color = new THREE.Color("rgb(255,255,255)");
+    opacity = 0.5;
+  }
+
+	var material = this.cache.findMaterial(color,opacity);
 	if (!material) {
 		material = new THREE.MeshBasicMaterial({
 			color: color,
 			side:THREE.DoubleSide,
-			opacity: this.color.a
+			opacity: opacity
 		});
 		material.transparent = true;
 		this.cache.addMaterial(material);
@@ -137,49 +143,10 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2, angle=false ) {
     //if (!angle) angle = this.heading;
 		line.rotation.z = (90 - angle) * Math.PI / 180;
 		stage.myStitchLines.add(line);
-
-		/*
-		// add half circles to simulate linecaps:round in svg
-		// does not work well with transparencies
-		if (stage.penSize > 1) {
-			geometry = this.cache.findGeometry('circle', [stage.penSize/2, 0]);
-			if (!geometry) {
-				geometry = new THREE.CircleGeometry( stage.penSize/2, 32, 0, Math.PI );
-				this.cache.addGeometry('circle', geometry, [stage.penSize/2, 0]);
-			}
-			var circle = new THREE.Mesh( geometry, material );
-			circle.translateX(x2);
-			circle.translateY(y2);
-			circle.rotation.z = - this.heading * Math.PI / 180;
-			circle.visible = true;
-			stage.myStitchLines.add(circle);
-
-			var circle = new THREE.Mesh( geometry, material );
-			circle.translateX(x1);
-			circle.translateY(y1);
-			circle.rotation.z = - (this.heading + 180) * Math.PI / 180;
-			circle.visible = true;
-			stage.myStitchLines.add(circle);
-		} */
-
-		/*
-		// add half circles to simulate linecaps:round in svg
-		//if (stage.penSize > 1) {
-			geometry = this.cache.findGeometry('circle', [s]);
-			if (!geometry) {
-				geometry = new THREE.CircleGeometry( s, 32);
-				this.cache.addGeometry('circle', geometry, [s]);
-			}
-			var circle = new THREE.Mesh( geometry, material );
-			circle.translateX(x2);
-			circle.translateY(y2);
-			circle.visible = true;
-			stage.myStitchLines.add(circle);
-		//}
-		*/
 	}
 	this.reRender();
 };
+
 
 
 SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
@@ -2346,6 +2313,7 @@ StageMorph.prototype.init = function (globals) {
     this.initCamera();
     this.fonts = null;
     this.stepcounter = 0;
+    this.isXRay = false;
 
 	// load customized fonts based on Hershey's fonts.
 
@@ -2857,6 +2825,84 @@ StageMorph.prototype.reportMouseY = function () {
     return 0;
 };
 
+StageMorph.prototype.turnXRayOn = function () {
+  this.isXRay = true;
+  for (i = this.myStitchLines.children.length - 1; i >= 0; i--) {
+      this.myStitchLines.remove(this.myStitchLines.children[i]);
+  }
+  stitches = this.turtleShepherd.getStitchesAsArr();
+  this.renderer.setClearColor(new THREE.Color("rgb(0,0,0)"),1);
+
+  if (!StageMorph.prototype.hideGrid)
+    this.scene.grid.toggle();
+  if (!StageMorph.prototype.hideStitches)
+    this.renderer.toggleStitchPoints();
+  if (!StageMorph.prototype.hideJumps)
+    this.renderer.toggleJumpLines();
+    if (!StageMorph.prototype.hideTurtle)
+      this.renderer.toggleTurtle();
+
+  for (i =0; i < stitches.length; i++) {
+    stitch = stitches[i];
+    var deltaX = stitch[1][0] - stitch[0][0];
+    var deltaY = stitch[1][1] - stitch[0][1];
+    var angle = Math.abs(deltaX) < 0.0001 ? (deltaY < 0 ? 90 : 270)
+          : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
+        ) + 90;
+    if (angle == 270 ) angle = 0;
+    this.children[0].addStitch(stitch[0][0], stitch[0][1], stitch[1][0], stitch[1][1], angle)
+  }
+
+  this.renderer.changed = true;
+
+}
+
+StageMorph.prototype.turnXRayOff = function () {
+  this.isXRay = false;
+  for (i = this.myStitchLines.children.length - 1; i >= 0; i--) {
+      this.myStitchLines.remove(this.myStitchLines.children[i]);
+  }
+
+  stitches = this.turtleShepherd.getStitchesAsArr();
+
+  this.renderer.setClearColor(
+      new THREE.Color(
+          "rgb("+
+          StageMorph.prototype.backgroundColor.r + "," +
+          StageMorph.prototype.backgroundColor.g + "," +
+          StageMorph.prototype.backgroundColor.b + ")"),
+          1
+  );
+
+  for (i =0; i < stitches.length; i++) {
+    stitch = stitches[i];
+    this.children[0].color = stitch[2];
+    console.log(this.children[0].color);
+    var deltaX = stitch[1][0] - stitch[0][0];
+    var deltaY = stitch[1][1] - stitch[0][1];
+
+    var angle = Math.abs(deltaX) < 0.0001 ? (deltaY < 0 ? 90 : 270)
+          : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
+        ) + 90;
+      if (angle == 270 ) angle = 0;
+      console.log(angle);
+    this.children[0].addStitch(stitch[0][0], stitch[0][1], stitch[1][0], stitch[1][1], angle)
+  }
+
+  ide = this.parentThatIsA(IDE_Morph);
+
+  if (ide.hideGrid != StageMorph.prototype.hideGrid)
+    this.scene.grid.toggle();
+  if (ide.hideStitches != StageMorph.prototype.hideStitches)
+    this.renderer.toggleStitchPoints();
+  if (ide.hidejumps != StageMorph.prototype.hideJumps)
+    this.renderer.toggleJumpLines();
+  if (ide.hideTurtle != StageMorph.prototype.hideTurtle)
+    this.renderer.toggleTurtle();
+
+  this.renderer.changed = true;
+
+}
 
 StageMorph.prototype.clearPenTrails = nop;
 

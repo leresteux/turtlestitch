@@ -428,7 +428,7 @@ TurtleShepherd.prototype.toSVG = function() {
     return svgStr;
 };
 
-        
+
 TurtleShepherd.prototype.toPNG = function() {
 		var color = this.defaultColor;
 		var hasFirst = false;
@@ -440,7 +440,7 @@ TurtleShepherd.prototype.toPNG = function() {
 		ctx.strokeStyle = "rgb(" + color.r + ","  + color.g + ","  + color.b + ")";
 		ctx.lineWidth = 1.0;
 		ctx.beginPath();
-			
+
 		for (var i=0; i < this.cache.length; i++) {
 			if (this.cache[i].cmd == "color" && !this.ignoreColors) {
 				if (hasFirst) {
@@ -475,12 +475,12 @@ TurtleShepherd.prototype.toPNG = function() {
 			}
 		}
 		ctx.stroke();
-		
+
 		console.log(cnv);
 		return cnv.toDataURL();
 }
 
-        
+
 TurtleShepherd.prototype.toEXP = function() {
     var expArr = [];
     pixels_per_millimeter = this.pixels_per_millimeter;
@@ -844,6 +844,34 @@ TurtleShepherd.prototype.toDST = function(name="noname") {
     return expUintArr;
 };
 
+
+TurtleShepherd.prototype.getStitchesAsArr = function () {
+  stitches = [];
+  lastX = 0; lastY = 0;
+  hasFirst = false;
+  color = this.defaultColor;
+  for(i=0;i<this.cache.length;i++) {
+    if (this.cache[i].cmd == "color") {
+      color = this.cache[i].color;
+    }
+    if (this.cache[i].cmd == "move") {
+        if (!hasFirst) {
+          lastY = this.cache[i].y;
+          lastX = this.cache[i].x;
+          hasFirst = true;
+        } else {
+          stitches.push( [
+            [lastX, lastY],
+            [this.cache[i].x, this.cache[i].y ],
+            color
+          ]);
+          lastY = this.cache[i].y;
+          lastX = this.cache[i].x;
+        }
+    }
+  }
+  return stitches;
+}
 
 TurtleShepherd.prototype.debug_msg = function (st, clear) {
 	o = "";
