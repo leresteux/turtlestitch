@@ -2846,10 +2846,13 @@ StageMorph.prototype.turnXRayOn = function () {
     stitch = stitches[i];
     var deltaX = stitch[1][0] - stitch[0][0];
     var deltaY = stitch[1][1] - stitch[0][1];
-    var angle = Math.abs(deltaX) < 0.0001 ? (deltaY < 0 ? 90 : 270)
+    var angle = Math.abs(deltaX) < 0.000 ? (deltaY < 0 ? 90 : 270)
           : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
         ) + 90;
-    if (angle == 270 ) angle = 0;
+    console.log(deltaX, deltaY, angle);
+    //if (angle == 270 ) angle = 0;
+    console.log(angle);
+    console.log("");
     this.children[0].addStitch(stitch[0][0], stitch[0][1], stitch[1][0], stitch[1][1], angle)
   }
 
@@ -2880,10 +2883,9 @@ StageMorph.prototype.turnXRayOff = function () {
     var deltaX = stitch[1][0] - stitch[0][0];
     var deltaY = stitch[1][1] - stitch[0][1];
 
-    var angle = Math.abs(deltaX) < 0.0001 ? (deltaY < 0 ? 90 : 270)
+    var angle = Math.abs(deltaX) < 0.000 ? (deltaY < 0 ? 90 : 270)
           : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
         ) + 90;
-    if (angle == 270 ) angle = 0;
     this.children[0].addStitch(stitch[0][0], stitch[0][1], stitch[1][0], stitch[1][1], angle)
   }
 
