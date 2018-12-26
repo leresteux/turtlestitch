@@ -2877,15 +2877,13 @@ StageMorph.prototype.turnXRayOff = function () {
   for (i =0; i < stitches.length; i++) {
     stitch = stitches[i];
     this.children[0].color = stitch[2];
-    console.log(this.children[0].color);
     var deltaX = stitch[1][0] - stitch[0][0];
     var deltaY = stitch[1][1] - stitch[0][1];
 
     var angle = Math.abs(deltaX) < 0.0001 ? (deltaY < 0 ? 90 : 270)
           : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
         ) + 90;
-      if (angle == 270 ) angle = 0;
-      console.log(angle);
+    if (angle == 270 ) angle = 0;
     this.children[0].addStitch(stitch[0][0], stitch[0][1], stitch[1][0], stitch[1][1], angle)
   }
 
