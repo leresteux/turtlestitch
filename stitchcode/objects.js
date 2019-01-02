@@ -1004,7 +1004,7 @@ SpriteMorph.prototype.drawTextScale = function (text, scale) {
 };
 
 
-SpriteMorph.prototype.getTextLength = function (text, size) {
+  SpriteMorph.prototype.getTextLength = function (text, size) {
 
   scale = size/21.0;
 
@@ -1040,7 +1040,7 @@ SpriteMorph.prototype.getTextLength = function (text, size) {
         }
 
 				for (var j=0; j<coords.length; j++) {
-          if (coords[j] != "jump" && coords[j] != "move" && coords[j] != "sttich") {
+          if (coords[j] != "jump" && coords[j] != "move" && coords[j] != "stitch") {
             maxx = Math.max(maxx, coords[j][0]);
           }
 				}
