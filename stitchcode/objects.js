@@ -60,7 +60,7 @@ SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2, angle=false ) {
 
   if (stage.isXRay) {
     color = new THREE.Color("rgb(255,255,255)");
-    opacity = 0.5;
+    opacity = 0.25;
   }
 
 	var material = this.cache.findMaterial(color,opacity);
@@ -615,7 +615,6 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
       this.doMoveForward(offset);
 
   for(var i=0;i<count;i++) {
-    console.log(i, rest, distance);
     this.doMoveForward(interval);
   }
   if (rest) {
@@ -999,7 +998,6 @@ SpriteMorph.prototype.drawTextScale = function (text, scale) {
     this.setHeading(heading);
   } else {
 		console.log("no fonts loaded");
-		console.log(stage.fonts);
 	}
 };
 
@@ -2713,7 +2711,7 @@ StageMorph.prototype.initTurtle = function() {
 
 			// onError callback
 			function( err ) {
-				console.log( 'error loading turtle shpe' );
+				console.log( 'error loading turtle shape' );
 			}
 		);
 
@@ -2849,10 +2847,8 @@ StageMorph.prototype.turnXRayOn = function () {
     var angle = Math.abs(deltaX) < 0.000 ? (deltaY < 0 ? 90 : 270)
           : Math.round( (deltaX >= 0 ? 0 : 180)  - (Math.atan(deltaY / deltaX) * 57.2957795131),8
         ) + 90;
-    console.log(deltaX, deltaY, angle);
     //if (angle == 270 ) angle = 0;
-    console.log(angle);
-    console.log("");
+
     this.children[0].addStitch(stitch[0][0], stitch[0][1], stitch[1][0], stitch[1][1], angle)
   }
 

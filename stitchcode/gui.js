@@ -1259,9 +1259,19 @@ IDE_Morph.prototype.createStatusDisplay = function () {
               null,
               function () {
                 if (stage.isXRay) {
-                  stage.turnXRayOff()
+                  myself.showMessage("turn off X-RAY ...");
+                  window.setTimeout(
+                    function() {
+                      stage.turnXRayOff();
+                      myself.showMessage("done",0.4);
+                    }, 250);
                 } else {
-                  stage.turnXRayOn()
+                  myself.showMessage("rendering X-RAY ...");
+                  window.setTimeout(
+                    function() {
+                      stage.turnXRayOn();
+                      myself.showMessage("done", 0.4);
+                    } ,250);
                 }
               },
               'X-Ray',
