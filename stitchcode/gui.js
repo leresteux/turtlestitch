@@ -1031,9 +1031,9 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
 IDE_Morph.prototype.createStatusDisplay = function () {
     var frame,
     padding = 1,
-        myself = this,
-        elements = [],
-        stage = this.stage;
+    myself = this,
+    elements = [],
+    stage = this.stage;
 
     if (this.statusDisplay) {
         this.statusDisplay.destroy();
@@ -1254,31 +1254,35 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     resetCameraButton.columns = 4;
     resetCameraButton.newColumn = 2;
 
+
     var XRayButton = new ToggleMorph(
-              'checkbox',
-              null,
-              function () {
-                if (stage.isXRay) {
-                  myself.showMessage("turn off X-RAY ...");
-                  window.setTimeout(
-                    function() {
-                      stage.turnXRayOff();
-                      myself.showMessage("done",0.4);
-                    }, 250);
-                } else {
-                  myself.showMessage("rendering X-RAY ...");
-                  window.setTimeout(
-                    function() {
-                      stage.turnXRayOn();
-                      myself.showMessage("done", 0.4);
-                    } ,250);
-                }
-              },
-              'X-Ray',
-              function () {
-                  return stage.isXRay;
-              });
+          'checkbox',
+          null,
+          function () {
+            if (stage.isXRay) {
+              myself.showMessage("turn off X-RAY ...");
+              window.setTimeout(
+                function() {
+                  stage.turnXRayOff();
+                  myself.showMessage("done",0.4);
+                  myself.XRayButton.refresh();
+                }, 250);
+            } else {
+              myself.showMessage("rendering X-RAY ...");
+              window.setTimeout(
+                function() {
+                  stage.turnXRayOn();
+                  myself.showMessage("done", 0.4);
+                  myself.XRayButton.refresh();
+                } ,250);
+            }
+          },
+          'X-Ray',
+          function () {
+            return stage.getIsXRay();
+          });
     elements.push(XRayButton);
+    myself.XRayButton = XRayButton;
     XRayButton.columns = 4;
     XRayButton.newColumn = 3;
 

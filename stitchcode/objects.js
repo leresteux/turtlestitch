@@ -2859,7 +2859,6 @@ StageMorph.prototype.turnXRayOn = function () {
 
     this.children[0].addStitch(stitch[0][0], stitch[0][1], stitch[1][0], stitch[1][1], angle)
   }
-
   this.renderer.changed = true;
 
 }
@@ -2906,6 +2905,10 @@ StageMorph.prototype.turnXRayOff = function () {
 
   this.renderer.changed = true;
 
+}
+
+StageMorph.prototype.getIsXRay = function () {
+  return this.isXRay;
 }
 
 StageMorph.prototype.clearPenTrails = nop;
