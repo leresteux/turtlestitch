@@ -663,7 +663,6 @@ SpriteMorph.prototype.tatamiForwardStart = function (steps, width=10) {
   var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-console.log(width);
   this.turn(-90);
   this.doMoveForward(width/2);
   this.turn(90);
