@@ -1407,7 +1407,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		    only: SpriteMorph,
         type: 'command',
         category: 'motion',
-        spec: 'draw text: %s size: %n',
+        spec: 'draw text %s with size %n',
         defaults: ["hello", 21]
     };
     this.blocks.getTextLength =

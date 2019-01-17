@@ -65,20 +65,22 @@ tempDict = {
 		'Exportiert die aktuelle Zeichnung zum stitchcode.com Ausstickservice',
 	'Ignore colors during export':
 		'Ignoriere Farben beim Export',
+	'X-Ray':
+		'R\u00f6ntgenbild',
 
 	// settings
 	'Units..':
       'Masseinheiten...',
 	'Display dimension in Inch':
-		'Dimensionen in Zoll anzeigen',      
+		'Dimensionen in Zoll anzeigen',
 	'Hide grid':
-		'Raster nicht anzeigen',      
+		'Raster nicht anzeigen',
 	'Hide turtle':
-		'Schildkr\u00f6te verstecken',      
+		'Schildkr\u00f6te verstecken',
 	'Hide jump stitches':
-		'Sprungstiche nicht anzeigen',    	
+		'Sprungstiche nicht anzeigen',
 	'Hide stitch points':
-		'Stichpunkte nicht anzeigen',	
+		'Stichpunkte nicht anzeigen',
 	'Ignore embroidery warnings':
 		'Stickereiwarnungen ignorieren',
 	'uncheck to show embroidery specific warnings':
@@ -106,7 +108,7 @@ tempDict = {
      'check to show dimensions in inch':
 		'einschalten um Dimensionen in Zoll anzuzeigen',
 	'Default background color':
-		'Hintergrundfarbe',		
+		'Hintergrundfarbe',
 	'Default pen color':
 		'Vorgabewert Stiftfarbe',
 	'Default background color...':
@@ -197,7 +199,7 @@ tempDict = {
 			'Z-Stich mit Dichte %n Breite %n zentriert %b',
 	'satin stitch with width %n center %b':
 			'Satinstich mit Breite %n zentriert %b',
-	'tatami stitch width %n interval %n offset %n center %b':
+	'tatami stitch width %n interval %n center %b':
 			'Tatami-Stich mit Breite %n Intervall %n Versatz %n zentriert %b',
 	'jump stitch %b':
 		'Sprungstich %b',
@@ -207,8 +209,14 @@ tempDict = {
 		'schneiden',
 	'stop running':
 		'Stickeinstellungen zur\u00fccksetzen',
-	'draw text: %s scale: %n':
-		'schreibe Text: %s mit Gr\u00f6sse: %n',
+	'draw text %s with size %n':
+		'schreibe Text %s in Gr\u00f6sse %n',
+	'text length of %s with size %n':
+			'L\u00e4nge von Text %s mit Gr\u00f6sse %n',
+	'rendering X-RAY ...':
+		'berechne R\u00f6ntgenbild ...',
+	'turn off X-RAY ...':
+		'beende R\u00f6ntgenbilddarstellung ...',
 
 };
 

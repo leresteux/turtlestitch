@@ -1264,7 +1264,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
               window.setTimeout(
                 function() {
                   stage.turnXRayOff();
-                  myself.showMessage("done",0.4);
+                  myself.showMessage("ok.",0.4);
                   myself.XRayButton.refresh();
                 }, 250);
             } else {
@@ -1272,7 +1272,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
               window.setTimeout(
                 function() {
                   stage.turnXRayOn();
-                  myself.showMessage("done", 0.4);
+                  myself.showMessage("ok.", 0.4);
                   myself.XRayButton.refresh();
                 } ,250);
             }
