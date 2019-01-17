@@ -357,7 +357,7 @@ SpriteMorph.prototype.satinStitch = function (width=10, center=true, autoadjust=
 	}
 }
 
-SpriteMorph.prototype.tatamiStitch = function (width=100, interval=30, offset=0, center=false) {
+SpriteMorph.prototype.tatamiStitch = function (width=100, interval=30, center=false, offset=0) {
 	if (width > 0) {
     this.stitchtype = "tatami";
 		this.isRunning = true;
@@ -421,7 +421,7 @@ SpriteMorph.prototype.tieStitch = function () {
 SpriteMorph.prototype.origForward = SpriteMorph.prototype.forward;
 SpriteMorph.prototype.forward = function (steps) {
     var dest,
-        dist = steps * this.parent.scale || 0;
+        dist = steps; //* this.parent.scale || 0;
         stage = this.parentThatIsA(StageMorph);
         warn = false;
 
@@ -453,13 +453,13 @@ SpriteMorph.prototype.forward = function (steps) {
 
 SpriteMorph.prototype.forwardByNr = function (totalsteps, steps) {
     stepsize = totalsteps / steps;
+
     this.forwardSegemensWithEndCheck(steps, stepsize)
 };
 
 SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
     steps = Math.floor(totalsteps / stepsize);
     rest = totalsteps - (steps * stepsize);
-
     this.forwardSegemensWithEndCheck(steps, stepsize)
 
   	if (rest > 0) {
@@ -595,14 +595,16 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
 
   // just for move to the next line in 2 bz 10
 
-  var offset = (this.stitchoptions.segment_count % Math.floor(this.stitchoptions.interval / this.stitchoptions.offset)) *
-        this.stitchoptions.offset;
+  var offset = (
+        ( this.stitchoptions.segment_count *
+          (this.stitchoptions.offset + this.stitchoptions.interval)
+        ) % this.stitchoptions.interval
+      );
 
-  b = Math.max(2, offset + this.stitchoptions.offset / 2)
-  var c = Math.sqrt(steps/2*steps/2 + b * b);
+  var c = Math.sqrt(steps/2*steps/2);
   var alpha = degrees(Math.asin((steps/2)/c));
 
-  var distance = width - b - offset;
+  var distance = width - offset;
   var interval = this.stitchoptions.interval;
   var count = Math.floor(distance / interval);
   var rest = distance - (count * interval);
@@ -623,14 +625,16 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
 
   this.stitchoptions.segment_count+=1;
 
-  offset = (this.stitchoptions.segment_count % Math.floor(this.stitchoptions.interval / this.stitchoptions.offset)) *
-        this.stitchoptions.offset;
+  var offset = (
+        ( this.stitchoptions.segment_count *
+          (this.stitchoptions.offset + this.stitchoptions.interval)
+        ) % this.stitchoptions.interval
+      );
 
-  b = Math.max(2, offset + this.stitchoptions.offset / 2)
-  c = Math.sqrt(steps/2*steps/2 + b * b);
+  c = Math.sqrt(steps/2*steps/2);
   alpha = degrees(Math.asin((steps/2)/c));
 
-  distance = width - b - offset;
+  distance = width - offset;
   interval = this.stitchoptions.interval;
   count = Math.floor(distance / interval);
   rest = distance - (count * interval);
@@ -659,6 +663,7 @@ SpriteMorph.prototype.tatamiForwardStart = function (steps, width=10) {
   var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
+console.log(width);
   this.turn(-90);
   this.doMoveForward(width/2);
   this.turn(90);
@@ -2617,6 +2622,10 @@ StageMorph.prototype.initCamera = function () {
         myself.camera.zoomOut = function () {
             this.zoomFactor *= 1.1;
             this.applyZoom();
+        };
+
+        myself.camera.getZoom = function () {
+            return this.zoomFactor;
         };
 
         myself.camera.applyZoom = function () {
