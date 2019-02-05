@@ -901,10 +901,15 @@ SpriteMorph.prototype.pointTowards = function (x, y) {
 
 SpriteMorph.prototype.drawText = function (text, size) {
   size = Math.max(21, size);
-  return this.drawTextScale(text, size/21.0);
+  return this.drawTextScale(text, size/21.0, false);
 }
 
-SpriteMorph.prototype.drawTextScale = function (text, scale) {
+SpriteMorph.prototype.drawTextDev = function (text, size, trim) {
+  size = Math.max(21, size);
+  return this.drawTextScale(text, size/21.0, trim);
+}
+
+SpriteMorph.prototype.drawTextScale = function (text, scale, trim) {
   var stage = this.parentThatIsA(StageMorph);
   var dest;
   var myself = this;
@@ -914,7 +919,14 @@ SpriteMorph.prototype.drawTextScale = function (text, scale) {
 	function doAJump(x, y) {
 		var penState = myself.isDown;
 		myself.isDown = false;
-		myself.gotoXY(x, y);
+    if (trim) {
+      myself.gotoXY(x+2, y+2);
+      myself.gotoXY(x-2, y-2);
+      myself.gotoXY(x, y);
+    } else {
+      myself.gotoXY(x, y);
+    }
+
 		//lf.gotoXY(x+2, y+2);
 		//myself.gotoXY(x, y);
 		myself.isDown = penState;
@@ -1409,6 +1421,14 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'motion',
         spec: 'draw text %s with size %n',
         defaults: ["hello", 21]
+    };
+    this.blocks.drawTextDev =
+    {
+		    only: SpriteMorph,
+        type: 'command',
+        category: 'motion',
+        spec: 'draw text %s with size %n trim %b',
+        defaults: ["hello", 2, true]
     };
     this.blocks.getTextLength =
     {
