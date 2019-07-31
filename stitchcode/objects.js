@@ -1303,8 +1303,6 @@ SpriteMorph.prototype.wait = function(millis)
 //SpriteMorph.prototype.thumbnail = function (extentPoint) {};
 //SpriteMorph.prototype.drawNew = function () { this.hide() }
 
-
-
 // THREE additions
 
 THREE.Object3D.prototype.addLineToPointWithColor = function (point, color, thickness) {
@@ -1321,24 +1319,24 @@ THREE.Object3D.prototype.addLineFromPointToPointWithColor = function (originPoin
     return line;
 };
 
-
 SpriteMorph.prototype.resetAll = function () {
-  var myself = this;
-  myself.stitchtype = 0;
+	var myself = this;
+	myself.stitchtype = 0;
 	myself.stitchoptions = {};
-  myself.isRunning = false;
-  myself.setColor(StageMorph.prototype.defaultPenColor);
+	myself.isRunning = false;
+	myself.setColor(StageMorph.prototype.defaultPenColor);
+	myself.parentThatIsA(StageMorph).setPenSize(1);
 	myself.gotoXY(0,0);
 	myself.setHeading(90);
-  myself.clear();
+	myself.clear();
 	myself.isDown = true;
 }
 
 SpriteMorph.prototype.resetStitchSettings = function () {
-  var myself = this;
+	var myself = this;
 	myself.stitchoptions = {}
 	myself.stitchtype = 0;
-  myself.isRunning = false;
+	myself.isRunning = false;
 }
 
 // Block specs

@@ -49,8 +49,8 @@ TurtleShepherd.prototype.clear = function() {
     this.densityWarning = false;
     this.colors = [];
     this.newColor = 0;
-    this.oldColor = 0;
-	  this.penSize = 1;
+    this.oldColor =  this.defaultColor;
+	this.penSize = 1;
     this.newPenSize = 0;
 
 };
@@ -165,11 +165,11 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
         if (this.colors.length < 1) {
 			if (this.newColor) {
 				this.colors.push(this.newColor);
-				this.newColor = false;
+				//this.newColor = false;
 			} else {
 				this.colors.push(this.defaultColor);
 			}
-			this.oldColor = this.colors[this.colors.length-1];
+			//this.oldColor = this.colors[this.colors.length-1];
 		}
     }
 
@@ -359,16 +359,20 @@ TurtleShepherd.prototype.toSVG = function() {
     penSize = 1;
     lastStitch = null;
     color = this.defaultColor;
+    
+    //console.log("export svg");
+    //console.log(this.colors);
+    //console.log(this.cache);
 
     for (var i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "color" && !this.ignoreColors) {
     			color = this.cache[i].color;
-    			colorChanged = true;
+    			if (hasFirst) colorChanged = true;
     			if (tagOpen) svgStr += '" />\n';
     			tagOpen = false;
         } else if (this.cache[i].cmd == "pensize") {
 			penSize = this.cache[i].pensize;
-			penSizeChanged = true;
+			if (hasFirst) penSizeChanged = true;
 			if (tagOpen) svgStr += '" />\n';
 			tagOpen = false;
         } else if (this.cache[i].cmd == "move") {
