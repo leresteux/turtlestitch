@@ -165,11 +165,9 @@ TurtleShepherd.prototype.moveTo= function(x1, y1, x2, y2, penState) {
         if (this.colors.length < 1) {
 			if (this.newColor) {
 				this.colors.push(this.newColor);
-				//this.newColor = false;
 			} else {
 				this.colors.push(this.defaultColor);
 			}
-			//this.oldColor = this.colors[this.colors.length-1];
 		}
     }
 
@@ -359,10 +357,6 @@ TurtleShepherd.prototype.toSVG = function() {
     penSize = 1;
     lastStitch = null;
     color = this.defaultColor;
-    
-    //console.log("export svg");
-    //console.log(this.colors);
-    //console.log(this.cache);
 
     for (var i=0; i < this.cache.length; i++) {
         if (this.cache[i].cmd == "color" && !this.ignoreColors) {

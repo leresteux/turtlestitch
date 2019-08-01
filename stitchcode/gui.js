@@ -1000,7 +1000,7 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
     pic = Morph.fromImageURL('stitchcode/assets/turtle-logo.png');
     pic.setExtent(new Point(32, 32));
 
-    aboutTxt = 'TurtleStich! 2.6 dev\n\n'
+    aboutTxt = 'TurtleStich! 3.0 dev\n\n'
         + 'Copyright \u24B8 2019 Michael Aschauer\n\n'
 
         + 'TurtleStitch is developed by OSEDA - Association for\n'
