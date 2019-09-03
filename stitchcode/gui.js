@@ -917,8 +917,8 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
         },
         StageMorph.prototype.ignoreWarnings ,
 
-        'uncheck to show turtle',
-        'check to hide turtle',
+        'uncheck to show embroidery specific warnings',
+        'check to ignore embroidery specific warnings'
     );
     menu.addLine();
     menu.addItem('Default background color...', 'userSetBackgroundColor');
