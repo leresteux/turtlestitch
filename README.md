@@ -30,7 +30,7 @@ Snap! Build Your Own Blocks [http://snap.berkeley.edu] is a
 visual, blocks based programming language inspired by Scratch
 
 
-Copyright (C) 2018 by Jens Mönig and Brian Harvey
+Copyright (C) 2008-2020 by Jens Mönig and Brian Harvey
 
 Snap! is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as

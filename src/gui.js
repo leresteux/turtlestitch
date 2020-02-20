@@ -9,7 +9,7 @@
     written by Jens Mönig
     jens@moenig.org
 
-    Copyright (C) 2018 by Jens Mönig
+    Copyright (C) 2020 by Jens Mönig
 
     This file is part of Snap!.
 
@@ -46,6 +46,7 @@
         StageHandleMorph
         PaletteHandleMorph
         CamSnapshotDialogMorph
+        SoundRecorderDialogMorph
 
 
     credits
@@ -55,27 +56,29 @@
     Ian Reynolds contributed handling and visualization of sounds
     Michael Ball contributed the LibraryImportDialogMorph and countless
     utilities to load libraries from relative urls
+    Bernat Romagosa contributed more things than I can mention,
+    including interfacing to the camera and microphone
 
 */
 
-/*global modules, Morph, SpriteMorph, SyntaxElementMorph, Color, Cloud,
-ListWatcherMorph, TextMorph, newCanvas, useBlurredShadows, VariableFrame,
-StringMorph, Point, MenuMorph, morphicVersion, DialogBoxMorph,
-ToggleButtonMorph, contains, ScrollFrameMorph, StageMorph, PushButtonMorph,
+/*global modules, Morph, SpriteMorph, SyntaxElementMorph, Color, Cloud, Audio,
+ListWatcherMorph, TextMorph, newCanvas, useBlurredShadows, VariableFrame, Sound,
+StringMorph, Point, MenuMorph, morphicVersion, DialogBoxMorph, normalizeCanvas,
+ToggleButtonMorph, contains, ScrollFrameMorph, StageMorph, PushButtonMorph, sb,
 InputFieldMorph, FrameMorph, Process, nop, SnapSerializer, ListMorph, detect,
-AlignmentMorph, TabMorph, Costume, MorphicPreferences, Sound, BlockMorph,
-ToggleMorph, InputSlotDialogMorph, ScriptsMorph, isNil, SymbolMorph,
-BlockExportDialogMorph, BlockImportDialogMorph, SnapTranslator, localize,
-List, ArgMorph, Uint8Array, HandleMorph, SVG_Costume,
-fontHeight, sb, CommentMorph, CommandBlockMorph, BooleanSlotMorph,
-BlockLabelPlaceHolderMorph, Audio, SpeechBubbleMorph, ScriptFocusMorph,
-XML_Element, WatcherMorph, BlockRemovalDialogMorph, saveAs, TableMorph,
-isSnapObject, isRetinaEnabled, disableRetinaSupport, enableRetinaSupport,
-isRetinaSupported, SliderMorph, Animation, BoxMorph, MediaRecorder*/
+AlignmentMorph, TabMorph, Costume, MorphicPreferences,BlockMorph, ToggleMorph,
+InputSlotDialogMorph, ScriptsMorph, isNil, SymbolMorph, fontHeight,  localize,
+BlockExportDialogMorph, BlockImportDialogMorph, SnapTranslator, List, ArgMorph,
+Uint8Array, HandleMorph, SVG_Costume, TableDialogMorph, CommentMorph, saveAs,
+CommandBlockMorph, BooleanSlotMorph, RingReporterSlotMorph, ScriptFocusMorph,
+BlockLabelPlaceHolderMorph, SpeechBubbleMorph, XML_Element, WatcherMorph,
+BlockRemovalDialogMorph,TableMorph, isSnapObject, isRetinaEnabled, SliderMorph,
+disableRetinaSupport, enableRetinaSupport, isRetinaSupported, MediaRecorder,
+Animation, BoxMorph, BlockEditorMorph, BlockDialogMorph, Note*/
 
 // Global stuff ////////////////////////////////////////////////////////
 
-modules.gui = '2018-November-21';
+modules.gui = '2020-January-28';
 
 // Declarations
 
@@ -91,6 +94,7 @@ var JukeboxMorph;
 var StageHandleMorph;
 var PaletteHandleMorph;
 var CamSnapshotDialogMorph;
+var SoundRecorderDialogMorph;
 
 // IDE_Morph ///////////////////////////////////////////////////////////
 
@@ -218,7 +222,7 @@ IDE_Morph.prototype.init = function (isAutoFill) {
     // additional properties:
     this.cloud = new Cloud();
     this.cloudMsg = null;
-    this.source = 'local';
+    this.source = null;
     this.serializer = new SnapSerializer();
 
     this.globalVariables = new VariableFrame();
@@ -273,29 +277,38 @@ IDE_Morph.prototype.init = function (isAutoFill) {
 IDE_Morph.prototype.openIn = function (world) {
     var hash, myself = this, urlLanguage = null;
 
-    this.cloud.initSession(
-        function (username) {
-            if (username) {
-                myself.source = 'cloud';
-                if (!myself.cloud.verified) {
-                        new DialogBoxMorph().inform(
-                            'Unverified account',
-                            'Your account is still unverified.\n' +
-                            'Please use the verification link that\n' +
-                            'was sent to your email address when you\n' +
-                            'signed up.\n\n' +
-                            'If you cannot find that email, please\n' +
-                            'check your spam folder. If you still\n' +
-                            'cannot find it, please use the "Resend\n' +
-                            'Verification Email..." option in the cloud\n' +
-                            'menu.',
-                            world,
-                            myself.cloudIcon(null, new Color(0, 180, 0))
-                        );
-                }
+    function initUser(username) {
+        sessionStorage.username = username;
+        if (username) {
+            myself.source = 'cloud';
+            if (!myself.cloud.verified) {
+                new DialogBoxMorph().inform(
+                    'Unverified account',
+                    'Your account is still unverified.\n' +
+                    'Please use the verification link that\n' +
+                    'was sent to your email address when you\n' +
+                    'signed up.\n\n' +
+                    'If you cannot find that email, please\n' +
+                    'check your spam folder. If you still\n' +
+                    'cannot find it, please use the "Resend\n' +
+                    'Verification Email..." option in the cloud\n' +
+                    'menu.',
+                    world,
+                    myself.cloudIcon(null, new Color(0, 180, 0))
+                );
             }
         }
-    );
+    }
+
+    if (location.protocol !== 'file:') {
+        if (!sessionStorage.username) {
+            // check whether login should persist across browser sessions
+            this.cloud.initSession(initUser);
+        } else {
+            // login only persistent during a single browser session
+            this.cloud.checkCredentials(initUser);
+        }
+    }
 
     this.buildPanes();
     world.add(this);
@@ -363,6 +376,12 @@ IDE_Morph.prototype.openIn = function (world) {
         }
         if (dict.lang) {
             myself.setLanguage(dict.lang, null, true); // don't persist
+        }
+
+        // only force my world to get focus if I'm not in embed mode
+        // to prevent the iFrame from involuntarily scrolling into view
+        if (!myself.isEmbedMode) {
+            world.worldCanvas.focus();
         }
     }
 
@@ -440,7 +459,6 @@ IDE_Morph.prototype.openIn = function (world) {
                         function () {
                             msg = myself.showMessage('Opening project...');
                         },
-                        function () {nop(); }, // yield (bug in Chrome)
                         function () {
                             if (projectData.indexOf('<snapdata') === 0) {
                                 myself.rawOpenCloudDataString(projectData);
@@ -480,7 +498,6 @@ IDE_Morph.prototype.openIn = function (world) {
                         function () {
                             msg = myself.showMessage('Opening project...');
                         },
-                        function () {nop(); }, // yield (bug in Chrome)
                         function () {
                             if (projectData.indexOf('<snapdata') === 0) {
                                 myself.rawOpenCloudDataString(projectData);
@@ -536,6 +553,8 @@ IDE_Morph.prototype.openIn = function (world) {
     } else {
         interpretUrlAnchors.call(this);
     }
+
+    this.warnAboutIE();
 };
 
 // IDE_Morph construction
@@ -562,7 +581,7 @@ IDE_Morph.prototype.createLogo = function () {
     this.logo = new Morph();
     this.logo.texture = this.logoURL;
     this.logo.drawNew = function () {
-        this.image = newCanvas(this.extent());
+        this.image = newCanvas(this.extent(), false, this.image);
         var context = this.image.getContext('2d'),
             gradient = context.createLinearGradient(
                 0,
@@ -1313,6 +1332,7 @@ IDE_Morph.prototype.createSpriteBar = function () {
     nameField.contrast = 90;
     nameField.setPosition(thumbnail.topRight().add(new Point(10, 3)));
     this.spriteBar.add(nameField);
+    this.spriteBar.nameField = nameField;
     nameField.drawNew();
     nameField.accept = function () {
         var newName = nameField.getValue();
@@ -1460,6 +1480,7 @@ IDE_Morph.prototype.createSpriteEditor = function () {
             null,
             this.sliderColor
         );
+        this.spriteEditor.color = this.groupColor;
         this.spriteEditor.padding = 10;
         this.spriteEditor.growth = 50;
         this.spriteEditor.isDraggable = false;
@@ -1729,6 +1750,7 @@ IDE_Morph.prototype.fixLayout = function (situation) {
     // situation is a string, i.e.
     // 'selectSprite' or 'refreshPalette' or 'tabEditor'
     var padding = this.padding,
+        flag,
         maxPaletteWidth;
 
     Morph.prototype.trackChanges = false;
@@ -1757,19 +1779,22 @@ IDE_Morph.prototype.fixLayout = function (situation) {
             this.stage.setScale(Math.floor(Math.min(
                 this.width() / this.stage.dimensions.x,
                 this.height() / this.stage.dimensions.y
-                ) * 10) / 10);
-
-            this.embedPlayButton.size = Math.floor(Math.min(
-                        this.width(), this.height())) / 3;
+                ) * 100) / 100);
+            flag = this.embedPlayButton.flag;
+            flag.size = Math.floor(Math.min(
+                        this.width(), this.height())) / 5;
+            flag.setWidth(flag.size);
+            flag.setHeight(flag.size);
+            this.embedPlayButton.size = flag.size * 1.6;
             this.embedPlayButton.setWidth(this.embedPlayButton.size);
             this.embedPlayButton.setHeight(this.embedPlayButton.size);
-
             if (this.embedOverlay) {
                 this.embedOverlay.setExtent(this.extent());
             }
-
             this.stage.setCenter(this.center());
-            this.embedPlayButton.setCenter(this.center());
+            this.embedPlayButton.setCenter(this.stage.center());
+            flag.setCenter(this.embedPlayButton.center());
+            flag.setLeft(flag.left() + flag.size * 0.1); // account for slight asymmetry
         } else if (this.isAppMode) {
             this.stage.setScale(Math.floor(Math.min(
                 (this.width() - padding * 2) / this.stage.dimensions.x,
@@ -1852,9 +1877,13 @@ IDE_Morph.prototype.setExtent = function (point) {
 
     // determine the minimum dimensions making sense for the current mode
     if (this.isAppMode) {
-        minExt = StageMorph.prototype.dimensions.add(
-            this.controlBar.height() + 10
-        );
+        if (this.isEmbedMode) {
+            minExt = new Point(100, 100);
+        } else {
+            minExt = StageMorph.prototype.dimensions.add(
+                this.controlBar.height() + 10
+            );
+        }
     } else {
         if (this.stageRatio > 1) {
             minExt = padding.add(StageMorph.prototype.dimensions);
@@ -1956,8 +1985,11 @@ IDE_Morph.prototype.droppedAudio = function (anAudio, name) {
     }
 };
 
-IDE_Morph.prototype.droppedText = function (aString, name) {
-    var lbl = name ? name.split('.')[0] : '';
+IDE_Morph.prototype.droppedText = function (aString, name, fileType) {
+    var lbl = name ? name.split('.')[0] : '',
+        ext = name ? name.slice(name.lastIndexOf('.') + 1).toLowerCase() : '';
+
+    // check for Snap specific files, projects, libraries, sprites, scripts
     if (aString.indexOf('<project') === 0) {
         location.hash = '';
         return this.openProjectString(aString);
@@ -1978,6 +2010,17 @@ IDE_Morph.prototype.droppedText = function (aString, name) {
     if (aString.indexOf('<script') === 0) {
         return this.openScriptString(aString);
     }
+
+    // check for encoded data-sets, CSV, JSON
+    if (fileType.indexOf('csv') !== -1 || ext === 'csv') {
+        return this.openDataString(aString, lbl, 'csv');
+    }
+    if (fileType.indexOf('json') !== -1 || ext === 'json') {
+        return this.openDataString(aString, lbl, 'json');
+    }
+
+    // import as plain text data
+    this.openDataString(aString, lbl, 'text');
 };
 
 IDE_Morph.prototype.droppedBinary = function (anArrayBuffer, name) {
@@ -2014,6 +2057,10 @@ IDE_Morph.prototype.refreshPalette = function (shouldIgnorePosition) {
     var oldTop = this.palette.contents.top();
 
     this.createPalette();
+    if (this.isAppMode) {
+        this.palette.hide();
+        return;
+    }
     this.fixLayout('refreshPalette');
     if (!shouldIgnorePosition) {
         this.palette.contents.setTop(oldTop);
@@ -2108,6 +2155,19 @@ IDE_Morph.prototype.stopAllScripts = function () {
 };
 
 IDE_Morph.prototype.selectSprite = function (sprite) {
+    // prevent switching to another sprite if a block editor is open
+    // so local blocks of different sprites don't mix
+    if (
+        detect(
+            this.world().children,
+            function (morph) {
+                return morph instanceof BlockEditorMorph ||
+                    morph instanceof BlockDialogMorph;
+            }
+        )
+    ) {
+        return;
+    }
     if (this.currentSprite && this.currentSprite.scripts.focus) {
         this.currentSprite.scripts.focus.stopEditing();
     }
@@ -2303,8 +2363,10 @@ IDE_Morph.prototype.addNewSprite = function () {
     this.stage.add(sprite);
 
     // randomize sprite properties
-    sprite.setHue(rnd.call(this, 0, 100));
-    sprite.setBrightness(rnd.call(this, 50, 100));
+    sprite.setColorComponentHSVA(0, rnd.call(this, 0, 100));
+    sprite.setColorComponentHSVA(1, 100);
+    sprite.setColorComponentHSVA(2, rnd.call(this, 50, 100));
+
     sprite.setXPosition(rnd.call(this, -220, 220));
     sprite.setYPosition(rnd.call(this, -160, 160));
 
@@ -2370,12 +2432,14 @@ IDE_Morph.prototype.recordNewSound = function () {
         myself = this;
 
     soundRecorder = new SoundRecorderDialogMorph(
-        function (sound) {
-            if (sound) {
-                myself.currentSprite.addSound(
-                	sound,
+        function (audio) {
+            var sound;
+            if (audio) {
+                sound = myself.currentSprite.addSound(
+                	audio,
                     myself.newSoundName('recording')
                 );
+                myself.makeSureRecordingIsMono(sound);
                 myself.spriteBar.tabBar.tabTo('sounds');
                 myself.hasChangedMedia = true;
             }
@@ -2385,17 +2449,177 @@ IDE_Morph.prototype.recordNewSound = function () {
     soundRecorder.popUp(this.world());
 };
 
+IDE_Morph.prototype.makeSureRecordingIsMono = function (sound) {
+    // private and temporary, a horrible kludge to work around browsers'
+    // reluctance to implement audio recording constraints that let us
+    // record sound in mono only. As of January 2020 the audio channelCount
+    // constraint only works in Firefox, hence this terrible function to
+    // force convert a stereo sound to mono for Chrome.
+    // If this code is still here next year, something is very wrong.
+    // -Jens
+
+    decodeSound(sound, makeMono);
+
+    function decodeSound(sound, callback) {
+        var base64, binaryString, len, bytes, i, arrayBuffer, audioCtx;
+        if (sound.audioBuffer) {
+            return callback (sound);
+        }
+        base64 = sound.audio.src.split(',')[1];
+        binaryString = window.atob(base64);
+        len = binaryString.length;
+        bytes = new Uint8Array(len);
+        for (i = 0; i < len; i += 1)        {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        arrayBuffer = bytes.buffer;
+        audioCtx = Note.prototype.getAudioContext();
+        sound.isDecoding = true;
+        audioCtx.decodeAudioData(
+            arrayBuffer,
+            function(buffer) {
+                sound.audioBuffer = buffer;
+                return callback (sound);
+            },
+            function (err) {throw err; }
+        );
+    }
+
+    function makeMono(sound) {
+        var samples, audio, blob, reader;
+        if (sound.audioBuffer.numberOfChannels === 1) {return; }
+        samples = sound.audioBuffer.getChannelData(0);
+
+        audio = new Audio();
+        blob = new Blob(
+            [
+                audioBufferToWav(
+                    encodeSound(samples, 44100).audioBuffer
+                )
+            ],
+            {type: "audio/wav"}
+        );
+        reader = new FileReader();
+        reader.onload = function () {
+            audio.src = reader.result;
+            sound.audio = audio; // .... aaaand we're done!
+            sound.audioBuffer = null;
+            sound.cachedSamples = null;
+            sound.isDecoding = false;
+            // console.log('made mono', sound);
+        };
+        reader.readAsDataURL(blob);
+
+    }
+
+    function encodeSound(samples, rate) {
+        var ctx = Note.prototype.getAudioContext(),
+            frameCount = samples.length,
+            arrayBuffer = ctx.createBuffer(1, frameCount, +rate || 44100),
+            i,
+            source;
+
+        if (!arrayBuffer.copyToChannel) {
+            arrayBuffer.copyToChannel = function (src, channel) {
+                var buffer = this.getChannelData(channel);
+                for (i = 0; i < src.length; i += 1) {
+                    buffer[i] = src[i];
+                }
+            };
+        }
+        arrayBuffer.copyToChannel(
+            Float32Array.from(samples),
+            0,
+            0
+        );
+        source = ctx.createBufferSource();
+        source.buffer = arrayBuffer;
+        source.audioBuffer = source.buffer;
+        return source;
+    }
+
+    function audioBufferToWav(buffer, opt) {
+        var sampleRate = buffer.sampleRate,
+            format = (opt || {}).float32 ? 3 : 1,
+            bitDepth = format === 3 ? 32 : 16,
+            result;
+
+        result = buffer.getChannelData(0);
+        return encodeWAV(result, format, sampleRate, 1, bitDepth);
+    }
+
+    function encodeWAV(
+        samples,
+        format,
+        sampleRate,
+        numChannels,
+        bitDepth
+    ) {
+        var bytesPerSample = bitDepth / 8,
+            blockAlign = numChannels * bytesPerSample,
+            buffer = new ArrayBuffer(44 + samples.length * bytesPerSample),
+            view = new DataView(buffer);
+
+        function writeFloat32(output, offset, input) {
+            for (var i = 0; i < input.length; i += 1, offset += 4) {
+                output.setFloat32(offset, input[i], true);
+            }
+        }
+
+        function floatTo16BitPCM(output, offset, input) {
+            var i, s;
+            for (i = 0; i < input.length; i += 1, offset += 2) {
+                s = Math.max(-1, Math.min(1, input[i]));
+                output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            }
+        }
+
+        function writeString(view, offset, string) {
+            for (var i = 0; i < string.length; i += 1) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        writeString(view, 0, 'RIFF'); // RIFF identifier
+        // RIFF chunk length:
+        view.setUint32(4, 36 + samples.length * bytesPerSample, true);
+        writeString(view, 8, 'WAVE'); // RIFF type
+        writeString(view, 12, 'fmt '); // format chunk identifier
+        view.setUint32(16, 16, true); // format chunk length
+        view.setUint16(20, format, true); // sample format (raw)
+        view.setUint16(22, numChannels, true); // channel count
+        view.setUint32(24, sampleRate, true); // sample rate
+        // byte rate (sample rate * block align):
+        view.setUint32(28, sampleRate * blockAlign, true);
+        // block align (channel count * bytes per sample):
+        view.setUint16(32, blockAlign, true);
+        view.setUint16(34, bitDepth, true); // bits per sample
+        writeString(view, 36, 'data'); // data chunk identifier
+        // data chunk length:
+        view.setUint32(40, samples.length * bytesPerSample, true);
+        if (format === 1) { // Raw PCM
+            floatTo16BitPCM(view, 44, samples);
+        } else {
+            writeFloat32(view, 44, samples);
+        }
+        return buffer;
+    }
+};
+
 IDE_Morph.prototype.duplicateSprite = function (sprite) {
     var duplicate = sprite.fullCopy();
+    duplicate.isDown = false;
     duplicate.setPosition(this.world().hand.position());
     duplicate.appearIn(this);
     duplicate.keepWithin(this.stage);
+    duplicate.isDown = sprite.isDown;
     this.selectSprite(duplicate);
 };
 
 IDE_Morph.prototype.instantiateSprite = function (sprite) {
     var instance = sprite.fullCopy(true),
         hats = instance.allHatBlocksFor('__clone__init__');
+    instance.isDown = false;
     instance.appearIn(this);
     if (hats.length) {
         instance.initClone(hats);
@@ -2403,6 +2627,7 @@ IDE_Morph.prototype.instantiateSprite = function (sprite) {
         instance.setPosition(this.world().hand.position());
         instance.keepWithin(this.stage);
     }
+    instance.isDown = sprite.isDown;
     this.selectSprite(instance);
 };
 
@@ -2588,6 +2813,21 @@ IDE_Morph.prototype.cloudMenu = function () {
             'changeCloudPassword'
         );
     }
+    if (this.hasCloudProject()) {
+        menu.addLine();
+        menu.addItem(
+            'Open in Community Site',
+            function () {
+                var dict = myself.urlParameters();
+                window.open(
+                    myself.cloud.showProjectPath(
+                        dict.Username, dict.ProjectName
+                    ),
+                    '_blank'
+                );
+            }
+        );
+    }
     if (shiftClicked) {
         menu.addLine();
         menu.addItem(
@@ -2657,15 +2897,12 @@ IDE_Morph.prototype.cloudMenu = function () {
                                             'Opening project...'
                                         );
                                     },
-                                    function () {nop(); }, // yield (Chrome)
                                     function () {
                                         myself.rawOpenCloudDataString(
                                             projectData
                                         );
-                                    },
-                                    function () {
                                         msg.destroy();
-                                    }
+                                    },
                                 ]);
                             },
                             myself.cloudError()
@@ -2703,7 +2940,16 @@ IDE_Morph.prototype.settingsMenu = function () {
     }
 
     menu = new MenuMorph(this);
-    menu.addItem('Language...', 'languageMenu');
+    menu.addPair(
+        [
+            new SymbolMorph(
+                'globe',
+                MorphicPreferences.menuFontSize
+            ),
+            localize('Language...')
+        ],
+        'languageMenu'
+    );
     menu.addItem(
         'Zoom blocks...',
         'userSetBlocksScale'
@@ -2721,6 +2967,10 @@ IDE_Morph.prototype.settingsMenu = function () {
             new Color(100, 0, 0)
         );
     }
+    menu.addItem(
+        'Microphone resolution...',
+        'microphoneMenu'
+    );
     menu.addLine();
     /*
     addPreference(
@@ -2774,6 +3024,17 @@ IDE_Morph.prototype.settingsMenu = function () {
         Process.prototype.enableSingleStepping,
         'uncheck to turn off\nvisible stepping',
         'check to turn on\n visible stepping (slow)',
+        false
+    );
+    addPreference(
+        'Log pen vectors',
+        function () {
+            StageMorph.prototype.enablePenLogging =
+                !StageMorph.prototype.enablePenLogging;
+        },
+        StageMorph.prototype.enablePenLogging,
+        'uncheck to turn off\nlogging pen vectors',
+        'check to turn on\nlogging pen vectors',
         false
     );
     addPreference(
@@ -3091,7 +3352,7 @@ IDE_Morph.prototype.settingsMenu = function () {
         StageMorph.prototype.enableInheritance,
         'uncheck to disable\nsprite inheritance features',
         'check for sprite\ninheritance features',
-        false
+        true
     );
     addPreference(
         'Persist linked sublist IDs',
@@ -3102,6 +3363,17 @@ IDE_Morph.prototype.settingsMenu = function () {
         StageMorph.prototype.enableSublistIDs,
         'uncheck to disable\nsaving linked sublist identities',
         'check to enable\nsaving linked sublist identities',
+        true
+    );
+    addPreference(
+        'Enable command drops in all rings',
+        function () {
+            RingReporterSlotMorph.prototype.enableCommandDrops =
+                !RingReporterSlotMorph.prototype.enableCommandDrops;
+        },
+        RingReporterSlotMorph.prototype.enableCommandDrops,
+        'uncheck to disable\ndropping commands in reporter rings',
+        'check to enable\ndropping commands in all rings',
         true
     );
     menu.popup(world, pos);
@@ -3205,22 +3477,6 @@ IDE_Morph.prototype.projectMenu = function () {
     }
 
     menu.addLine();
-    menu.addItem(
-        'Import tools',
-        function () {
-            if (location.protocol === 'file:') {
-                myself.importLocalFile();
-                return;
-            }
-            myself.getURL(
-                myself.resourceURL('libraries', 'tools.xml'),
-                function (txt) {
-                    myself.droppedText(txt, 'tools');
-                }
-            );
-        },
-        'load the official library of\npowerful blocks'
-    );
     menu.addItem(
         'Libraries...',
         function() {
@@ -3539,8 +3795,8 @@ IDE_Morph.prototype.aboutSnap = function () {
         module, btn1, btn2, btn3, btn4, licenseBtn, translatorsBtn,
         world = this.world();
 
-    aboutTxt = 'Snap! 4.2.2.8\nBuild Your Own Blocks\n\n'
-        + 'Copyright \u24B8 2018 Jens M\u00F6nig and '
+    aboutTxt = 'Snap! 5.4.5\nBuild Your Own Blocks\n\n'
+        + 'Copyright \u24B8 2008-2020 Jens M\u00F6nig and '
         + 'Brian Harvey\n'
         + 'jens@moenig.org, bh@cs.berkeley.edu\n\n'
 
@@ -3578,11 +3834,15 @@ IDE_Morph.prototype.aboutSnap = function () {
     creditsTxt = localize('Contributors')
         + '\n\nNathan Dinsmore: Saving/Loading, Snap-Logo Design, '
         + '\ncountless bugfixes and optimizations'
-        + '\nKartik Chandra: Paint Editor'
         + '\nMichael Ball: Time/Date UI, Library Import Dialog,'
         + '\ncountless bugfixes and optimizations'
-        + '\nBartosz Leper: Retina Display Support'
         + '\nBernat Romagosa: Countless contributions'
+        + '\nBartosz Leper: Retina Display Support'
+        + '\nZhenlei Jia and Dariusz Dorożalski: IME text editing'
+        + '\nKen Kahn: IME support and countless other contributions'
+        + '\nJosep Ferràndiz: Video Motion Detection'
+        + '\nJoan Guillén: Countless contributions'
+        + '\nKartik Chandra: Paint Editor'
         + '\nCarles Paredes: Initial Vector Paint Editor'
         + '\n"Ava" Yuan Yuan, Dylan Servilla: Graphic Effects'
         + '\nKyle Hotchkiss: Block search design'
@@ -3701,7 +3961,6 @@ IDE_Morph.prototype.editProjectNotes = function () {
     var dialog = new DialogBoxMorph().withKey('projectNotes'),
         frame = new ScrollFrameMorph(),
         text = new TextMorph(this.projectNotes || ''),
-        ok = dialog.ok,
         myself = this,
         size = 250,
         world = this.world();
@@ -3728,9 +3987,14 @@ IDE_Morph.prototype.editProjectNotes = function () {
     frame.addContents(text);
     text.drawNew();
 
-    dialog.ok = function () {
-        myself.projectNotes = text.text;
-        ok.call(this);
+    dialog.getInput = function () {
+        return text.text;
+    };
+
+    dialog.target = myself;
+
+    dialog.action = function (note) {
+        myself.projectNotes = note;
     };
 
     dialog.justDropped = function () {
@@ -3751,7 +4015,7 @@ IDE_Morph.prototype.editProjectNotes = function () {
 };
 
 IDE_Morph.prototype.newProject = function () {
-    this.source = this.cloud.username ? 'cloud' : 'local';
+    this.source = this.cloud.username ? 'cloud' : null;
     if (this.stage) {
         this.stage.destroy();
     }
@@ -3768,6 +4032,7 @@ IDE_Morph.prototype.newProject = function () {
     StageMorph.prototype.enableCodeMapping = false;
     StageMorph.prototype.enableInheritance = true;
     StageMorph.prototype.enableSublistIDs = false;
+    StageMorph.prototype.enablePenLogging = false;
     SpriteMorph.prototype.useFlatLineEnds = false;
     Process.prototype.enableLiveCoding = false;
     this.setProjectName('');
@@ -3795,55 +4060,22 @@ IDE_Morph.prototype.save = function () {
         return;
     }
 
-    if (this.source === 'examples') {
-        this.source = 'local'; // cannot save to examples
+    if (this.source === 'examples' || this.source === 'local') {
+        // cannot save to examples, deprecated localStorage
+        this.source = null;
     }
     if (this.projectName) {
-        if (this.source === 'local') { // as well as 'examples'
-            this.saveProject(this.projectName);
-        } else { // 'cloud'
+        if (this.source === 'disk') {
+            this.exportProject(this.projectName);
+        } else if (this.source === 'cloud') {
             this.saveProjectToCloud(this.projectName);
+        } else {
+            this.saveProjectsBrowser();
         }
     } else {
         this.saveProjectsBrowser();
     }
 };
-
-IDE_Morph.prototype.saveProject = function (name) {
-    var myself = this;
-    this.nextSteps([
-        function () {
-            myself.showMessage('Saving...');
-        },
-        function () {
-            myself.rawSaveProject(name);
-        }
-    ]);
-};
-
-// Serialize a project and save to the browser.
-IDE_Morph.prototype.rawSaveProject = function (name) {
-    var str;
-    if (name) {
-        this.setProjectName(name);
-        if (Process.prototype.isCatchingErrors) {
-            try {
-                localStorage['-snap-project-' + name]
-                    = str = this.serializer.serialize(this.stage);
-                this.setURL('#open:' + str);
-                this.showMessage('Saved!', 1);
-            } catch (err) {
-                this.showMessage('Save failed: ' + err);
-            }
-        } else {
-            localStorage['-snap-project-' + name]
-                = str = this.serializer.serialize(this.stage);
-            this.setURL('#open:' + str);
-            this.showMessage('Saved!', 1);
-        }
-    }
-};
-
 
 IDE_Morph.prototype.exportProject = function (name, plain) {
     // Export project XML, saving a file to disk
@@ -4272,13 +4504,10 @@ IDE_Morph.prototype.openProjectString = function (str) {
         function () {
             msg = myself.showMessage('Opening project...');
         },
-        function () {nop(); }, // yield (bug in Chrome)
         function () {
             myself.rawOpenProjectString(str);
-        },
-        function () {
             msg.destroy();
-        }
+        },
     ]);
 };
 
@@ -4291,6 +4520,7 @@ IDE_Morph.prototype.rawOpenProjectString = function (str) {
     StageMorph.prototype.enableCodeMapping = false;
     StageMorph.prototype.enableInheritance = true;
     StageMorph.prototype.enableSublistIDs = false;
+    StageMorph.prototype.enablePenLogging = false;
     Process.prototype.enableLiveCoding = false;
     if (Process.prototype.isCatchingErrors) {
         try {
@@ -4318,11 +4548,8 @@ IDE_Morph.prototype.openCloudDataString = function (str) {
         function () {
             msg = myself.showMessage('Opening project\n' + size + ' KB...');
         },
-        function () {nop(); }, // yield (bug in Chrome)
         function () {
             myself.rawOpenCloudDataString(str);
-        },
-        function () {
             msg.destroy();
         }
     ]);
@@ -4336,6 +4563,7 @@ IDE_Morph.prototype.rawOpenCloudDataString = function (str) {
     StageMorph.prototype.enableCodeMapping = false;
     StageMorph.prototype.enableInheritance = true;
     StageMorph.prototype.enableSublistIDs = false;
+    StageMorph.prototype.enablePenLogging = false;
     Process.prototype.enableLiveCoding = false;
     if (Process.prototype.isCatchingErrors) {
         try {
@@ -4344,7 +4572,8 @@ IDE_Morph.prototype.rawOpenCloudDataString = function (str) {
             this.serializer.openProject(
                 this.serializer.loadProjectModel(
                     model.childNamed('project'),
-                    this
+                    this,
+                    model.attributes.remixID
                 ),
                 this
             );
@@ -4357,7 +4586,8 @@ IDE_Morph.prototype.rawOpenCloudDataString = function (str) {
         this.serializer.openProject(
             this.serializer.loadProjectModel(
                 model.childNamed('project'),
-                this
+                this,
+                model.attributes.remixID
             ),
             this
         );
@@ -4372,13 +4602,10 @@ IDE_Morph.prototype.openBlocksString = function (str, name, silently) {
         function () {
             msg = myself.showMessage('Opening blocks...');
         },
-        function () {nop(); }, // yield (bug in Chrome)
         function () {
             myself.rawOpenBlocksString(str, name, silently);
-        },
-        function () {
             msg.destroy();
-        }
+        },
     ]);
 };
 
@@ -4419,13 +4646,10 @@ IDE_Morph.prototype.openSpritesString = function (str) {
         function () {
             msg = myself.showMessage('Opening sprite...');
         },
-        function () {nop(); }, // yield (bug in Chrome)
         function () {
             myself.rawOpenSpritesString(str);
-        },
-        function () {
             msg.destroy();
-        }
+        },
     ]);
 };
 
@@ -4461,13 +4685,10 @@ IDE_Morph.prototype.openScriptString = function (str) {
         function () {
             msg = myself.showMessage('Opening script...');
         },
-        function () {nop(); }, // yield (bug in Chrome)
         function () {
             myself.rawOpenScriptString(str);
-        },
-        function () {
             msg.destroy();
-        }
+        },
     ]);
 };
 
@@ -4501,6 +4722,65 @@ IDE_Morph.prototype.rawOpenScriptString = function (str) {
         'Imported Script.',
         2
     );
+};
+
+IDE_Morph.prototype.openDataString = function (str, name, type) {
+    var msg,
+        myself = this;
+    this.nextSteps([
+        function () {
+            msg = myself.showMessage('Opening data...');
+        },
+        function () {
+            myself.rawOpenDataString(str, name, type);
+            msg.destroy();
+        },
+    ]);
+};
+
+IDE_Morph.prototype.rawOpenDataString = function (str, name, type) {
+    var data, vName, dlg,
+        globals = this.currentSprite.globalVariables();
+
+    function newVarName(name) {
+        var existing = globals.names(),
+            ix = name.indexOf('\('),
+            stem = (ix < 0) ? name : name.substring(0, ix),
+            count = 1,
+            newName = stem;
+        while (contains(existing, newName)) {
+            count += 1;
+            newName = stem + '(' + count + ')';
+        }
+        return newName;
+    }
+
+    switch (type) {
+        case 'csv':
+            data = Process.prototype.parseCSV(str);
+            break;
+        case 'json':
+            data = Process.prototype.parseJSON(str);
+            break;
+        default: // assume plain text
+            data = str;
+    }
+    vName = newVarName(name || 'data');
+    globals.addVar(vName);
+    globals.setVar(vName, data);
+    this.currentSprite.toggleVariableWatcher(vName, true); // global
+    this.flushBlocksCache('variables');
+    this.currentCategory = 'variables';
+    this.categories.children.forEach(function (each) {
+        each.refresh();
+    });
+    this.refreshPalette(true);
+    if (data instanceof List) {
+        dlg = new TableDialogMorph(data);
+        dlg.labelString = localize(dlg.labelString) + ': ' + vName;
+        dlg.createLabel();
+        dlg.popUp(this.world());
+    }
 };
 
 IDE_Morph.prototype.openProject = function (name) {
@@ -4601,6 +4881,11 @@ IDE_Morph.prototype.saveCanvasAs = function (canvas, fileName) {
     // }
 
     this.saveFileAs(canvas.toDataURL(), 'image/png', fileName);
+};
+
+IDE_Morph.prototype.saveAudioAs = function (audio, fileName) {
+    // Export a Sound object as a WAV file
+    this.saveFileAs(audio.src, 'audio/wav', fileName);
 };
 
 IDE_Morph.prototype.saveXMLAs = function(xml, fileName) {
@@ -4796,23 +5081,31 @@ IDE_Morph.prototype.toggleSliderExecute = function () {
 
 IDE_Morph.prototype.setEmbedMode = function () {
     var myself = this;
+
+    this.isEmbedMode = true;
+    this.appModeColor = new Color(243,238,235);
     this.embedOverlay = new Morph();
     this.embedOverlay.color = new Color(128, 128, 128);
     this.embedOverlay.alpha = 0.5;
 
-    this.embedPlayButton = new SymbolMorph('pointRight');
-    this.embedPlayButton.color = new Color(128, 255, 128);
-
+    this.embedPlayButton = new SymbolMorph('circleSolid');
+    this.embedPlayButton.color = new Color(64, 128, 64);
+    this.embedPlayButton.alpha = 0.75;
+    this.embedPlayButton.flag = new SymbolMorph('flag');
+    this.embedPlayButton.flag.color = new Color(128, 255, 128);
+    this.embedPlayButton.flag.alpha = 0.75;
+    this.embedPlayButton.add(this.embedPlayButton.flag);
     this.embedPlayButton.mouseClickLeft = function () {
         myself.runScripts();
         myself.embedOverlay.destroy();
         this.destroy();
     };
 
-    this.isEmbedMode = true;
     this.controlBar.hide();
+
     this.add(this.embedOverlay);
     this.add(this.embedPlayButton);
+
     this.fixLayout();
 };
 
@@ -5001,9 +5294,37 @@ IDE_Morph.prototype.saveProjectsBrowser = function () {
     }
 
     if (this.source === 'examples') {
-        this.source = 'local'; // cannot save to examples
+        this.source = null; // cannot save to examples
     }
     new ProjectDialogMorph(this, 'save').popUp();
+};
+
+// IDE_Morph microphone settings
+
+IDE_Morph.prototype.microphoneMenu = function () {
+    var menu = new MenuMorph(this),
+        world = this.world(),
+        pos = this.controlBar.settingsButton.bottomLeft(),
+        resolutions = ['low', 'normal', 'high', 'max'],
+        microphone = this.stage.microphone;
+
+    if (microphone.isReady) {
+        menu.addItem(
+            '\u2611 ' + localize('Microphone'),
+            function () {microphone.stop(); }
+        );
+        menu.addLine();
+    }
+    resolutions.forEach(function (res, i) {
+        menu.addItem(
+            (microphone.resolution === i + 1 ? '\u2713 ' : '    ') +
+                localize(res),
+            function () {
+                microphone.setResolution(i + 1);
+            }
+        );
+    });
+    menu.popup(world, pos);
 };
 
 // IDE_Morph localization
@@ -5158,7 +5479,7 @@ IDE_Morph.prototype.userSetBlocksScale = function () {
         false, // read only?
         true, // numeric
         1, // slider min
-        12, // slider max
+        5, // slider max
         action // slider action
     );
 };
@@ -5231,6 +5552,7 @@ IDE_Morph.prototype.setStageExtent = function (aPoint) {
     this.stageRatio = 1;
     this.isSmallStage = false;
     this.controlBar.stageSizeButton.refresh();
+    this.stage.stopVideo();
     this.setExtent(world.extent());
     if (this.isAnimating) {
         zoom();
@@ -5278,7 +5600,8 @@ IDE_Morph.prototype.initializeCloud = function () {
                 user.username.toLowerCase(),
                 user.password,
                 user.choice,
-                function (username, isadmin, response) {
+                function (username, role, response) {
+                    sessionStorage.username = username;
                     myself.source = 'cloud';
                     if (!isNil(response.days_left)) {
                         new DialogBoxMorph().inform(
@@ -5463,25 +5786,95 @@ IDE_Morph.prototype.logout = function () {
     var myself = this;
     this.cloud.logout(
         function () {
+            delete(sessionStorage.username);
             myself.showMessage('disconnected.', 2);
         },
         function () {
+            delete(sessionStorage.username);
             myself.showMessage('disconnected.', 2);
         }
     );
 };
 
-IDE_Morph.prototype.saveProjectToCloud = function (name) {
-    var myself = this;
-    if (name) {
-        this.showMessage('Saving project\nto the cloud...');
-        this.setProjectName(name);
-        this.cloud.saveProject(
-            this,
-            function () {myself.showMessage('saved.', 2); },
-            this.cloudError()
+IDE_Morph.prototype.buildProjectRequest = function () {
+    var xml = this.serializer.serialize(this.stage),
+        thumbnail = normalizeCanvas(
+            this.stage.thumbnail(
+                SnapSerializer.prototype.thumbnailSize
+        )).toDataURL(),
+        body;
+
+    this.serializer.isCollectingMedia = true;
+    body = {
+        notes: this.projectNotes,
+        xml: xml,
+        media: this.hasChangedMedia ?
+            this.serializer.mediaXML(this.projectName) : null,
+        thumbnail: thumbnail,
+        remixID: this.stage.remixID
+    };
+    this.serializer.isCollectingMedia = false;
+    this.serializer.flushMedia();
+
+    return body;
+};
+
+IDE_Morph.prototype.verifyProject = function (body) {
+    // Ensure the project is less than 10MB and serializes correctly.
+    var encodedBody = JSON.stringify(body);
+    if (encodedBody.length > Cloud.MAX_FILE_SIZE) {
+        new DialogBoxMorph().inform(
+            'Snap!Cloud - Cannot Save Project',
+            'The media inside this project exceeds 10 MB.\n' +
+                'Please reduce the size of costumes or sounds.\n',
+            this.world(),
+            this.cloudIcon(null, new Color(180, 0, 0))
         );
+        return false;
     }
+
+    // console.log(encodedBody.length);
+    // check if serialized data can be parsed back again
+    try {
+        this.serializer.parse(body.xml);
+    } catch (err) {
+        this.showMessage('Serialization of program data failed:\n' + err);
+        return false;
+    }
+    if (body.media !== null) {
+        try {
+            this.serializer.parse(body.media);
+        } catch (err) {
+            this.showMessage('Serialization of media failed:\n' + err);
+            return false;
+        }
+    }
+    this.serializer.isCollectingMedia = false;
+    this.serializer.flushMedia();
+
+    return encodedBody.length;
+};
+
+IDE_Morph.prototype.saveProjectToCloud = function (name) {
+    var myself = this, projectBody, projectSize;
+
+    if (name) {
+        this.setProjectName(name);
+    }
+
+    this.showMessage('Saving project\nto the cloud...');
+    projectBody = this.buildProjectRequest();
+    projectSize = this.verifyProject(projectBody);
+    if (!projectSize) {return; } // Invalid Projects don't return anything.
+    this.showMessage(
+        'Uploading ' + Math.round(projectSize / 1024) + ' KB...'
+    );
+    this.cloud.saveProject(
+        this.projectName,
+        projectBody,
+        function () {myself.showMessage('saved.', 2); },
+        this.cloudError()
+    );
 };
 
 IDE_Morph.prototype.exportProjectMedia = function (name) {
@@ -5682,6 +6075,19 @@ IDE_Morph.prototype.setCloudURL = function () {
     );
 };
 
+IDE_Morph.prototype.urlParameters = function () {
+    var parameters = location.hash.slice(location.hash.indexOf(':') + 1);
+
+    return this.cloud.parseDict(parameters);
+};
+
+IDE_Morph.prototype.hasCloudProject = function () {
+    var params = this.urlParameters();
+
+    return params.hasOwnProperty('Username') &&
+        params.hasOwnProperty('ProjectName');
+};
+
 // IDE_Morph HTTP data fetching
 
 IDE_Morph.prototype.getURL = function (url, callback, responseType) {
@@ -5692,11 +6098,11 @@ IDE_Morph.prototype.getURL = function (url, callback, responseType) {
         async = callback instanceof Function,
         myself = this,
         rsp;
-	if (async) {
-    	request.responseType = responseType || 'text';
+    if (async) {
+        request.responseType = responseType || 'text';
     }
     rsp = (!async || request.responseType === 'text') ? 'responseText'
-    	: 'response';
+        : 'response';
     try {
         request.open('GET', url, async);
         if (async) {
@@ -5774,6 +6180,42 @@ IDE_Morph.prototype.prompt = function (message, callback, choices, key) {
     );
 };
 
+// IDE_Morph bracing against IE
+
+IDE_Morph.prototype.warnAboutIE = function () {
+    var dlg, txt;
+    if (this.isIE()) {
+        dlg = new DialogBoxMorph();
+        txt = new TextMorph(
+            'Please do not use Internet Explorer.\n' +
+                'Snap! runs best in a web-standards\n' +
+                'compliant browser',
+            dlg.fontSize,
+            dlg.fontStyle,
+            true,
+            false,
+            'center',
+            null,
+            null,
+            MorphicPreferences.isFlat ? null : new Point(1, 1),
+            new Color(255, 255, 255)
+        );
+
+        dlg.key = 'IE-Warning';
+        dlg.labelString = "Internet Explorer";
+        dlg.createLabel();
+        dlg.addBody(txt);
+        dlg.drawNew();
+        dlg.fixLayout();
+        dlg.popUp(this.world());
+    }
+};
+
+IDE_Morph.prototype.isIE = function () {
+    var ua = navigator.userAgent;
+    return ua.indexOf("MSIE ") > -1 || ua.indexOf("Trident/") > -1;
+};
+
 // ProjectDialogMorph ////////////////////////////////////////////////////
 
 // ProjectDialogMorph inherits from DialogBoxMorph:
@@ -5794,7 +6236,7 @@ ProjectDialogMorph.prototype.init = function (ide, task) {
     // additional properties:
     this.ide = ide;
     this.task = task || 'open'; // String describing what do do (open, save)
-    this.source = ide.source || 'local'; // or 'cloud' or 'examples'
+    this.source = ide.source;
     this.projectList = []; // [{name: , thumb: , notes:}]
 
     this.handle = null;
@@ -5809,6 +6251,8 @@ ProjectDialogMorph.prototype.init = function (ide, task) {
     this.deleteButton = null;
     this.shareButton = null;
     this.unshareButton = null;
+    this.publishButton = null;
+    this.unpublishButton = null;
     this.recoverButton = null;
 
     // initialize inherited properties:
@@ -5825,10 +6269,19 @@ ProjectDialogMorph.prototype.init = function (ide, task) {
     this.key = 'project' + task;
 
     // build contents
-    this.buildContents();
-    this.onNextStep = function () { // yield to show "updating" message
-        myself.setSource(myself.source);
-    };
+    if (task === 'open' && this.source === 'disk') {
+        // give the user a chance to switch to another source
+        this.source = null;
+        this.buildContents();
+        this.projectList = [];
+        this.listField.hide();
+        this.source = 'disk';
+    } else {
+        this.buildContents();
+        this.onNextStep = function () { // yield to show "updating" message
+            myself.setSource(myself.source);
+        };
+    }
 };
 
 ProjectDialogMorph.prototype.buildContents = function () {
@@ -5857,11 +6310,17 @@ ProjectDialogMorph.prototype.buildContents = function () {
     }
 
     this.addSourceButton('cloud', localize('Cloud'), 'cloud');
-    this.addSourceButton('local', localize('Browser'), 'storage');
+
     if (this.task === 'open') {
         this.buildFilterField();
         this.addSourceButton('examples', localize('Examples'), 'poster');
+        if (this.hasLocalProjects() || this.ide.world().currentKey === 16) {
+            // shift- clicked
+            this.addSourceButton('local', localize('Browser'), 'globe');
+        }
     }
+    this.addSourceButton('disk', localize('Computer'), 'storage');
+
     this.srcBar.fixLayout();
     this.body.add(this.srcBar);
 
@@ -5946,29 +6405,31 @@ ProjectDialogMorph.prototype.buildContents = function () {
     if (this.task === 'open') {
         this.addButton('openProject', 'Open');
         this.action = 'openProject';
-        this.recoverButton = this.addButton('recoveryDialog', 'Recover');
+        this.recoverButton = this.addButton('recoveryDialog', 'Recover', true);
         this.recoverButton.hide();
     } else { // 'save'
         this.addButton('saveProject', 'Save');
         this.action = 'saveProject';
     }
-    this.shareButton = this.addButton('shareProject', 'Share');
-    this.unshareButton = this.addButton('unshareProject', 'Unshare');
+    this.shareButton = this.addButton('shareProject', 'Share', true);
+    this.unshareButton = this.addButton('unshareProject', 'Unshare', true);
     this.shareButton.hide();
     this.unshareButton.hide();
-    /*
-    this.publishButton = this.addButton('publishProject', 'Publish');
-    this.unpublishButton = this.addButton('unpublishProject', 'Unpublish');
+    this.publishButton = this.addButton('publishProject', 'Publish', true);
+    this.unpublishButton = this.addButton(
+        'unpublishProject',
+        'Unpublish',
+        true
+    );
     this.publishButton.hide();
     this.unpublishButton.hide();
-    */
     this.deleteButton = this.addButton('deleteProject', 'Delete');
     this.addButton('cancel', 'Cancel');
 
     if (notification) {
-        this.setExtent(new Point(555, 335).add(notification.extent()));
+        this.setExtent(new Point(500, 360).add(notification.extent()));
     } else {
-        this.setExtent(new Point(555, 335));
+        this.setExtent(new Point(500, 360));
     }
     this.fixLayout();
 
@@ -5981,11 +6442,72 @@ ProjectDialogMorph.prototype.popUp = function (wrrld) {
         this.handle = new HandleMorph(
             this,
             350,
-            300,
+            330,
             this.corner,
             this.corner
         );
     }
+};
+
+// ProjectDialogMorph action buttons
+
+ProjectDialogMorph.prototype.createButtons = function () {
+    if (this.buttons) {
+        this.buttons.destroy();
+    }
+    this.buttons = new AlignmentMorph('column', this.padding / 3);
+    this.buttons.bottomRow = new AlignmentMorph('row', this.padding);
+    this.buttons.topRow = new AlignmentMorph('row', this.padding);
+    this.buttons.add(this.buttons.topRow);
+    this.buttons.add(this.buttons.bottomRow);
+    this.add(this.buttons);
+
+    this.buttons.topRow.hide = function () {
+        this.isVisible = false;
+        this.changed();
+    };
+
+    this.buttons.topRow.show = function () {
+        this.isVisible = true;
+        this.changed();
+    };
+
+    this.buttons.fixLayout = function () {
+        if (this.topRow.children.some(function (any) {
+            return any.isVisible;
+        })) {
+            this.topRow.show();
+            this.topRow.fixLayout();
+        } else {
+            this.topRow.hide();
+        }
+        this.bottomRow.fixLayout();
+        AlignmentMorph.prototype.fixLayout.call(this);
+    };
+};
+
+ProjectDialogMorph.prototype.addButton = function (action, label, topRow) {
+    var button = new PushButtonMorph(
+        this,
+        action || 'ok',
+        '  ' + localize((label || 'OK')) + '  '
+    );
+    button.fontSize = this.buttonFontSize;
+    button.corner = this.buttonCorner;
+    button.edge = this.buttonEdge;
+    button.outline = this.buttonOutline;
+    button.outlineColor = this.buttonOutlineColor;
+    button.outlineGradient = this.buttonOutlineGradient;
+    button.padding = this.buttonPadding;
+    button.contrast = this.buttonContrast;
+    button.drawNew();
+    button.fixLayout();
+    if (topRow) {
+        this.buttons.topRow.add(button);
+    } else {
+        this.buttons.bottomRow.add(button);
+    }
+    return button;
 };
 
 // ProjectDialogMorph source buttons
@@ -6104,7 +6626,7 @@ ProjectDialogMorph.prototype.buildFilterField = function () {
     this.body.add(this.magnifyingGlass);
     this.body.add(this.filterField);
 
-    this.filterField.reactToKeystroke = function (evt) {
+    this.filterField.reactToInput = function (evt) {
         var text = this.getValue();
 
         myself.listField.elements =
@@ -6135,17 +6657,18 @@ ProjectDialogMorph.prototype.setSource = function (source) {
     var myself = this,
         msg;
 
-    this.source = source; //this.task === 'save' ? 'local' : source;
+    this.source = source;
     this.srcBar.children.forEach(function (button) {
         button.refresh();
     });
+
     switch (this.source) {
     case 'cloud':
         msg = myself.ide.showMessage('Updating\nproject list...');
         this.projectList = [];
         myself.ide.cloud.getProjectList(
             function (response) {
-                // Don't show cloud projects if user has since switch panes.
+                // Don't show cloud projects if user has since switched panes.
                 if (myself.source === 'cloud') {
                     myself.installCloudProjectList(response.projects);
                 }
@@ -6161,7 +6684,17 @@ ProjectDialogMorph.prototype.setSource = function (source) {
         this.projectList = this.getExamplesProjectList();
         break;
     case 'local':
+        // deprecated, only for reading
         this.projectList = this.getLocalProjectList();
+        break;
+    case 'disk':
+        if (this.task === 'save') {
+            this.projectList = [];
+        } else {
+            this.destroy();
+            this.ide.importLocalFile();
+            return;
+        }
         break;
     }
 
@@ -6175,6 +6708,9 @@ ProjectDialogMorph.prototype.setSource = function (source) {
         null,
         function () {myself.ok(); }
     );
+    if (this.source === 'disk') {
+        this.listField.hide();
+    }
 
     this.fixListFieldItemColors();
     this.listField.fixLayout = nop;
@@ -6243,10 +6779,8 @@ ProjectDialogMorph.prototype.setSource = function (source) {
         this.recoverButton.hide();
     }
 
-    /*
     this.publishButton.hide();
     this.unpublishButton.hide();
-    */
     if (this.source === 'local') {
         this.deleteButton.show();
     } else { // examples
@@ -6257,6 +6791,15 @@ ProjectDialogMorph.prototype.setSource = function (source) {
     if (this.task === 'open') {
         this.clearDetails();
     }
+};
+
+ProjectDialogMorph.prototype.hasLocalProjects = function () {
+    // check and report whether old projects still exist in the
+    // browser's local storage, which as of v5 has been deprecated,
+    // so the user can recover and move them elsewhere
+    return Object.keys(localStorage).some(function (any) {
+        return any.indexOf('-snap-project-') === 0;
+    });
 };
 
 ProjectDialogMorph.prototype.getLocalProjectList = function () {
@@ -6355,7 +6898,6 @@ ProjectDialogMorph.prototype.installCloudProjectList = function (pl) {
         if (item.ispublic) {
             myself.shareButton.hide();
             myself.unshareButton.show();
-            /*
             if (item.ispublished) {
                 myself.publishButton.hide();
                 myself.unpublishButton.show();
@@ -6363,14 +6905,11 @@ ProjectDialogMorph.prototype.installCloudProjectList = function (pl) {
                 myself.publishButton.show();
                 myself.unpublishButton.hide();
             }
-            */
         } else {
             myself.unshareButton.hide();
             myself.shareButton.show();
-            /*
             myself.publishButton.hide();
             myself.unpublishButton.hide();
-            */
         }
         myself.buttons.fixLayout();
         myself.fixLayout();
@@ -6419,6 +6958,7 @@ ProjectDialogMorph.prototype.openProject = function () {
         this.ide.openProjectString(src);
         this.destroy();
     } else { // 'local'
+        this.ide.source = null;
         this.ide.openProject(proj.name);
         this.destroy();
     }
@@ -6487,44 +7027,17 @@ ProjectDialogMorph.prototype.saveProject = function () {
                 this.ide.setProjectName(name);
                 myself.saveCloudProject();
             }
-        } else { // 'local'
-            if (detect(
-                    this.projectList,
-                    function (item) {return item.name === name; }
-                )) {
-                this.ide.confirm(
-                    localize(
-                        'Are you sure you want to replace'
-                    ) + '\n"' + name + '"?',
-                    'Replace Project',
-                    function () {
-                        myself.ide.setProjectName(name);
-                        myself.ide.source = 'local';
-                        myself.ide.saveProject(name);
-                        myself.destroy();
-                    }
-                );
-            } else {
-                this.ide.setProjectName(name);
-                myself.ide.source = 'local';
-                this.ide.saveProject(name);
-                this.destroy();
-            }
+        } else if (this.source === 'disk') {
+            this.ide.exportProject(name, false);
+            this.ide.source = 'disk';
+            this.destroy();
         }
     }
 };
 
 ProjectDialogMorph.prototype.saveCloudProject = function () {
-    var myself = this;
-    this.ide.showMessage('Saving project\nto the cloud...');
-    this.ide.cloud.saveProject(
-        this.ide,
-        function () {
-            myself.ide.source = 'cloud';
-            myself.ide.showMessage('saved.', 2);
-        },
-        this.ide.cloudError()
-    );
+    this.ide.source = 'cloud';
+    this.ide.saveProjectToCloud();
     this.destroy();
 };
 
@@ -6597,10 +7110,8 @@ ProjectDialogMorph.prototype.shareProject = function () {
                         proj.ispublic = true;
                         myself.unshareButton.show();
                         myself.shareButton.hide();
-                        /*
                         myself.publishButton.show();
                         myself.unpublishButton.hide();
-                        */
                         entry.label.isBold = true;
                         entry.label.drawNew();
                         entry.label.changed();
@@ -6646,10 +7157,8 @@ ProjectDialogMorph.prototype.unshareProject = function () {
                         proj.ispublic = false;
                         myself.shareButton.show();
                         myself.unshareButton.hide();
-                        /*
                         myself.publishButton.hide();
                         myself.unpublishButton.hide();
-                        */
                         entry.label.isBold = false;
                         entry.label.isItalic = false;
                         entry.label.drawNew();
@@ -6934,7 +7443,7 @@ ProjectRecoveryDialogMorph.prototype.buildContents = function () {
 
     this.body.add(this.notesField);
 
-    this.addButton('recoverProject', 'Recover');
+    this.addButton('recoverProject', 'Recover', true);
     this.addButton('cancel', 'Cancel');
 
     this.setExtent(new Point(360, 300));
@@ -7683,6 +8192,13 @@ SpriteIconMorph.prototype.userMenu = function () {
             },
             'open a new window\nwith a picture of the stage'
         );
+        if (this.object.trailsLog.length) {
+            menu.addItem(
+                'svg...',
+                function () {myself.object.exportTrailsLogAsSVG(); },
+                'export pen trails\nline segments as SVG'
+            );
+        }
         return menu;
     }
     if (!(this.object instanceof SpriteMorph)) {return null; }
@@ -7790,15 +8306,15 @@ SpriteIconMorph.prototype.createBackgrounds = function () {
         return null;
     }
 
-    this.normalImage = newCanvas(ext);
+    this.normalImage = newCanvas(ext, false, this.normalImage);
     context = this.normalImage.getContext('2d');
     this.drawBackground(context, this.color);
 
-    this.highlightImage = newCanvas(ext);
+    this.highlightImage = newCanvas(ext, false, this.highlightImage);
     context = this.highlightImage.getContext('2d');
     this.drawBackground(context, this.highlightColor);
 
-    this.pressImage = newCanvas(ext);
+    this.pressImage = newCanvas(ext, false, this.pressImage);
     context = this.pressImage.getContext('2d');
     this.drawOutline(context);
     this.drawBackground(context, this.pressColor);
@@ -8132,7 +8648,7 @@ CostumeIconMorph.prototype.disinherit = function () {
         idx = this.parent.children.indexOf(this);
     if (wardrobe.sprite.inheritsAttribute('costumes')) {
         wardrobe.sprite.shadowAttribute('costumes');
-        this.object = wardrobe.sprite.costumes.at(idx - 2);
+        this.object = wardrobe.sprite.costumes.at(idx - 3);
     }
 };
 
@@ -8562,7 +9078,6 @@ WardrobeMorph.prototype.reactToDropOf = function (icon) {
     var idx = 0,
         costume = icon.object,
         top = icon.top();
-
     icon.destroy();
     this.contents.children.forEach(function (item) {
         if (item instanceof CostumeIconMorph && item.top() < top - 4) {
@@ -8740,6 +9255,8 @@ SoundIconMorph.prototype.userMenu = function () {
     if (!(this.object instanceof Sound)) { return null; }
     menu.addItem('rename', 'renameSound');
     menu.addItem('delete', 'removeSound');
+    menu.addLine();
+    menu.addItem('export', 'exportSound');
     return menu;
 };
 
@@ -8773,6 +9290,11 @@ SoundIconMorph.prototype.removeSound = function () {
     jukebox.removeSound(idx);
 };
 
+SoundIconMorph.prototype.exportSound = function () {
+    var ide = this.parentThatIsA(IDE_Morph);
+    ide.saveAudioAs(this.object.audio, this.object.name);
+};
+
 SoundIconMorph.prototype.createBackgrounds
     = SpriteIconMorph.prototype.createBackgrounds;
 
@@ -8786,7 +9308,7 @@ SoundIconMorph.prototype.disinherit = function () {
         idx = this.parent.children.indexOf(this);
     if (jukebox.sprite.inheritsAttribute('sounds')) {
         jukebox.sprite.shadowAttribute('sounds');
-        this.object = jukebox.sprite.sounds.at(idx);
+        this.object = jukebox.sprite.sounds.at(idx - 1);
     }
 };
 
@@ -8939,13 +9461,13 @@ JukeboxMorph.prototype.reactToDropOf = function (icon) {
 
     icon.destroy();
     this.contents.children.forEach(function (item) {
-        if (item.top() < top - 4) {
+        if (item instanceof SoundIconMorph && item.top() < top - 4) {
             idx += 1;
         }
     });
 
     this.sprite.shadowAttribute('sounds');
-    this.sprite.sounds.add(costume, idx);
+    this.sprite.sounds.add(costume, idx + 1);
     this.updateList();
 };
 
@@ -8978,8 +9500,8 @@ StageHandleMorph.prototype.init = function (target) {
 // StageHandleMorph drawing:
 
 StageHandleMorph.prototype.drawNew = function () {
-    this.normalImage = newCanvas(this.extent());
-    this.highlightImage = newCanvas(this.extent());
+    this.normalImage = newCanvas(this.extent(), false, this.normalImage);
+    this.highlightImage = newCanvas(this.extent(), false, this.highlightImage);
     this.drawOnCanvas(
         this.normalImage,
         this.color
@@ -9271,7 +9793,11 @@ CamSnapshotDialogMorph.prototype.buildContents = function () {
     }
 
     this.videoView.setExtent(stage.dimensions);
-    this.videoView.image = newCanvas(stage.dimensions);
+    this.videoView.image = newCanvas(
+        stage.dimensions,
+        true, // retina, maybe overkill here
+        this.videoView.image
+    );
 
     this.videoView.drawOn = function (aCanvas) {
         var context = aCanvas.getContext('2d'),
@@ -9438,26 +9964,32 @@ SoundRecorderDialogMorph.prototype.buildContents = function () {
     this.body.fixLayout();
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(function (stream) {
-                myself.mediaRecorder = new MediaRecorder(stream);
-                myself.mediaRecorder.ondataavailable = function (event) {
-                    audioChunks.push(event.data);
+        navigator.mediaDevices.getUserMedia(
+            {
+                audio: {
+                    channelCount: 1 // force mono, currently only works on FF
+                }
+                
+            }
+        ).then(function (stream) {
+            myself.mediaRecorder = new MediaRecorder(stream);
+            myself.mediaRecorder.ondataavailable = function (event) {
+                audioChunks.push(event.data);
+            };
+            myself.mediaRecorder.onstop = function (event) {
+                var buffer = new Blob(audioChunks),
+                    reader = new window.FileReader();
+                reader.readAsDataURL(buffer);
+                reader.onloadend = function() {
+                    var base64 = reader.result;
+                    base64 = 'data:audio/ogg;base64,' +
+                        base64.split(',')[1];
+                    myself.audioElement.src = base64;
+                    myself.audioElement.load();
+                    audioChunks = [];
                 };
-                myself.mediaRecorder.onstop = function (event) {
-					var buffer = new Blob(audioChunks),
-						reader = new window.FileReader();
-					reader.readAsDataURL(buffer);
-					reader.onloadend = function() {
-   						var base64 = reader.result;
-    					base64 = 'data:audio/ogg;base64,' +
-         	               base64.split(',')[1];
-						myself.audioElement.src = base64;
-                    	myself.audioElement.load();
-                    	audioChunks = [];
-					};
-                };
-            });
+            };
+        });
     }
 
     this.addButton('ok', 'Save');
