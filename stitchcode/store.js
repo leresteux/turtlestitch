@@ -1,4 +1,4 @@
-SnapSerializer.prototype.app = 'TurtleStitch 2.5, http://www.turtlestitch.org';
+SnapSerializer.prototype.app = 'TurtleStitch 2.6, http://www.turtlestitch.org';
 SnapSerializer.prototype.thumbnailSize = new Point(480, 360);
 
 SnapSerializer.prototype.openProject = function (project, ide) {

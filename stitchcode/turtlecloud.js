@@ -156,12 +156,12 @@ BeetleCloud.prototype.shareProject = function (shareOrNot, projectName, callBack
 BeetleCloud.prototype.saveProject = function (ignorethis, discardthis, callBack, errorCall) {
     var myself = this;
 
-    this,ide.stage.reRender();
+    this.ide.stage.reRender();
 
     this.checkCredentials(
             function (user) {
                 if (user.username) {
-                    var pdata = ide.serializer.serialize(ide.stage);
+                    var pdata = myself.ide.serializer.serialize(myself.ide.stage);
                     // check if serialized data can be parsed back again
                     try {
                         myself.ide.serializer.parse(pdata);
@@ -815,7 +815,10 @@ ProjectDialogMorph.prototype.setSource = function (source) {
             if (myself.nameField) {
                 myself.nameField.setContents(item.name || '');
             }
-            src = myself.ide.getURL(item.path);
+            //src = myself.ide.getURL(item.path);
+            src = myself.ide.getURL(
+                myself.ide.resourceURL('Examples', item.fileName)
+            );
 
             xml = myself.ide.serializer.parse(src);
             myself.notesText.text = xml.childNamed('notes').contents
