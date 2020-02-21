@@ -220,4 +220,4 @@ tempDict = {
 };
 
 // Add attributes to original SnapTranslator.dict.de
-for (var attrname in tempDict) { SnapTranslator.dict.de[attrname] = tempDict[attrname]; }
+for (var attrname in tempDict) { SnapTranslator.dict.nl[attrname] = tempDict[attrname]; }
