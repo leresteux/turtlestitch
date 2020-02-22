@@ -760,8 +760,18 @@ ProjectDialogMorph.prototype.setSource = function (source) {
             this.projectList = this.getExamplesProjectList();
             break;
         case 'local':
-            this.projectList = this.getLocalProjectList();
-            break;
+              // deprecated, only for reading
+              this.projectList = this.getLocalProjectList();
+              break;
+        case 'disk':
+            if (this.task === 'save') {
+                this.projectList = [];
+            } else {
+                this.destroy();
+                this.ide.importLocalFile();
+                return;
+            }
+            break;                 
     }
 
     this.listField.destroy();
