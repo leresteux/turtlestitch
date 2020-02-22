@@ -52,7 +52,7 @@ using web apps in favor of proprietary "native" apps.
 
 You can't access the cloud, duh. Everything else just works.
 
-Aside from accessing the cloud using TurtleStitchoffline in the browser by opening the `index.html`
+Aside from accessing the cloud using TurtleStitch offline in the browser by opening the `index.html`
 file locally there aren't any restrictions. You can use all the blocks, import pictures, sounds,
 libraries, take snapshots with the webcom, record sounds with the microphone, draw your
 own costumes etc.
