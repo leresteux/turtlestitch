@@ -938,7 +938,11 @@ SpriteMorph.prototype.drawTextScale = function (text, scale, trim) {
     vy = Math.sin(radians(this.heading - 90));
     nx = Math.cos(radians(this.heading ));
     ny = Math.sin(radians(this.heading ));
-
+    
+    if (!isNaN(text)) {
+      text = text.toString()
+    }
+    
 		for(var i in text) {
 			var index = text.charCodeAt(i) - 33;
 			var x = this.xPosition();
