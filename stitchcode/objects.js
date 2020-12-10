@@ -803,10 +803,12 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 		} else {
 			this.origGotoXY(x, y, justMe);
 
-			warn = this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
-				oldx, oldy,
-				this.xPosition(), this.yPosition(),
-				this.isDown );
+      if (dist > 1) {
+        warn = this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
+          oldx, oldy,
+          this.xPosition(), this.yPosition(),
+          this.isDown );
+      }
 
 			if (this.isDown) {
 				this.addStitch(oldx, oldy, this.xPosition(), this.yPosition(), angle);
