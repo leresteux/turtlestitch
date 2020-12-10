@@ -803,6 +803,9 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 		} else {
 			this.origGotoXY(x, y, justMe);
 
+      // dont' stitch if is zero value length
+      // - shoud we filter out all noShadows?
+      // if (!noShadow && dist > 1) {
       if (dist > 1) {
         warn = this.parentThatIsA(StageMorph).turtleShepherd.moveTo(
           oldx, oldy,
