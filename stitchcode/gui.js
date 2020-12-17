@@ -1,3 +1,6 @@
+
+VERSION="2.6.2 dev"
+
 // get debug mode
 url = new URL(window.location.href);
 searchParams = new URLSearchParams(url.search);
@@ -1000,7 +1003,7 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
     pic = Morph.fromImageURL('stitchcode/assets/turtle-logo.png');
     pic.setExtent(new Point(32, 32));
 
-    aboutTxt = 'TurtleStich! 2.6.1 \n\n'
+    aboutTxt = 'TurtleStich! ' + VERSION + '\n\n'
         + 'Copyright \u24B8 2020 Michael Aschauer\n\n'
 
         + 'TurtleStitch is developed by OSEDA - Association for\n'
