@@ -118,7 +118,7 @@ tempDict = {
 
   // legacy blocks
   'clear':
-    'wissenn',
+    'wissen',
   'move %n steps by %n steps':
     'neem %n stappen in steken van %n',
   'move %n steps in %n':
@@ -208,7 +208,7 @@ tempDict = {
   'trim':
     'knip af',
   'stop running':
-    'Stickeinstellungen zur\u00fccksetzen',
+    'verwijder borduurinstellingen',
   'draw text %s with size %n':
     'schrijf tekst %s met grootte %n',
   'text length of %s with size %n':
