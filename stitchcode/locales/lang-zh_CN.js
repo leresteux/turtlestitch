@@ -182,7 +182,7 @@ tempDict = {
   'triple run by %n':
     '设为往复3次模式，每针设置为 %n 步',
   'cross stitch in %n by %n center %b':
-    '十字线 针数 %n 每针 %n 步 沿中心 %b',
+    '十字线 齿距 %n 宽度 %n 沿中心 %b',
   'zigzag with density %n width %n center %b':
     '锯齿线 齿距 %n 宽度 %n 沿中心 %b',
   'Z-stitch with density %n width %n center %b':
