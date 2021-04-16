@@ -497,7 +497,6 @@ TurtleShepherd.prototype.toEXP = function() {
     }
 
     for (var i=0; i < this.cache.length; i++) {
-
         if (this.cache[i].cmd == "color" && !this.ignoreColors) {
             expArr.push(0x80);
             expArr.push(0x01);
@@ -517,9 +516,7 @@ TurtleShepherd.prototype.toEXP = function() {
                 //}
                 //move(0,0);         
 
-                // also remove setting previous stitch to 0 - EXP/Bernina does not like it
-                // lastStitch = {cmd: "move", x: 0, y: -0, penDown: stitch.penDown}
-
+                lastStitch = {cmd: "move", x: 0, y: -0, penDown: stitch.penDown}                
                 hasFirst = true;
             } else if (hasFirst) {
                 x1 = Math.round(stitch.x * scale)  - origin.x;
