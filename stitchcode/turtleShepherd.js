@@ -4,11 +4,11 @@
     turltestich's embroidery intelligence agency
     Embroidery function for Javscript
     ------------------------------------------------------------------
-    Copyright (C) 2016-2017 Michael Aschauer
+    Copyright (C) 2016-2021 Michael Aschauer
 
 */
 
-// TODO: Color Change integration
+// TODO: Cleanup TABS!
 
 function TurtleShepherd() {
     this.init();
