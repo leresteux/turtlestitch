@@ -1004,7 +1004,7 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
     pic.setExtent(new Point(32, 32));
 
     aboutTxt = 'TurtleStich! ' + VERSION + '\n\n'
-        + 'Copyright \u24B8 2020 Michael Aschauer\n\n'
+        + 'Copyright \u24B8 2021 Michael Aschauer\n\n'
 
         + 'TurtleStitch is developed by OSEDA - Association for\n'
         + 'Development of Open Source Software in Education, Design\n'
