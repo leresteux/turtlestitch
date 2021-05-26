@@ -26,6 +26,7 @@ TurtleShepherd.prototype.init = function() {
     this.ignoreWarning = false;
     this.backgroundColor = {r:0,g:0,b:0,a:1};
     this.defaultColor = {r:0,g:0,b:0,a:1};
+    this.oldColor =  this.defaultColor;
 };
 
 TurtleShepherd.prototype.clear = function() {
