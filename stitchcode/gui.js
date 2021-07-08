@@ -2148,7 +2148,7 @@ IDE_Morph.prototype.snapMenu = function () {
     menu.addItem(
         'TurtleStitch Web Site',
         function () {
-            window.open('http://www.turtlestitch.com', 'TurtleStitchWebsite');
+            window.open('http://www.turtlestitch.org', 'TurtleStitchWebsite');
         }
     );
     menu.addItem(

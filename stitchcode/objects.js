@@ -1338,6 +1338,7 @@ SpriteMorph.prototype.resetAll = function () {
 	myself.gotoXY(0,0);
 	myself.setHeading(90);
 	myself.clear();
+  myself.rerender();
 	myself.isDown = true;
 }
 
@@ -2704,25 +2705,24 @@ StageMorph.prototype.initCamera = function () {
 
         myself.camera.fitScene = function () {
 
+          var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
+              boundingSphere = boundingBox.getBoundingSphere(new THREE.Vector3()), // center with new vector 
+              center = boundingSphere.center,
+              distance = boundingSphere.radius;
 
-            var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
-                boundingSphere = boundingBox.getBoundingSphere(),
-                center = boundingSphere.center,
-                distance = boundingSphere.radius;
-
-            if(distance > 0) {
-				var width = Math.max(myself.width(), 480),
+          if(distance > 0) {
+            var width = Math.max(myself.width(), 480),
                 height = Math.max(myself.height(), 360);
 
-				this.zoomFactor = Math.max(width / distance, height / distance) * 0.90;
-				this.applyZoom();
+            this.zoomFactor = Math.max(width / distance, height / distance) * 0.90;
+            this.applyZoom();
 
-				this.position.set(center.x, center.y, 10);
-				myself.controls.center.set(center.x, center.y, 10);
+            this.position.set(center.x, center.y, 10);
+            myself.controls.center.set(center.x, center.y, 10);
 
-				myself.controls.update();
-				myself.reRender();
-			}
+            myself.controls.update();
+            myself.reRender();
+          }
         };
     };
 
@@ -2741,7 +2741,7 @@ StageMorph.prototype.initTurtle = function() {
 
 		var loader = new THREE.LegacyJSONLoader();
 
-		loader.load( 'stitchcode/assets/turtle.js',
+		loader.load('stitchcode/assets/turtle.js',
 			function ( geometry, materials ) {
 				//var material = materials[ 0 ];
 				this.turtle = new THREE.Mesh(geometry,material);
