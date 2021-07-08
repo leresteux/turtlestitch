@@ -1969,7 +1969,8 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(this.makeBlockButton(cat));
 
     } else if (cat === 'control') {
-
+        blocks.push(block('resetAll'));
+		    blocks.push('-');
         blocks.push(block('receiveGo'));
         blocks.push(block('receiveKey'));
         blocks.push(block('receiveInteraction'));
