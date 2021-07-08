@@ -2950,7 +2950,7 @@ StageMorph.prototype.penTrails = function () {
 
 // StageMorph drawing
 StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
-StageMorph.prototype.drawOn = function (aCanvas, aRect) {
+StageMorph.prototype.drawOn = function (context, aRect) {
     // If the scale is lower than 1, we reuse the original method,
     // otherwise we need to modify the renderer dimensions
     // we do not need to render the original canvas anymore because
@@ -2970,13 +2970,12 @@ StageMorph.prototype.drawOn = function (aCanvas, aRect) {
     if (area.extent().gt(new Point(0, 0))) {
         delta = this.position().neg();
         src = area.copy().translateBy(delta).round();
-        context = aCanvas.getContext('2d');
         context.globalAlpha = this.alpha;
 
         sl = src.left();
         st = src.top();
-        w = Math.min(src.width(), this.image.width - sl);
-        h = Math.min(src.height(), this.image.height - st);
+        w = Math.min(src.width(), area.width() - sl);
+        h = Math.min(src.height(), area.height() - st);
 
         if (w < 1 || h < 1) {
             return null;

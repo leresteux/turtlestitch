@@ -633,10 +633,10 @@ ProjectDialogMorph.prototype.shareProject = function () {
                                 myself.unshareButton.show();
                                 myself.shareButton.hide();
                                 entry.label.isBold = true;
-                                entry.label.drawNew();
+                                entry.label.fixLayout();
                                 entry.label.changed();
                                 myself.buttons.fixLayout();
-                                myself.drawNew();
+                                myself.fixLayout();
                                 myself.ide.showMessage('shared.', 2);
                             },
                             myself.ide.cloudError()
@@ -677,10 +677,10 @@ ProjectDialogMorph.prototype.unshareProject = function () {
                                 myself.shareButton.show();
                                 myself.unshareButton.hide();
                                 entry.label.isBold = false;
-                                entry.label.drawNew();
+                                entry.label.fixLayout();
                                 entry.label.changed();
                                 myself.buttons.fixLayout();
-                                myself.drawNew();
+                                myself.fixLayout();
                                 myself.ide.showMessage('unshared.', 2);
                             },
                             myself.ide.cloudError()
@@ -791,7 +791,6 @@ ProjectDialogMorph.prototype.setSource = function (source) {
     this.listField.fontSize = InputFieldMorph.prototype.fontSize;
     this.listField.typeInPadding = InputFieldMorph.prototype.typeInPadding;
     this.listField.contrast = InputFieldMorph.prototype.contrast;
-    this.listField.drawNew = InputFieldMorph.prototype.drawNew;
     this.listField.drawRectBorder = InputFieldMorph.prototype.drawRectBorder;
 
     if (this.source === 'local') {
@@ -809,12 +808,12 @@ ProjectDialogMorph.prototype.setSource = function (source) {
 
                 myself.notesText.text = xml.childNamed('notes').contents
                     || '';
-                myself.notesText.drawNew();
+                myself.notesText.fixLayout();
                 myself.notesField.contents.adjustBounds();
                 myself.preview.texture = xml.childNamed('thumbnail').contents
                     || null;
                 myself.preview.cachedTexture = null;
-                myself.preview.drawNew();
+                myself.preview.fixLayout();
             }
             myself.edit();
         };
@@ -833,12 +832,12 @@ ProjectDialogMorph.prototype.setSource = function (source) {
             xml = myself.ide.serializer.parse(src);
             myself.notesText.text = xml.childNamed('notes').contents
                 || '';
-            myself.notesText.drawNew();
+            myself.notesText.fixLayout();
             myself.notesField.contents.adjustBounds();
             myself.preview.texture = xml.childNamed('thumbnail').contents
                 || null;
             myself.preview.cachedTexture = null;
-            myself.preview.drawNew();
+            myself.preview.fixLayout();
             myself.edit();
         };
     }
