@@ -34,10 +34,20 @@ BeetleCloud.prototype.get = function (path, callBack, errorCall, errorMsg) {
         );
 
         request.withCredentials = true;
-
         request.onreadystatechange = function () {
             if (request.readyState === 4) {
                 if (request.responseText) {
+                    if(request.status === 404) { 
+                      if (errorCall) 
+                        errorCall.call(
+                            null,
+                            myself.url,
+                            errorMsg
+                        );
+                      else
+                        console.log("error in checking credentials")
+                      return false;
+                    }
                     var response = JSON.parse(request.responseText);
                     if (!response.error) {
                         callBack.call(null, response);

@@ -2720,11 +2720,13 @@ StageMorph.prototype.initTurtle = function() {
 
     if (typeof this.turtle.loaded === 'undefined') {
 
-		var loader = new THREE.JSONLoader();
+		var loader = new THREE.LegacyJSONLoader();
 
 		loader.load( 'stitchcode/assets/turtle.js',
 
 			function ( geometry, materials ) {
+        console.log(geometry);
+        console.log(material);
 				//var material = materials[ 0 ];
 				this.turtle = new THREE.Mesh(geometry,material);
 				this.turtle.scale.set(4, 4, 4);
