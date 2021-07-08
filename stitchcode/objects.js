@@ -2723,7 +2723,6 @@ StageMorph.prototype.initTurtle = function() {
 		var loader = new THREE.LegacyJSONLoader();
 
 		loader.load( 'stitchcode/assets/turtle.js',
-
 			function ( geometry, materials ) {
 				//var material = materials[ 0 ];
 				this.turtle = new THREE.Mesh(geometry,material);
