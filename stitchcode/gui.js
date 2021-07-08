@@ -1986,22 +1986,6 @@ IDE_Morph.prototype.projectMenu = function () {
 
     menu.addLine();
     menu.addItem(
-        'Import tools',
-        function () {
-            if (location.protocol === 'file:') {
-                myself.importLocalFile();
-                return;
-            }
-            myself.getURL(
-                myself.resourceURL('libraries', 'tools.xml'),
-                function (txt) {
-                    myself.droppedText(txt, 'tools');
-                }
-            );
-        },
-        'load the official library of\npowerful blocks'
-    );
-	menu.addItem(
         'Libraries...',
         function() {
             if (location.protocol === 'file:') {
