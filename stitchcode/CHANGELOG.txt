@@ -1,0 +1,36 @@
+
+
+
+
+* 2021-07-08 (snap6 branch)
+  - update and merge Snap 6.9.0
+  - update to Three r124
+  - remove tools library and merge Snap's new blocks (map, etc..)
+  - remove unused three loaders and use min version for production
+
+bump version to 2.6.4
+
+* 2021-07-07
+  merge Simon's updated Geometry library
+
+* 2021-05-26
+  fix error in color setup
+
+bump version to 2.6.3 dev
+
+* 2021-04-15
+  correction for Chinese translation (thanks Simon)
+
+* 2020-12-30
+  updates for Dutch translation (thanks Joek)
+
+* 2020-12-17
+  remove zero (tie) stitches from EXP export (Bernina support)
+
+bump version to 2.6.2 dev
+
+* 2020-12-10
+  don't add zero length (correction?) stitches
+
+* 2020-07-30
+  re-add tools.xml (needs cleanup and merge later)
