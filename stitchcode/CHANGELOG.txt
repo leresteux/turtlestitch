@@ -1,6 +1,9 @@
 
 
 
+* 2021-08-12 (snap6 branch)
+  - revert back to three r97 (too many small bugs no big pros? )
+  - make fullscreen/appmode usable again
 
 * 2021-07-08 (snap6 branch)
   - update and merge Snap 6.9.0
