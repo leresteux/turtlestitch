@@ -1,5 +1,6 @@
 
 Process.prototype.proxy = 'https://turtlestitch.org:8080';
+Process.prototype.enableJS = true;
 
 Process.prototype.reportMouseX = function () {
     var stage, world;
