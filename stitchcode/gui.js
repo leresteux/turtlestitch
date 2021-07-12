@@ -133,11 +133,12 @@ IDE_Morph.prototype.createCorral = nop;
 
 // build panes (do not add all)
 IDE_Morph.prototype.buildPanes = function () {
+    
+    this.createStage();    
     this.createLogo();
     this.createControlBar();
     this.createCategories();
     this.createPalette();
-    this.createStage();
     this.createSpriteBar();
     this.createSpriteEditor();
     //this.createCorralBar();
@@ -938,7 +939,7 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
 IDE_Morph.prototype.toggleAppMode = function (appMode) {
     var world = this.world(),
         elements = [
-        this.logo,
+        // this.logo,
         this.controlBar.projectButton,
         this.controlBar.settingsButton,
         this.controlBar.stageSizeButton,
@@ -950,48 +951,119 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         this.stageHandle,
         this.palette,
         this.statusDisplay,
-        this.categories ];
+        this.categories,
+      ];
+      
 
-        this.isAppMode = isNil(appMode) ? !this.isAppMode : appMode;
+    this.isAppMode = isNil(appMode) ? !this.isAppMode : appMode;
 
-        Morph.prototype.trackChanges = false;
-        if (this.isAppMode) {
-            this.setColor(this.appModeColor);
-            this.controlBar.setColor(this.color);
-            this.controlBar.appModeButton.refresh();
-            elements.forEach(function (e) {
-                e.hide();
-            });
-            world.children.forEach(function (morph) {
-                if (morph instanceof DialogBoxMorph) {
-                    morph.hide();
+    if (this.isAppMode) {
+		this.wasSingleStepping = Process.prototype.enableSingleStepping;
+		if (this.wasSingleStepping) {
+     		this.toggleSingleStepping();
+    	}
+        this.setColor(this.appModeColor);
+        this.controlBar.setColor(this.color);
+        this.controlBar.appModeButton.refresh();
+        elements.forEach(e =>
+            e.hide()
+        );
+        world.children.forEach(morph => {
+            if (morph instanceof DialogBoxMorph) {
+                morph.hide();
+            }
+        });
+        if (world.keyboardFocus instanceof ScriptFocusMorph) {
+            world.keyboardFocus.stopEditing();
+        }
+    } else {
+        if (this.wasSingleStepping && !Process.prototype.enableSingleStepping) {
+             this.toggleSingleStepping();
+        }
+        this.setColor(this.backgroundColor);
+        this.controlBar.setColor(this.frameColor);
+        elements.forEach(e =>
+            e.show()
+        );
+        this.stage.setScale(2);
+        // show all hidden dialogs
+        world.children.forEach(morph => {
+            if (morph instanceof DialogBoxMorph) {
+                morph.show();
+            }
+        });
+        // prevent scrollbars from showing when morph appears
+        world.allChildren().filter(c =>
+            c instanceof ScrollFrameMorph
+        ).forEach(s =>
+            s.adjustScrollBars()
+        );
+        // prevent rotation and draggability controls from
+        // showing for the stage
+        if (this.currentSprite === this.stage) {
+            this.spriteBar.children.forEach(child => {
+                if (child instanceof PushButtonMorph) {
+                    child.hide();
                 }
-            });
-            this.stage.add(this.controlBar);
-            this.controlBar.alpha = 0;
-        } else {
-            this.controlBar.setColor(this.controlBar.color);
-            this.add(this.controlBar);
-
-            elements.forEach(function (e) {
-                e.show();
-            });
-            this.stage.setScale(1);
-            // show all hidden dialogs
-            world.children.forEach(function (morph) {
-                if (morph instanceof DialogBoxMorph) {
-                    morph.show();
-                }
-            });
-            // prevent scrollbars from showing when morph appears
-            world.allChildren().filter(function (c) {
-                return c instanceof ScrollFrameMorph;
-            }).forEach(function (s) {
-                s.adjustScrollBars();
             });
         }
-        this.setExtent(this.world().extent()); // resume trackChanges
-        this.fixLayout();
+        // update undrop controls
+        this.currentSprite.scripts.updateToolbar();
+    }
+    this.setExtent(this.world().extent());
+};
+
+// IDE_Morph resizing
+
+IDE_Morph.prototype.setExtent = function (point) {
+    var padding = new Point(430, 110),
+        minExt,
+        ext,
+        maxWidth,
+        minWidth,
+        maxHeight,
+        minRatio,
+        maxRatio;
+
+    // determine the minimum dimensions making sense for the current mode
+    if (this.isAppMode) {
+        if (this.isEmbedMode) {
+            minExt = new Point(100, 100);
+        } else {
+            minExt = StageMorph.prototype.dimensions.add(
+                this.controlBar.height() + 10
+            );
+        }        
+    } else {
+        if (this.stageRatio > 1) {
+            minExt = padding.add(StageMorph.prototype.dimensions);
+        } else {
+            minExt = padding.add(
+                StageMorph.prototype.dimensions.multiplyBy(this.stageRatio)
+            );
+        }
+        
+    }
+    ext = point.max(minExt);
+
+    // adjust stage ratio if necessary
+    maxWidth = ext.x;
+    minWidth = SpriteIconMorph.prototype.thumbSize.x * 3;
+    maxHeight = (ext.y)
+    minRatio = minWidth / this.stage.dimensions.x;
+    maxRatio = Math.min(
+        (maxWidth / this.stage.dimensions.x),
+        (maxHeight / this.stage.dimensions.y)
+    );
+    if (this.isAppMode) {
+      this.stageSetRatio = this.height() / this.width();
+    } else {
+      this.stageRatio = Math.min(maxRatio, Math.max(minRatio, this.stageRatio));
+    }
+    
+    // apply
+    IDE_Morph.uber.setExtent.call(this, ext);
+    this.fixLayout();
 };
 
 IDE_Morph.prototype.zoomToFit = function (appMode) {
@@ -1403,11 +1475,18 @@ IDE_Morph.prototype.fixLayout = function (situation) {
     if (situation !== 'refreshPalette') {
         // stage
         if (this.isAppMode) {
-            this.stage.setScale(this.width() / this.stage.dimensions.x);
+            //this.stage.setScale(this.width() / this.stage.dimensions.x);
+            // temp hack!!
+            this.stage.setScale(Math.min(this.height() / this.stage.dimensions.y, this.width() / this.stage.dimensions.x));
+            //console.log(this.stageRatio, this.height() / this.width())
             //this.stage.setScale(3);
             this.stage.setCenter(this.center());
             //this.stage.setTop(this.controlBar.bottom());
             //this.stage.setLeft(0);
+            //this.stage.setWidth(this.width());
+            //this.stageSetRatio = this.height() / this.width()
+            
+            
             this.controlBar.setTop(0);
             this.controlBar.setRight(this.width() - padding);
         } else {
