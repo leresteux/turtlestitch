@@ -956,10 +956,10 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
     this.isAppMode = isNil(appMode) ? !this.isAppMode : appMode;
 
     if (this.isAppMode) {
-    this.wasSingleStepping = Process.prototype.enableSingleStepping;
-    if (this.wasSingleStepping) {
-        this.toggleSingleStepping();
-      }
+        this.wasSingleStepping = Process.prototype.enableSingleStepping;
+        if (this.wasSingleStepping) {
+          this.toggleSingleStepping();
+        }
         this.setColor(this.appModeColor);
         this.controlBar.setColor(this.color);
         this.controlBar.appModeButton.refresh();
@@ -1010,8 +1010,9 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
     }
     this.setExtent(this.world().extent());
 };
-// IDE_Morph resizing
 
+
+// IDE_Morph resizing
 IDE_Morph.prototype.setExtent = function (point) {
     var padding = new Point(430, 110),
         minExt,
@@ -1039,29 +1040,25 @@ IDE_Morph.prototype.setExtent = function (point) {
                 StageMorph.prototype.dimensions.multiplyBy(this.stageRatio)
             );
         }
-
     }
     ext = point.max(minExt);
 
     // adjust stage ratio if necessary
-    maxWidth = ext.x;
+    maxWidth = ext.x -
+        (200 + this.spriteBar.tabBar.width() + (this.padding * 2));
     minWidth = SpriteIconMorph.prototype.thumbSize.x * 3;
-    maxHeight = (ext.y)
+    maxHeight = (ext.y - SpriteIconMorph.prototype.thumbSize.y * 3.5);
     minRatio = minWidth / this.stage.dimensions.x;
     maxRatio = Math.min(
         (maxWidth / this.stage.dimensions.x),
         (maxHeight / this.stage.dimensions.y)
     );
-    if (this.isAppMode) {
-      this.stageRatio = this.height() / this.width();
-    } else {
-      this.stageRatio = Math.min(maxRatio, Math.max(minRatio, this.stageRatio));
-    }
+    this.stageRatio = Math.min(maxRatio, Math.max(minRatio, this.stageRatio));
 
     // apply
     IDE_Morph.uber.setExtent.call(this, ext);
     this.fixLayout();
-};
+}
 
 IDE_Morph.prototype.zoomToFit = function (appMode) {
     this.stage.camera.fitScene();
