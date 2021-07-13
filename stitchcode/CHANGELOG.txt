@@ -1,11 +1,12 @@
 
+* 2021-08-13 (snap6 branch/ 2.7 dev)
+  - fix app mode?
 
-
-* 2021-08-12 (snap6 branch)
-  - revert back to three r97 (too many small bugs no big pros? )
+* 2021-08-12 (snap6 branch/ 2.7 dev)
+  - revert back to three r97 (too many small bugs no big pros? (issue #93)
   - make fullscreen/appmode usable again
 
-* 2021-07-08 (snap6 branch)
+* 2021-07-08 (snap6 branch/ 2.7 dev)
   - update and merge Snap 6.9.0
   - update to Three r124
   - remove tools library and merge Snap's new blocks (map, etc..)

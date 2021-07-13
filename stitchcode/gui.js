@@ -133,14 +133,13 @@ IDE_Morph.prototype.createCorral = nop;
 
 // build panes (do not add all)
 IDE_Morph.prototype.buildPanes = function () {
-    
-    this.createStage();    
     this.createLogo();
     this.createControlBar();
     this.createCategories();
     this.createPalette();
     this.createSpriteBar();
     this.createSpriteEditor();
+    this.createStage();
     //this.createCorralBar();
     //this.createCorral();
     this.createStatusDisplay();
@@ -939,7 +938,7 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
 IDE_Morph.prototype.toggleAppMode = function (appMode) {
     var world = this.world(),
         elements = [
-        // this.logo,
+        this.logo,
         this.controlBar.projectButton,
         this.controlBar.settingsButton,
         this.controlBar.stageSizeButton,
@@ -951,17 +950,16 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         this.stageHandle,
         this.palette,
         this.statusDisplay,
-        this.categories,
-      ];
-      
+        this.categories
+    ];
 
     this.isAppMode = isNil(appMode) ? !this.isAppMode : appMode;
 
     if (this.isAppMode) {
-		this.wasSingleStepping = Process.prototype.enableSingleStepping;
-		if (this.wasSingleStepping) {
-     		this.toggleSingleStepping();
-    	}
+    this.wasSingleStepping = Process.prototype.enableSingleStepping;
+    if (this.wasSingleStepping) {
+        this.toggleSingleStepping();
+      }
         this.setColor(this.appModeColor);
         this.controlBar.setColor(this.color);
         this.controlBar.appModeButton.refresh();
@@ -985,7 +983,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
         elements.forEach(e =>
             e.show()
         );
-        this.stage.setScale(2);
+        this.stage.setScale(1);
         // show all hidden dialogs
         world.children.forEach(morph => {
             if (morph instanceof DialogBoxMorph) {
@@ -1012,7 +1010,6 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
     }
     this.setExtent(this.world().extent());
 };
-
 // IDE_Morph resizing
 
 IDE_Morph.prototype.setExtent = function (point) {
@@ -1033,7 +1030,7 @@ IDE_Morph.prototype.setExtent = function (point) {
             minExt = StageMorph.prototype.dimensions.add(
                 this.controlBar.height() + 10
             );
-        }        
+        }
     } else {
         if (this.stageRatio > 1) {
             minExt = padding.add(StageMorph.prototype.dimensions);
@@ -1042,7 +1039,7 @@ IDE_Morph.prototype.setExtent = function (point) {
                 StageMorph.prototype.dimensions.multiplyBy(this.stageRatio)
             );
         }
-        
+
     }
     ext = point.max(minExt);
 
@@ -1056,11 +1053,11 @@ IDE_Morph.prototype.setExtent = function (point) {
         (maxHeight / this.stage.dimensions.y)
     );
     if (this.isAppMode) {
-      this.stageSetRatio = this.height() / this.width();
+      this.stageRatio = this.height() / this.width();
     } else {
       this.stageRatio = Math.min(maxRatio, Math.max(minRatio, this.stageRatio));
     }
-    
+
     // apply
     IDE_Morph.uber.setExtent.call(this, ext);
     this.fixLayout();
@@ -1475,20 +1472,12 @@ IDE_Morph.prototype.fixLayout = function (situation) {
     if (situation !== 'refreshPalette') {
         // stage
         if (this.isAppMode) {
-            //this.stage.setScale(this.width() / this.stage.dimensions.x);
-            // temp hack!!
-            this.stage.setScale(Math.min(this.height() / this.stage.dimensions.y, this.width() / this.stage.dimensions.x));
-            //console.log(this.stageRatio, this.height() / this.width())
-            //this.stage.setScale(3);
-            this.stage.setCenter(this.center());
-            //this.stage.setTop(this.controlBar.bottom());
-            //this.stage.setLeft(0);
-            //this.stage.setWidth(this.width());
-            //this.stageSetRatio = this.height() / this.width()
-            
-            
-            this.controlBar.setTop(0);
-            this.controlBar.setRight(this.width() - padding);
+          this.stage.setScale(Math.floor(Math.min(
+              (this.width() - padding * 2) / this.stage.dimensions.x,
+              (this.height() - this.controlBar.height() * 2 - padding * 2)
+                  / this.stage.dimensions.y
+          ) * 10) / 10);
+          this.stage.setCenter(this.center());
         } else {
             this.stage.setScale(this.isSmallStage ? this.stageRatio : 1);
             this.stage.setTop(this.logo.bottom() + padding);
@@ -1515,13 +1504,12 @@ IDE_Morph.prototype.fixLayout = function (situation) {
             ));
         }
         this.statusDisplay.fixLayout();
+
     }
 
     Morph.prototype.trackChanges = true;
     this.changed();
 };
-
-
 
 // SVG export
 IDE_Morph.prototype.downloadSVG = function() {

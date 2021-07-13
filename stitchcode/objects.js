@@ -943,11 +943,11 @@ SpriteMorph.prototype.drawTextScale = function (text, scale, trim) {
     vy = Math.sin(radians(this.heading - 90));
     nx = Math.cos(radians(this.heading ));
     ny = Math.sin(radians(this.heading ));
-    
+
     if (!isNaN(text)) {
       text = text.toString()
     }
-    
+
 		for(var i in text) {
 			var index = text.charCodeAt(i) - 33;
 			var x = this.xPosition();
@@ -1869,7 +1869,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push('-');
             blocks.push(block('doScreenshot'));
         }
-        
+
         blocks.push('=');
         blocks.push(this.makeBlockButton(cat));
 
@@ -1906,7 +1906,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 
         blocks.push('=');
         blocks.push(this.makeBlockButton(cat));
-        
+
     } else if (cat === 'pen') {
 
         blocks.push(block('clear'));
@@ -1923,7 +1923,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('changeOpacity'));
         blocks.push(block('getOpacity'));
         blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));        
+        blocks.push(this.makeBlockButton(cat));
 
 	} else if (cat === 'embroidery') {
 
@@ -1948,7 +1948,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 
   } else if (cat === 'other') {
         blocks.push(block('zoomToFit'));
-        
+
         blocks.push('=');
         blocks.push(this.makeBlockButton(cat));
 
@@ -2061,7 +2061,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 
 
         // for debugging: ///////////////
-  
+
         if (this.world().isDevMode) {
 
             blocks.push('-');
@@ -2078,10 +2078,10 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('reportStackSize'));
             blocks.push(block('reportFrameCount'));
         }
-        
+
         blocks.push('=');
         blocks.push(this.makeBlockButton(cat));
-        
+
 
     } else if (cat === 'operators') {
 
@@ -2131,7 +2131,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         }
 
         // for debugging: ///////////////
-    
+
         if (this.world().isDevMode) {
             blocks.push('-');
             txt = new TextMorph(localize(
@@ -2144,7 +2144,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('reportTypeOf'));
             blocks.push(block('reportTextFunction'));
         }
-        
+
         blocks.push('=');
         blocks.push(this.makeBlockButton(cat));
 
@@ -2295,7 +2295,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('reportMappedCode'));
             blocks.push('=');
         }
-        
+
         blocks.push(this.makeBlockButton());
  	}
     return blocks;
@@ -2706,7 +2706,7 @@ StageMorph.prototype.initCamera = function () {
         myself.camera.fitScene = function () {
 
           var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
-              boundingSphere = boundingBox.getBoundingSphere(new THREE.Vector3()), // center with new vector 
+              boundingSphere = boundingBox.getBoundingSphere(),
               center = boundingSphere.center,
               distance = boundingSphere.radius;
 
