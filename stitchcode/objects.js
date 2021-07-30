@@ -2365,25 +2365,27 @@ StageMorph.prototype.init = function (globals) {
     this.stepcounter = 0;
     this.isXRay = false;
 
-	// load customized fonts based on Hershey's fonts.
+  	// load customized fonts based on Hershey's fonts.
+    /*
+  	function loadFont(callback) {
+  		var xobj = new XMLHttpRequest();
+  		xobj.overrideMimeType("application/json");
+  		xobj.open('GET', 'stitchcode/fonts/simplex.json', true);
+  		xobj.onreadystatechange = function () {
+  			  if (xobj.readyState == 4 && xobj.status == "200") {
+  				callback(xobj.responseText);
+  			  }
+  		};
+  		xobj.send(null);
+  	}
 
-	function loadFont(callback) {
-		var xobj = new XMLHttpRequest();
-		xobj.overrideMimeType("application/json");
-		xobj.open('GET', 'stitchcode/fonts/simplex.json', true);
-		xobj.onreadystatechange = function () {
-			  if (xobj.readyState == 4 && xobj.status == "200") {
-				callback(xobj.responseText);
-			  }
-		};
-		xobj.send(null);
-	}
-
-    if (!this.fonts) {
-		loadFont(function(response) {
-			myself.fonts = JSON.parse(response);
-		});
-	}
+      if (!this.fonts) {
+  		loadFont(function(response) {
+  			myself.fonts = JSON.parse(response);
+  		});
+  	}
+    */
+    myself.fonts = font_simplex;
 
     this.scene.grid.draw();
     this.myObjects = new THREE.Object3D();
@@ -2741,8 +2743,8 @@ StageMorph.prototype.initTurtle = function() {
 
 		var loader = new THREE.JSONLoader();
     //var loader = new THREE.LegacyJSONLoader(); // for new version!
-
-		loader.load('stitchcode/assets/turtle.js',
+    /*
+		loader.load('stitchcode/assets/turtle.json',
 			function ( geometry, materials ) {
 				//var material = materials[ 0 ];
 				this.turtle = new THREE.Mesh(geometry,material);
@@ -2768,7 +2770,20 @@ StageMorph.prototype.initTurtle = function() {
 			function( err ) {
 				console.log( 'error loading turtle shape' );
 			}
-		);
+      */
+      var model = loader.parse( turtle_model );
+      this.turtle = new THREE.Mesh(model.geometry, model.materials[0]);
+      this.turtle.scale.set(4, 4, 4);
+      this.turtle.position.z = 0.02;
+      this.turtle.rotation.x = 90 * Math.PI / 180;
+      this.turtle.rotation.y = 270 * Math.PI / 180;
+      //this.turtle.material.color = new THREE.Color("rgb(1,0,0)" );
+
+      myself.turtle = this.turtle;
+      myself.turtle.visible = !StageMorph.prototype.hideTurtle;
+      myself.renderer.changed = true;
+      myself.myObjects.add(this.turtle);
+      this.turtle.loaded = true;
 
     }
     this.penSize = 1;
