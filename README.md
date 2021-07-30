@@ -1,9 +1,9 @@
 # TurtleStitch
 
-TurtleStitch is a visual, blocks-based programming environment for turtle graphics with a focus on 
-embroidery file generation. 
+TurtleStitch is a visual, blocks-based programming environment for turtle graphics with a primary focus on
+embroidery.
 
-The generated patterns can be exported as a embroidery file (currently Melco/EXP and Tajima/DST are supported) or SVG vector graphic
+Generated graphics can be exported as a embroidery file (currently Melco/EXP and Tajima/DST are supported) and SVG images.
 
 TurtleStitch is based on [Snap<i>!</i> Build Your Own Blocks](http://snap.berkeley.edu) written by Jens Mönig and Brian Harvey.
 
@@ -12,15 +12,16 @@ It uses webgl [ThreeJS](http://threejs.org) as rendering engine for performance 
 
 ## Try it
 
-For full functionality run it from the TurtleStitch platform on http://www.turtlestitch.org
+TurtleStitch is live on its community platform - http://www.turtlestitch.org
 
 http://www.turtlestitch.org/run
 
-or the testing the current develeopment version integrated into the platform:
+the latest development version is live here:
 
 http://www.turtlestitch.org/beta
 
-You can also try the [latest development version from the git master branch](https://backface.github.io/turtlestitch/) via github pages (no cloud access!)
+You can also try the [latest stable version from the git master branch](https://backface.github.io/turtlestitch/) via github pages (no cloud access!)
+or [download it and run it offline](https://github.com/backface/turtlestitch/blob/master/OFFLINE.md)
 
 
 
