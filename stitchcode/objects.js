@@ -714,6 +714,11 @@ SpriteMorph.prototype.doMoveForward = function (steps) {
 	if (dist != 0) {
 		this.setPosition(dest);
 
+    // this is a quick hack but delaying the rerender seems to get rid of the
+    // grey square that shows as a rendering error (still don't know where it
+    // comes from )
+    // setTimeout(() => stage.reRender(), 10)
+
     var isFirst = this.parentThatIsA(StageMorph).turtleShepherd.isEmpty();
 		warn = stage.turtleShepherd.moveTo(
 			oldx, oldy,
@@ -2630,8 +2635,13 @@ StageMorph.prototype.renderCycle = function () {
         this.changed();
         this.parentThatIsA(IDE_Morph).statusDisplay.refresh();
         this.renderer.changed = false;
+
+        // this is a hack but it seems to be need for a clear render!
+        setTimeout(()=> this.changed(), 5)
     }
-};
+    // this.render();
+    // this.changed();
+}
 
 StageMorph.prototype.reRender = function () {
     this.renderer.changed = true;
@@ -2814,8 +2824,6 @@ StageMorph.prototype.step = function () {
 			this.renderCycle();
 		}
 	};
-
-
 	this.stepcounter++;
 };
 

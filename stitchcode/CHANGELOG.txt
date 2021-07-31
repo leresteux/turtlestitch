@@ -1,8 +1,13 @@
 
-* 2021-08-13 (snap6 branch/ 2.7 dev)
+
+* 2021-07-30 (snap6 branch/ 2.7 dev)
+  - include turtle model definition and simplex font as javascript
+    instead of loading from url as json (also works offline now!)
+
+* 2021-07-13 (snap6 branch/ 2.7 dev)
   - fix app mode?
 
-* 2021-08-12 (snap6 branch/ 2.7 dev)
+* 2021-07-12 (snap6 branch/ 2.7 dev)
   - revert back to three r97 (too many small bugs no big pros? (issue #93)
   - make fullscreen/appmode usable again
 
