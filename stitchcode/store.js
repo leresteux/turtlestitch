@@ -49,7 +49,7 @@ SnapSerializer.prototype.openProject = function (project, ide) {
     //  watcher.onNextStep = function () {this.currentValue = null;};
     //})
 
-    ide.world().keyboardReceiver = project.stage;
+    ide.world().keyboardFocus = project.stage;
     ide.stage.initCamera();
 };
 
