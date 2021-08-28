@@ -2319,32 +2319,30 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 SpriteMorph.prototype.bounceOffEdge = function () {
     // taking nested parts into account
     var stage = this.parentThatIsA(StageMorph),
-        fb = this.nestingBounds(),
         dirX,
         dirY;
 
     if (!stage) {return null; }
-    if (stage.bounds.containsRectangle(fb)) {return null; }
 
     dirX = Math.cos(radians(this.heading - 90));
     dirY = -(Math.sin(radians(this.heading - 90)));
 
-    if (fb.left() < stage.left()) {
+    if (this.xPosition() < stage.reportX(stage.left())) {
         dirX = Math.abs(dirX);
     }
-    if (fb.right() > stage.right()) {
+    if (this.xPosition() > stage.reportX(stage.right())) {
         dirX = -(Math.abs(dirX));
     }
-    if (fb.top() < stage.top()) {
+    if (this.yPosition() > stage.reportY(stage.top())) {
         dirY = -(Math.abs(dirY));
     }
-    if (fb.bottom() > stage.bottom()) {
+    if (this.yPosition() < stage.reportY(stage.bottom())) {
         dirY = Math.abs(dirY);
     }
-
     this.setHeading(degrees(Math.atan2(-dirY, dirX)) + 90);
 
 };
+
 
 
 // ########################################################################
@@ -3095,7 +3093,23 @@ StageMorph.prototype.userMenu = function () {
 StageMorph.prototype.toggleIgnoreWarnings = function () {
 	StageMorph.prototype.ignoreWarnings = !StageMorph.prototype.ignoreWarnings;
 	this.turtleShepherd.ignoreWarning = StageMorph.prototype.ignoreWarnings;
-}
+}；
+
+StageMorph.prototype.reportX = function (x) {
+	return (x - this.center().x)
+	        / this.camera.zoomFactor
+          / this.scale
+          * 2
+          + this.controls.center.x;
+};
+
+StageMorph.prototype.reportY = function (y) {
+	return (this.center().y - y)
+	        / this.camera.zoomFactor
+          / this.scale
+          * 2
+          + this.controls.center.y;
+};
 
 
 // Caches
