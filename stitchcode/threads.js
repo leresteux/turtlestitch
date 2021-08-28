@@ -56,3 +56,19 @@ Process.prototype.reportPi = function (min, max) {
 Process.prototype.reportProxiedURL = function (url) {
     return this.reportURL(this.proxy + '/' + url);
 };
+
+Process.prototype.origDoGotoObject = Process.prototype.doGotoObject;
+Process.prototype.doGotoObject = function (name) {
+	var thisObj = this.blockReceiver(),
+			stage;
+	
+	if (thisObj && this.inputOption(name) === 'random position') {
+		stage = thisObj.parentThatIsA(StageMorph);	
+		if (stage) {
+			thisObj.gotoXY(this.reportBasicRandom(stage.reportX(stage.left()), stage.reportX(stage.right())),
+                    this.reportBasicRandom(stage.reportY(stage.top()), stage.reportY(stage.bottom())));
+		}
+	} else {
+		this.origDoGotoObject(name);
+	}
+};
