@@ -2698,13 +2698,14 @@ StageMorph.prototype.initCamera = function () {
         };
 
         myself.camera.applyZoom = function () {
-            var zoom = myself.camera ? myself.camera.zoomFactor : 2,
-                width = Math.max(myself.width(), 480),
-                height = Math.max(myself.height(), 360);
-            this.left = width / - zoom;
-            this.right = width / zoom;
-            this.top = height / zoom;
-            this.bottom = height / - zoom;
+            var zoom = myself.camera ? myself.camera.zoomFactor : 2;
+            let width = Math.max(myself.width(), 480);
+            let height = Math.max(myself.height(), 360);
+            
+            this.left = width /myself.scale/ - zoom;
+            this.right = width/myself.scale / zoom;
+            this.top = height /myself.scale/ zoom;
+            this.bottom = height /myself.scale/ - zoom;
             this.updateProjectionMatrix();
         };
 
