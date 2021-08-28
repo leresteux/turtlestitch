@@ -1088,7 +1088,7 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
     );
     btn2 = dlg.addButton(
 		function () {
-            window.open('http://www.turtlestitch.com', 'TurtleStitchWebsite');
+            window.open('http://www.turtlestitch.org', 'TurtleStitchWebsite');
         },
         'TurtleStitch Website',
     );

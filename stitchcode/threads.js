@@ -57,6 +57,15 @@ Process.prototype.reportProxiedURL = function (url) {
     return this.reportURL(this.proxy + '/' + url);
 };
 
+Process.prototype.origReportDistanceTo = Process.prototype.reportDistanceTo;
+Process.prototype.reportDistanceTo = function (name) {
+	var thisObj = this.blockReceiver();
+	if (thisObj && this.inputOption(name) === 'mouse-pointer') {
+		return new Point(thisObj.xPosition(), thisObj.yPosition())
+                .distanceTo(new Point(this.reportMouseX(), this.reportMouseY()));		
+	} else {
+		return this.origReportDistanceTo(name);
+
 Process.prototype.origDoGotoObject = Process.prototype.doGotoObject;
 Process.prototype.doGotoObject = function (name) {
 	var thisObj = this.blockReceiver(),
