@@ -435,17 +435,25 @@ SpriteMorph.prototype.forward = function (steps) {
     }
 
     if (dist != 0) {
+    	
+  		if (dist < 0) {
+    		this.sign = -1;									//this.sign is used to indicate whether the turtle would go forward or backward
+    		dist = Math.abs(dist);
+    	} else {
+    		this.sign = 1;
+    	}      
+    		
   		if ( this.isRunning  && this.isDown) {
   			if (this.stitchoptions.autoadjust) {
   				var real_length = dist / Math.round(dist / this.stitchoptions.length);
           if (dist < this.stitchoptions.length)
             real_length = dist;
-  				this.forwardBy(steps, real_length);
+  				this.forwardBy(dist, real_length);
   			} else {
-  				this.forwardBy(steps, this.stitchoptions.length);
+  				this.forwardBy(dist, this.stitchoptions.length);
   			}
   		} else {
-  			this.moveforward(steps);
+  			this.doMoveForward(steps);     // when not in running mode or pen is not down just go a straight line
   		}
     }
 };
@@ -497,34 +505,34 @@ SpriteMorph.prototype.forwardSegemensWithEndCheck = function(steps, stepsize) {
 
 
 SpriteMorph.prototype.beanStitchForward = function (steps) {
-    this.doMoveForward(steps);
-    this.doMoveForward(-steps);
-    this.doMoveForward(steps);
+    this.doMoveForward(steps*this.sign);
+    this.doMoveForward(-steps*this.sign);
+    this.doMoveForward(steps*this.sign);
 }
 
 SpriteMorph.prototype.crossStitchForward = function (steps, width=10) {
   var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-  this.turn(alpha);
-  this.doMoveForward(c);
-  this.turn(180 - alpha);
-  this.doMoveForward(steps);
-  this.turn(180 - alpha);
-  this.doMoveForward(c);
-  this.turn(alpha);
+  this.turn(alpha*this.sign);
+  this.doMoveForward(c*this.sign);
+  this.turn((180 - alpha)*this.sign);
+  this.doMoveForward(steps*this.sign);
+  this.turn((180 - alpha)*this.sign);
+  this.doMoveForward(c*this.sign);
+  this.turn(alpha*this.sign);
 }
 
 SpriteMorph.prototype.crossStitchForwardStart = function (steps, width=10) {
-  this.turn(-90);
-  this.doMoveForward(width/2);
-  this.turn(90);
+  this.turn(-90*this.sign);
+  this.doMoveForward(this.sign*(width/2));
+  this.turn(90*this.sign);
 }
 
 SpriteMorph.prototype.crossStitchForwardStop = function (steps, width=10) {
-  this.turn(90);
-  this.doMoveForward(width/2);
-  this.turn(-90);
+  this.turn(90*this.sign);
+  this.doMoveForward(this.sign*(width/2));
+  this.turn(-90*this.sign);
 }
 
 
@@ -532,11 +540,11 @@ SpriteMorph.prototype.zigzagForward = function (steps, width=10) {
   var c = Math.sqrt(steps/2*steps/2 + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-  this.turn(alpha);
-  this.doMoveForward(c);
-  this.turnLeft(2 *alpha);
-  this.doMoveForward(c);
-  this.turn(alpha);
+  this.turn(alpha*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turnLeft(2 *alpha*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turn(alpha*(this.stitchoptions.center? 1 : this.sign));
 }
 
 
@@ -545,7 +553,7 @@ SpriteMorph.prototype.zigzagForwardStart = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turnLeft(alpha);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turn(alpha);
 }
 
@@ -554,9 +562,9 @@ SpriteMorph.prototype.zigzagForwardEnd = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(alpha);
-  this.doMoveForward(c);
+  this.doMoveForward(c*this.sign);
   this.turnLeft(2 *alpha);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turn(alpha);
 }
 
@@ -564,11 +572,11 @@ SpriteMorph.prototype.ZForward = function (steps, width=10) {
   var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-  this.turn(alpha);
-  this.doMoveForward(c);
-  this.turnLeft(90 + alpha);
-  this.doMoveForward(width);
-  this.turn(90);
+  this.turn(alpha*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turnLeft((90 + alpha)*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(width*this.sign);
+  this.turn(90*(this.stitchoptions.center? 1 : this.sign));
 }
 
 SpriteMorph.prototype.ZForwardStart = function (steps, width=10) {
@@ -576,9 +584,9 @@ SpriteMorph.prototype.ZForwardStart = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(alpha);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turnLeft(90 + alpha);
-  this.doMoveForward(width);
+  this.doMoveForward(width*this.sign);
   this.turn(90);
 }
 
@@ -587,7 +595,7 @@ SpriteMorph.prototype.ZForwardEnd = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(alpha);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turnLeft(alpha);
 }
 
@@ -609,18 +617,18 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
   var count = Math.floor(distance / interval);
   var rest = distance - (count * interval);
 
-  this.turn(90 - alpha);
-  this.doMoveForward(c);
-  this.turn(alpha);
+  this.turn((90 - alpha)*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turn(alpha*(this.stitchoptions.center? 1 : this.sign));
 
   if (offset > 0)
-      this.doMoveForward(offset);
+      this.doMoveForward(offset*this.sign);
 
   for(var i=0;i<count;i++) {
-    this.doMoveForward(interval);
+    this.doMoveForward(interval*this.sign);
   }
   if (rest) {
-    this.doMoveForward(rest);
+    this.doMoveForward(rest*this.sign);
   }
 
   this.stitchoptions.segment_count+=1;
@@ -640,20 +648,20 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
   rest = distance - (count * interval);
 
 
-  this.turnLeft(180 - alpha);
-  this.doMoveForward(c);
-  this.turnLeft(alpha);
+  this.turnLeft((180 - alpha)*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turnLeft(alpha*(this.stitchoptions.center? 1 : this.sign));
 
   if (offset > 0)
-      this.doMoveForward(offset);
+      this.doMoveForward(offset*this.sign);
 
   for(var i=0;i<count;i++) {
-    this.doMoveForward(interval);
+    this.doMoveForward(interval*this.sign);
   }
   if (rest) {
-    this.doMoveForward(rest);
+    this.doMoveForward(rest*this.sign);
   }
-  this.turn(90);
+  this.turn(90*(this.stitchoptions.center? 1 : this.sign));
 
   this.stitchoptions.segment_count+=1;
 
@@ -664,7 +672,7 @@ SpriteMorph.prototype.tatamiForwardStart = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(-90);
-  this.doMoveForward(width/2);
+  this.doMoveForward((width/2)*this.sign);
   this.turn(90);
 }
 
@@ -673,7 +681,7 @@ SpriteMorph.prototype.tatamiForwardEnd = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(90);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turn(-90);
 }
 
@@ -691,7 +699,7 @@ SpriteMorph.prototype.moveforward = function (steps) {
   } else if ( this.stitchtype == "tatami") {
     this.tatamiForward(steps, this.stitchoptions.width)
   } else {
-    this.doMoveForward(steps)
+    this.doMoveForward(steps*this.sign)
   }
 }
 
@@ -713,6 +721,11 @@ SpriteMorph.prototype.doMoveForward = function (steps) {
 
 	if (dist != 0) {
 		this.setPosition(dest);
+
+    // this is a quick hack but delaying the rerender seems to get rid of the
+    // grey square that shows as a rendering error (still don't know where it
+    // comes from )
+    // setTimeout(() => stage.reRender(), 10)
 
     var isFirst = this.parentThatIsA(StageMorph).turtleShepherd.isEmpty();
 		warn = stage.turtleShepherd.moveTo(
@@ -795,6 +808,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 
 			//stepsize =  Math.round(stepsize,8);
 			this.setHeading(angle);
+			this.sign = 1;
 			this.forwardSegemensWithEndCheck(steps, stepsize);
 
 			if (steps == 0 && rest > 0 || x != this.xPosition() || y != this.yPosition()) {
@@ -879,6 +893,7 @@ SpriteMorph.prototype.gotoXYIn = function (x, y, steps) {
 
   if (dist > 0) {
 		var stepsize =  dist / steps;
+		this.sign = 1;
 		this.forwardSegemensWithEndCheck(steps,stepsize);
   }
 };
@@ -943,11 +958,11 @@ SpriteMorph.prototype.drawTextScale = function (text, scale, trim) {
     vy = Math.sin(radians(this.heading - 90));
     nx = Math.cos(radians(this.heading ));
     ny = Math.sin(radians(this.heading ));
-    
+
     if (!isNaN(text)) {
       text = text.toString()
     }
-    
+
 		for(var i in text) {
 			var index = text.charCodeAt(i) - 33;
 			var x = this.xPosition();
@@ -1338,6 +1353,7 @@ SpriteMorph.prototype.resetAll = function () {
 	myself.gotoXY(0,0);
 	myself.setHeading(90);
 	myself.clear();
+  myself.rerender();
 	myself.isDown = true;
 }
 
@@ -1820,6 +1836,8 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('yPosition'));
         blocks.push(watcherToggle('direction'));
         blocks.push(block('direction'));
+        blocks.push('-');
+        blocks.push(this.makeBlockButton(cat));
 
     } else if (cat === 'looks') {
 
@@ -1848,7 +1866,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('comeToFront'));
         blocks.push(block('goBack'));
 
-    // for debugging: ///////////////
+        // for debugging: ///////////////
 
         if (this.world().isDevMode) {
             blocks.push('-');
@@ -1866,6 +1884,9 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push('-');
             blocks.push(block('doScreenshot'));
         }
+
+        blocks.push('=');
+        blocks.push(this.makeBlockButton(cat));
 
     /////////////////////////////////
 
@@ -1898,6 +1919,9 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('reportSounds'));
         }
 
+        blocks.push('=');
+        blocks.push(this.makeBlockButton(cat));
+
     } else if (cat === 'pen') {
 
         blocks.push(block('clear'));
@@ -1913,6 +1937,8 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setOpacity'));
         blocks.push(block('changeOpacity'));
         blocks.push(block('getOpacity'));
+        blocks.push('=');
+        blocks.push(this.makeBlockButton(cat));
 
 	} else if (cat === 'embroidery') {
 
@@ -1932,10 +1958,14 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('jumpStitch'));
         blocks.push(block('tieStitch'));
         blocks.push(block('trimStitch'));
-        blocks.push('-');
+        blocks.push('=');
+        blocks.push(this.makeBlockButton(cat));
 
   } else if (cat === 'other') {
         blocks.push(block('zoomToFit'));
+
+        blocks.push('=');
+        blocks.push(this.makeBlockButton(cat));
 
 	} else if (cat === 'colors') {
         blocks.push(block('setColor'));
@@ -1951,11 +1981,11 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setHSB'));
         blocks.push(block('changeHSB'));
 		    blocks.push(block('getHSB'));
-        blocks.push('-');
+        blocks.push('=');
+        blocks.push(this.makeBlockButton(cat));
 
     } else if (cat === 'control') {
-
-		    blocks.push(block('resetAll'));
+        blocks.push(block('resetAll'));
 		    blocks.push('-');
         blocks.push(block('receiveGo'));
         blocks.push(block('receiveKey'));
@@ -1965,6 +1995,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
         blocks.push(block('doBroadcast'));
         blocks.push(block('doBroadcastAndWait'));
+        blocks.push(block('doSend'));
         blocks.push(watcherToggle('getLastMessage'));
         blocks.push(block('getLastMessage'));
         blocks.push('-');
@@ -1976,40 +2007,33 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('doForever'));
         blocks.push(block('doRepeat'));
         blocks.push(block('doUntil'));
+        blocks.push(block('doFor'));
         blocks.push('-');
         blocks.push(block('doIf'));
         blocks.push(block('doIfElse'));
+        blocks.push(block('reportIfElse'));
         blocks.push('-');
         blocks.push(block('doReport'));
-        blocks.push('-');
-    /*
-    // old STOP variants, migrated to a newer version, now redundant
-        blocks.push(block('doStopBlock'));
-        blocks.push(block('doStop'));
-        blocks.push(block('doStopAll'));
-    */
         blocks.push(block('doStopThis'));
-        blocks.push(block('doStopOthers'));
         blocks.push('-');
         blocks.push(block('doRun'));
         blocks.push(block('fork'));
         blocks.push(block('evaluate'));
         blocks.push('-');
-    /*
-    // list variants commented out for now (redundant)
-        blocks.push(block('doRunWithInputList'));
-        blocks.push(block('forkWithInputList'));
-        blocks.push(block('evaluateWithInputList'));
+        blocks.push(block('doTellTo'));
+        blocks.push(block('reportAskFor'));
         blocks.push('-');
-    */
         blocks.push(block('doCallCC'));
         blocks.push(block('reportCallCC'));
         blocks.push('-');
         blocks.push(block('receiveOnClone'));
         blocks.push(block('createClone'));
+        blocks.push(block('newClone'));
         blocks.push(block('removeClone'));
         blocks.push('-');
         blocks.push(block('doPauseAll'));
+        blocks.push('=');
+        blocks.push(this.makeBlockButton(cat));
 
     } else if (cat === 'sensing') {
 
@@ -2035,7 +2059,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(watcherToggle('getTimer'));
         blocks.push(block('getTimer'));
         blocks.push('-');
-        blocks.push(block('reportAttributeOf'));
 
         if (SpriteMorph.prototype.enableFirstClass) {
             blocks.push(block('reportGet'));
@@ -2052,7 +2075,7 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
 
 
-    // for debugging: ///////////////
+        // for debugging: ///////////////
 
         if (this.world().isDevMode) {
 
@@ -2070,6 +2093,10 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('reportStackSize'));
             blocks.push(block('reportFrameCount'));
         }
+
+        blocks.push('=');
+        blocks.push(this.makeBlockButton(cat));
+
 
     } else if (cat === 'operators') {
 
@@ -2109,10 +2136,16 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push('-');
         blocks.push(block('reportIsA'));
         blocks.push(block('reportIsIdentical'));
-        blocks.push('-');
-        blocks.push(block('reportJSFunction'));
 
-    // for debugging: ///////////////
+        if (Process.prototype.enableJS) {
+            blocks.push('-');
+            blocks.push(block('reportJSFunction'));
+            if (Process.prototype.enableCompiling) {
+	            blocks.push(block('reportCompiled'));
+            }
+        }
+
+        // for debugging: ///////////////
 
         if (this.world().isDevMode) {
             blocks.push('-');
@@ -2127,9 +2160,13 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('reportTextFunction'));
         }
 
+        blocks.push('=');
+        blocks.push(this.makeBlockButton(cat));
+
+
     /////////////////////////////////
 
-    } else if (cat === 'variables') {
+     } else if (cat === 'variables') {
 
         button = new PushButtonMorph(
             null,
@@ -2160,9 +2197,19 @@ SpriteMorph.prototype.blockTemplates = function (category) {
                         null,
                         myself
                     );
-                    myself.deletableVariableNames().forEach(function (name) {
-                        menu.addItem(name, name);
-                    });
+                    myself.deletableVariableNames().forEach(name =>
+                        menu.addItem(
+                            name,
+                            name,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            true // verbatim - don't translate
+                        )
+                    );
                     menu.popUpAtHand(myself.world());
                 },
                 'Delete a variable'
@@ -2175,11 +2222,20 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 
         blocks.push('-');
 
-        varNames = this.variables.allNames();
+        varNames = this.reachableGlobalVariableNames(true);
         if (varNames.length > 0) {
-            varNames.forEach(function (name) {
+            varNames.forEach(name => {
                 blocks.push(variableWatcherToggle(name));
                 blocks.push(variableBlock(name));
+            });
+            blocks.push('-');
+        }
+
+        varNames = this.allLocalVariableNames(true);
+        if (varNames.length > 0) {
+            varNames.forEach(name => {
+                blocks.push(variableWatcherToggle(name));
+                blocks.push(variableBlock(name, true));
             });
             blocks.push('-');
         }
@@ -2190,32 +2246,45 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('doHideVar'));
         blocks.push(block('doDeclareVariables'));
 
-    // inheritance:
+        // inheritance:
 
         if (StageMorph.prototype.enableInheritance) {
             blocks.push('-');
             blocks.push(block('doDeleteAttr'));
         }
 
-    ///////////////////////////////
+        ///////////////////////////////
 
         blocks.push('=');
 
         blocks.push(block('reportNewList'));
+        blocks.push(block('reportNumbers'));
         blocks.push('-');
         blocks.push(block('reportCONS'));
         blocks.push(block('reportListItem'));
         blocks.push(block('reportCDR'));
         blocks.push('-');
-        blocks.push(block('reportListLength'));
+        blocks.push(block('reportListAttribute'));
+        blocks.push(block('reportListIndex'));
         blocks.push(block('reportListContainsItem'));
+        blocks.push(block('reportListIsEmpty'));
+        blocks.push('-');
+        blocks.push(block('reportMap'));
+        blocks.push(block('reportKeep'));
+        blocks.push(block('reportFindFirst'));
+        blocks.push(block('reportCombine'));
+        blocks.push('-');
+        blocks.push(block('doForEach'));
+        blocks.push('-');
+        blocks.push(block('reportConcatenatedLists'));
+        blocks.push(block('reportReshape'));
         blocks.push('-');
         blocks.push(block('doAddToList'));
         blocks.push(block('doDeleteFromList'));
         blocks.push(block('doInsertInList'));
         blocks.push(block('doReplaceInList'));
 
-    // for debugging: ///////////////
+        // for debugging: ///////////////
 
         if (this.world().isDevMode) {
             blocks.push('-');
@@ -2226,9 +2295,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             txt.setColor(this.paletteTextColor);
             blocks.push(txt);
             blocks.push('-');
-            blocks.push(block('reportMap'));
-            blocks.push('-');
-            blocks.push(block('doForEach'));
             blocks.push(block('doShowTable'));
         }
 
@@ -2238,46 +2304,15 @@ SpriteMorph.prototype.blockTemplates = function (category) {
 
         if (StageMorph.prototype.enableCodeMapping) {
             blocks.push(block('doMapCodeOrHeader'));
-            blocks.push(block('doMapStringCode'));
+            blocks.push(block('doMapValueCode'));
             blocks.push(block('doMapListCode'));
             blocks.push('-');
             blocks.push(block('reportMappedCode'));
             blocks.push('=');
         }
 
-        button = new PushButtonMorph(
-            null,
-            function () {
-                var ide = myself.parentThatIsA(IDE_Morph),
-                    stage = myself.parentThatIsA(StageMorph);
-                new BlockDialogMorph(
-                    null,
-                    function (definition) {
-                        if (definition.spec !== '') {
-                            if (definition.isGlobal) {
-                                stage.globalBlocks.push(definition);
-                            } else {
-                                myself.customBlocks.push(definition);
-                            }
-                            ide.flushPaletteCache();
-                            ide.refreshPalette();
-                            new BlockEditorMorph(definition, myself).popUp();
-                        }
-                    },
-                    myself
-                ).prompt(
-                    'Make a block',
-                    null,
-                    myself.world()
-                );
-            },
-            'Make a block'
-        );
-        button.userMenu = helpMenu;
-        button.selector = 'addCustomBlock';
-        button.showHelp = BlockMorph.prototype.showHelp;
-        blocks.push(button);
-    }
+        blocks.push(this.makeBlockButton());
+ 	}
     return blocks;
 };
 
@@ -2345,25 +2380,27 @@ StageMorph.prototype.init = function (globals) {
     this.stepcounter = 0;
     this.isXRay = false;
 
-	// load customized fonts based on Hershey's fonts.
+  	// load customized fonts based on Hershey's fonts.
+    /*
+  	function loadFont(callback) {
+  		var xobj = new XMLHttpRequest();
+  		xobj.overrideMimeType("application/json");
+  		xobj.open('GET', 'stitchcode/fonts/simplex.json', true);
+  		xobj.onreadystatechange = function () {
+  			  if (xobj.readyState == 4 && xobj.status == "200") {
+  				callback(xobj.responseText);
+  			  }
+  		};
+  		xobj.send(null);
+  	}
 
-	function loadFont(callback) {
-		var xobj = new XMLHttpRequest();
-		xobj.overrideMimeType("application/json");
-		xobj.open('GET', 'stitchcode/fonts/simplex.json', true);
-		xobj.onreadystatechange = function () {
-			  if (xobj.readyState == 4 && xobj.status == "200") {
-				callback(xobj.responseText);
-			  }
-		};
-		xobj.send(null);
-	}
-
-    if (!this.fonts) {
-		loadFont(function(response) {
-			myself.fonts = JSON.parse(response);
-		});
-	}
+      if (!this.fonts) {
+  		loadFont(function(response) {
+  			myself.fonts = JSON.parse(response);
+  		});
+  	}
+    */
+    myself.fonts = font_simplex;
 
     this.scene.grid.draw();
     this.myObjects = new THREE.Object3D();
@@ -2608,8 +2645,13 @@ StageMorph.prototype.renderCycle = function () {
         this.changed();
         this.parentThatIsA(IDE_Morph).statusDisplay.refresh();
         this.renderer.changed = false;
+
+        // this is a hack but it seems to be need for a clear render!
+        setTimeout(()=> this.changed(), 5)
     }
-};
+    // this.render();
+    // this.changed();
+}
 
 StageMorph.prototype.reRender = function () {
     this.renderer.changed = true;
@@ -2656,13 +2698,14 @@ StageMorph.prototype.initCamera = function () {
         };
 
         myself.camera.applyZoom = function () {
-            var zoom = myself.camera ? myself.camera.zoomFactor : 2,
-                width = Math.max(myself.width(), 480),
-                height = Math.max(myself.height(), 360);
-            this.left = width / - zoom;
-            this.right = width / zoom;
-            this.top = height / zoom;
-            this.bottom = height / - zoom;
+            var zoom = myself.camera ? myself.camera.zoomFactor : 2;
+            let width = Math.max(myself.width(), 480);
+            let height = Math.max(myself.height(), 360);
+            
+            this.left = width /myself.scale/ - zoom;
+            this.right = width/myself.scale / zoom;
+            this.top = height /myself.scale/ zoom;
+            this.bottom = height /myself.scale/ - zoom;
             this.updateProjectionMatrix();
         };
 
@@ -2685,25 +2728,24 @@ StageMorph.prototype.initCamera = function () {
 
         myself.camera.fitScene = function () {
 
+          var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
+              boundingSphere = boundingBox.getBoundingSphere(),
+              center = boundingSphere.center,
+              distance = boundingSphere.radius;
 
-            var boundingBox = new THREE.Box3().setFromObject(myself.myStitchLines),
-                boundingSphere = boundingBox.getBoundingSphere(),
-                center = boundingSphere.center,
-                distance = boundingSphere.radius;
-
-            if(distance > 0) {
-				var width = Math.max(myself.width(), 480),
+          if(distance > 0) {
+            var width = Math.max(myself.width(), 480),
                 height = Math.max(myself.height(), 360);
 
-				this.zoomFactor = Math.max(width / distance, height / distance) * 0.90;
-				this.applyZoom();
+            this.zoomFactor = Math.max(width / distance, height / distance) * 0.90;
+            this.applyZoom();
 
-				this.position.set(center.x, center.y, 10);
-				myself.controls.center.set(center.x, center.y, 10);
+            this.position.set(center.x, center.y, 10);
+            myself.controls.center.set(center.x, center.y, 10);
 
-				myself.controls.update();
-				myself.reRender();
-			}
+            myself.controls.update();
+            myself.reRender();
+          }
         };
     };
 
@@ -2721,9 +2763,9 @@ StageMorph.prototype.initTurtle = function() {
     if (typeof this.turtle.loaded === 'undefined') {
 
 		var loader = new THREE.JSONLoader();
-
-		loader.load( 'stitchcode/assets/turtle.js',
-
+    //var loader = new THREE.LegacyJSONLoader(); // for new version!
+    /*
+		loader.load('stitchcode/assets/turtle.json',
 			function ( geometry, materials ) {
 				//var material = materials[ 0 ];
 				this.turtle = new THREE.Mesh(geometry,material);
@@ -2749,7 +2791,20 @@ StageMorph.prototype.initTurtle = function() {
 			function( err ) {
 				console.log( 'error loading turtle shape' );
 			}
-		);
+      */
+      var model = loader.parse( turtle_model );
+      this.turtle = new THREE.Mesh(model.geometry, model.materials[0]);
+      this.turtle.scale.set(4, 4, 4);
+      this.turtle.position.z = 0.02;
+      this.turtle.rotation.x = 90 * Math.PI / 180;
+      this.turtle.rotation.y = 270 * Math.PI / 180;
+      //this.turtle.material.color = new THREE.Color("rgb(1,0,0)" );
+
+      myself.turtle = this.turtle;
+      myself.turtle.visible = !StageMorph.prototype.hideTurtle;
+      myself.renderer.changed = true;
+      myself.myObjects.add(this.turtle);
+      this.turtle.loaded = true;
 
     }
     this.penSize = 1;
@@ -2780,8 +2835,6 @@ StageMorph.prototype.step = function () {
 			this.renderCycle();
 		}
 	};
-
-
 	this.stepcounter++;
 };
 
@@ -2950,7 +3003,7 @@ StageMorph.prototype.penTrails = function () {
 
 // StageMorph drawing
 StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
-StageMorph.prototype.drawOn = function (aCanvas, aRect) {
+StageMorph.prototype.drawOn = function (context, aRect) {
     // If the scale is lower than 1, we reuse the original method,
     // otherwise we need to modify the renderer dimensions
     // we do not need to render the original canvas anymore because
@@ -2970,13 +3023,12 @@ StageMorph.prototype.drawOn = function (aCanvas, aRect) {
     if (area.extent().gt(new Point(0, 0))) {
         delta = this.position().neg();
         src = area.copy().translateBy(delta).round();
-        context = aCanvas.getContext('2d');
         context.globalAlpha = this.alpha;
 
         sl = src.left();
         st = src.top();
-        w = Math.min(src.width(), this.image.width - sl);
-        h = Math.min(src.height(), this.image.height - st);
+        w = Math.min(src.width(), area.width() - sl);
+        h = Math.min(src.height(), area.height() - st);
 
         if (w < 1 || h < 1) {
             return null;

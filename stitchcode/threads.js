@@ -1,5 +1,6 @@
 
 Process.prototype.proxy = 'https://turtlestitch.org:8080';
+Process.prototype.enableJS = true;
 
 Process.prototype.reportMouseX = function () {
     var stage, world;
@@ -64,5 +65,19 @@ Process.prototype.reportDistanceTo = function (name) {
                 .distanceTo(new Point(this.reportMouseX(), this.reportMouseY()));		
 	} else {
 		return this.origReportDistanceTo(name);
+
+Process.prototype.origDoGotoObject = Process.prototype.doGotoObject;
+Process.prototype.doGotoObject = function (name) {
+	var thisObj = this.blockReceiver(),
+			stage;
+	
+	if (thisObj && this.inputOption(name) === 'random position') {
+		stage = thisObj.parentThatIsA(StageMorph);	
+		if (stage) {
+			thisObj.gotoXY(this.reportBasicRandom(stage.reportX(stage.left()), stage.reportX(stage.right())),
+                    this.reportBasicRandom(stage.reportY(stage.top()), stage.reportY(stage.bottom())));
+		}
+	} else {
+		this.origDoGotoObject(name);
 	}
 };
