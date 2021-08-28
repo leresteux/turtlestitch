@@ -3093,7 +3093,8 @@ StageMorph.prototype.userMenu = function () {
 StageMorph.prototype.toggleIgnoreWarnings = function () {
 	StageMorph.prototype.ignoreWarnings = !StageMorph.prototype.ignoreWarnings;
 	this.turtleShepherd.ignoreWarning = StageMorph.prototype.ignoreWarnings;
-}；
+};
+
 
 StageMorph.prototype.reportX = function (x) {
 	return (x - this.center().x)

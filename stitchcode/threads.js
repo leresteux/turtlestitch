@@ -61,10 +61,11 @@ Process.prototype.origReportDistanceTo = Process.prototype.reportDistanceTo;
 Process.prototype.reportDistanceTo = function (name) {
 	var thisObj = this.blockReceiver();
 	if (thisObj && this.inputOption(name) === 'mouse-pointer') {
-		return new Point(thisObj.xPosition(), thisObj.yPosition())
-                .distanceTo(new Point(this.reportMouseX(), this.reportMouseY()));		
+		return new Point(thisObj.xPosition(), thisObj.yPosition()).distanceTo(new Point(this.reportMouseX(), this.reportMouseY()));		
 	} else {
 		return this.origReportDistanceTo(name);
+  }
+}
 
 Process.prototype.origDoGotoObject = Process.prototype.doGotoObject;
 Process.prototype.doGotoObject = function (name) {
@@ -74,8 +75,10 @@ Process.prototype.doGotoObject = function (name) {
 	if (thisObj && this.inputOption(name) === 'random position') {
 		stage = thisObj.parentThatIsA(StageMorph);	
 		if (stage) {
-			thisObj.gotoXY(this.reportBasicRandom(stage.reportX(stage.left()), stage.reportX(stage.right())),
-                    this.reportBasicRandom(stage.reportY(stage.top()), stage.reportY(stage.bottom())));
+			thisObj.gotoXY(
+        this.reportBasicRandom(stage.reportX(stage.left()), stage.reportX(stage.right())),
+        this.reportBasicRandom(stage.reportY(stage.top()), stage.reportY(stage.bottom()))
+    );
 		}
 	} else {
 		this.origDoGotoObject(name);
