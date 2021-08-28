@@ -435,17 +435,25 @@ SpriteMorph.prototype.forward = function (steps) {
     }
 
     if (dist != 0) {
+    	
+  		if (dist < 0) {
+    		this.sign = -1;									//this.sign is used to indicate whether the turtle would go forward or backward
+    		dist = Math.abs(dist);
+    	} else {
+    		this.sign = 1;
+    	}      
+    		
   		if ( this.isRunning  && this.isDown) {
   			if (this.stitchoptions.autoadjust) {
   				var real_length = dist / Math.round(dist / this.stitchoptions.length);
           if (dist < this.stitchoptions.length)
             real_length = dist;
-  				this.forwardBy(steps, real_length);
+  				this.forwardBy(dist, real_length);
   			} else {
-  				this.forwardBy(steps, this.stitchoptions.length);
+  				this.forwardBy(dist, this.stitchoptions.length);
   			}
   		} else {
-  			this.moveforward(steps);
+  			this.doMoveForward(steps);     // when not in running mode or pen is not down just go a straight line
   		}
     }
 };
@@ -497,34 +505,34 @@ SpriteMorph.prototype.forwardSegemensWithEndCheck = function(steps, stepsize) {
 
 
 SpriteMorph.prototype.beanStitchForward = function (steps) {
-    this.doMoveForward(steps);
-    this.doMoveForward(-steps);
-    this.doMoveForward(steps);
+    this.doMoveForward(steps*this.sign);
+    this.doMoveForward(-steps*this.sign);
+    this.doMoveForward(steps*this.sign);
 }
 
 SpriteMorph.prototype.crossStitchForward = function (steps, width=10) {
   var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-  this.turn(alpha);
-  this.doMoveForward(c);
-  this.turn(180 - alpha);
-  this.doMoveForward(steps);
-  this.turn(180 - alpha);
-  this.doMoveForward(c);
-  this.turn(alpha);
+  this.turn(alpha*this.sign);
+  this.doMoveForward(c*this.sign);
+  this.turn((180 - alpha)*this.sign);
+  this.doMoveForward(steps*this.sign);
+  this.turn((180 - alpha)*this.sign);
+  this.doMoveForward(c*this.sign);
+  this.turn(alpha*this.sign);
 }
 
 SpriteMorph.prototype.crossStitchForwardStart = function (steps, width=10) {
-  this.turn(-90);
-  this.doMoveForward(width/2);
-  this.turn(90);
+  this.turn(-90*this.sign);
+  this.doMoveForward(this.sign*(width/2));
+  this.turn(90*this.sign);
 }
 
 SpriteMorph.prototype.crossStitchForwardStop = function (steps, width=10) {
-  this.turn(90);
-  this.doMoveForward(width/2);
-  this.turn(-90);
+  this.turn(90*this.sign);
+  this.doMoveForward(this.sign*(width/2));
+  this.turn(-90*this.sign);
 }
 
 
@@ -532,11 +540,11 @@ SpriteMorph.prototype.zigzagForward = function (steps, width=10) {
   var c = Math.sqrt(steps/2*steps/2 + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-  this.turn(alpha);
-  this.doMoveForward(c);
-  this.turnLeft(2 *alpha);
-  this.doMoveForward(c);
-  this.turn(alpha);
+  this.turn(alpha*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turnLeft(2 *alpha*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turn(alpha*(this.stitchoptions.center? 1 : this.sign));
 }
 
 
@@ -545,7 +553,7 @@ SpriteMorph.prototype.zigzagForwardStart = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turnLeft(alpha);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turn(alpha);
 }
 
@@ -554,9 +562,9 @@ SpriteMorph.prototype.zigzagForwardEnd = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(alpha);
-  this.doMoveForward(c);
+  this.doMoveForward(c*this.sign);
   this.turnLeft(2 *alpha);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turn(alpha);
 }
 
@@ -564,11 +572,11 @@ SpriteMorph.prototype.ZForward = function (steps, width=10) {
   var c = Math.sqrt(steps*steps + width * width);
   var alpha = degrees(Math.asin(width/c));
 
-  this.turn(alpha);
-  this.doMoveForward(c);
-  this.turnLeft(90 + alpha);
-  this.doMoveForward(width);
-  this.turn(90);
+  this.turn(alpha*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turnLeft((90 + alpha)*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(width*this.sign);
+  this.turn(90*(this.stitchoptions.center? 1 : this.sign));
 }
 
 SpriteMorph.prototype.ZForwardStart = function (steps, width=10) {
@@ -576,9 +584,9 @@ SpriteMorph.prototype.ZForwardStart = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(alpha);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turnLeft(90 + alpha);
-  this.doMoveForward(width);
+  this.doMoveForward(width*this.sign);
   this.turn(90);
 }
 
@@ -587,7 +595,7 @@ SpriteMorph.prototype.ZForwardEnd = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(alpha);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turnLeft(alpha);
 }
 
@@ -609,18 +617,18 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
   var count = Math.floor(distance / interval);
   var rest = distance - (count * interval);
 
-  this.turn(90 - alpha);
-  this.doMoveForward(c);
-  this.turn(alpha);
+  this.turn((90 - alpha)*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turn(alpha*(this.stitchoptions.center? 1 : this.sign));
 
   if (offset > 0)
-      this.doMoveForward(offset);
+      this.doMoveForward(offset*this.sign);
 
   for(var i=0;i<count;i++) {
-    this.doMoveForward(interval);
+    this.doMoveForward(interval*this.sign);
   }
   if (rest) {
-    this.doMoveForward(rest);
+    this.doMoveForward(rest*this.sign);
   }
 
   this.stitchoptions.segment_count+=1;
@@ -640,20 +648,20 @@ SpriteMorph.prototype.tatamiForward = function (steps, width=100) {
   rest = distance - (count * interval);
 
 
-  this.turnLeft(180 - alpha);
-  this.doMoveForward(c);
-  this.turnLeft(alpha);
+  this.turnLeft((180 - alpha)*(this.stitchoptions.center? 1 : this.sign));
+  this.doMoveForward(c*this.sign);
+  this.turnLeft(alpha*(this.stitchoptions.center? 1 : this.sign));
 
   if (offset > 0)
-      this.doMoveForward(offset);
+      this.doMoveForward(offset*this.sign);
 
   for(var i=0;i<count;i++) {
-    this.doMoveForward(interval);
+    this.doMoveForward(interval*this.sign);
   }
   if (rest) {
-    this.doMoveForward(rest);
+    this.doMoveForward(rest*this.sign);
   }
-  this.turn(90);
+  this.turn(90*(this.stitchoptions.center? 1 : this.sign));
 
   this.stitchoptions.segment_count+=1;
 
@@ -664,7 +672,7 @@ SpriteMorph.prototype.tatamiForwardStart = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(-90);
-  this.doMoveForward(width/2);
+  this.doMoveForward((width/2)*this.sign);
   this.turn(90);
 }
 
@@ -673,7 +681,7 @@ SpriteMorph.prototype.tatamiForwardEnd = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(90);
-  this.doMoveForward(c/2);
+  this.doMoveForward((c/2)*this.sign);
   this.turn(-90);
 }
 
@@ -691,7 +699,7 @@ SpriteMorph.prototype.moveforward = function (steps) {
   } else if ( this.stitchtype == "tatami") {
     this.tatamiForward(steps, this.stitchoptions.width)
   } else {
-    this.doMoveForward(steps)
+    this.doMoveForward(steps*this.sign)
   }
 }
 
@@ -800,6 +808,7 @@ SpriteMorph.prototype.gotoXY = function (x, y, justMe, noShadow) {
 
 			//stepsize =  Math.round(stepsize,8);
 			this.setHeading(angle);
+			this.sign = 1;
 			this.forwardSegemensWithEndCheck(steps, stepsize);
 
 			if (steps == 0 && rest > 0 || x != this.xPosition() || y != this.yPosition()) {
@@ -884,6 +893,7 @@ SpriteMorph.prototype.gotoXYIn = function (x, y, steps) {
 
   if (dist > 0) {
 		var stepsize =  dist / steps;
+		this.sign = 1;
 		this.forwardSegemensWithEndCheck(steps,stepsize);
   }
 };
