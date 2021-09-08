@@ -280,3 +280,32 @@ HueWheelMorph.prototype.render = function (context) {
         }
     }
 };
+
+WorldMorph.prototype.updateBroken = function () {
+    var ctx = this.worldCanvas.getContext('2d'),
+        i,ide,stage,bounds;
+    		
+    for (i = 0; i < this.children.length; i += 1) {
+    	if (this.children[i] instanceof IDE_Morph) {
+    		ide = this.children[i];
+    		stage = ide.stage;
+    		bounds = stage.bounds;
+    	}
+    }    		
+    
+    this.condenseDamages();
+    this.broken.forEach(rect => {
+        if (rect.extent().gt(ZERO)) {
+            this.fullDrawOn(ctx, rect);
+        }
+    });
+
+    
+    if (ide) {
+    	if ( this.broken.some(area => area.intersect(bounds).area() > 0)) {
+        stage.reRender();
+      }
+    }
+        
+    this.broken = [];
+};
