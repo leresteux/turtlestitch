@@ -35,6 +35,7 @@ SpriteMorph.prototype.blockColor = {
 SpriteMorph.prototype.origInit = SpriteMorph.prototype.init;
 SpriteMorph.prototype.init = function(globals) {
     this.origInit(globals);
+    this.scale = 0.1;
     this.hide();
     this.lastJumped = false;
     this.turtle = null;
@@ -1350,6 +1351,7 @@ SpriteMorph.prototype.resetAll = function () {
 	myself.isRunning = false;
 	myself.setColor(StageMorph.prototype.defaultPenColor);
 	myself.parentThatIsA(StageMorph).setPenSize(1);
+	myself.scale = 0.1;
 	myself.gotoXY(0,0);
 	myself.setHeading(90);
 	myself.clear();
@@ -2645,7 +2647,7 @@ StageMorph.prototype.renderCycle = function () {
         this.renderer.changed = false;
 
         // this is a hack but it seems to be need for a clear render!
-        setTimeout(()=> this.changed(), 5)
+        // setTimeout(()=> this.changed(), 5)
     }
     // this.render();
     // this.changed();
