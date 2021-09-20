@@ -1404,6 +1404,14 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     ignoreColorsButton.newLines = 1.7;
     elements.push(ignoreColorsButton);
 
+    var downloadDXFButton = new PushButtonMorph(
+        null,
+        function () { myself.downloadDXF(); },
+        'Export as DXF'
+    );
+    downloadDXFButton.newLines = 1.7;
+    elements.push(downloadDXFButton); 	
+	
     var downloadEXPButton = new PushButtonMorph(
         null,
         function () { myself.downloadEXP(); },
@@ -1513,6 +1521,13 @@ IDE_Morph.prototype.downloadSVG = function() {
     svgStr = this.stage.turtleShepherd.toSVG();
     blob = new Blob([svgStr], {type: 'text/plain;charset=utf-8'});
     saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.svg');
+};
+
+// DXF export
+IDE_Morph.prototype.downloadDXF = function() {
+	  dxfStr = this.stage.turtleShepherd.toDXF();
+    blob = new Blob([dxfStr]);
+    saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.dxf');    
 };
 
 // EXP export
@@ -1960,6 +1975,11 @@ IDE_Morph.prototype.projectMenu = function () {
             function() { myself.downloadSVG(); },
             'Export current drawing as SVG Vector file'
     );
+    menu.addItem(
+            'Export as DXF',
+            function() { myself.downloadDXF(); },
+            'Export current drawing as DXF file'
+    );  	
     menu.addItem(
             'Export as PNG',
             function() { myself.downloadPNG(); },
