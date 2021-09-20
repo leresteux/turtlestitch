@@ -23,7 +23,7 @@ IDE_Morph.prototype.init = function(isAutoFill) {
 	//this.isAnimating = false;
     this.paletteWidth = 250; // initially same as logo width
     //MorphicPreferences.globalFontFamily = 'Sans, Helvetica, Arial';
-	this.cloud = new BeetleCloud('/api', this);
+	this.cloud = new BeetleCloud('/api', this);dxf
 };
 
 //  change logo
@@ -1404,6 +1404,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     ignoreColorsButton.newLines = 1.7;
     elements.push(ignoreColorsButton);
 
+    /* hide for now
     var downloadDXFButton = new PushButtonMorph(
         null,
         function () { myself.downloadDXF(); },
@@ -1411,6 +1412,7 @@ IDE_Morph.prototype.createStatusDisplay = function () {
     );
     downloadDXFButton.newLines = 1.7;
     elements.push(downloadDXFButton); 	
+    */
 	
     var downloadEXPButton = new PushButtonMorph(
         null,
