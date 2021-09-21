@@ -23,7 +23,7 @@ IDE_Morph.prototype.init = function(isAutoFill) {
 	//this.isAnimating = false;
     this.paletteWidth = 250; // initially same as logo width
     //MorphicPreferences.globalFontFamily = 'Sans, Helvetica, Arial';
-	this.cloud = new BeetleCloud('/api', this);dxf
+	this.cloud = new BeetleCloud('/api', this);
 };
 
 //  change logo
