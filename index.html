@@ -48,22 +48,22 @@
 		<script type="text/javascript" src="stitchcode/gui.js"></script>
 		<script type="text/javascript" src="stitchcode/store.js"></script>
 
-		<script type="text/javascript">
-			var world;
-			window.onload = function () {
-				console.log("is Retina supported: " + isRetinaSupported());
-				disableRetinaSupport();
-				world = new WorldMorph(document.getElementById('world'));
-                world.worldCanvas.focus();
-				new IDE_Morph().openIn(world);
-        		loop();
-			};
+    <script type="text/javascript">
+      var world;
+      window.onload = function () {
+        console.log("is Retina supported: " + isRetinaSupported());
+        disableRetinaSupport();
+        world = new WorldMorph(document.getElementById('world'));
+        world.worldCanvas.focus();
+        new IDE_Morph().openIn(world);
+        loop();
+      };
 
-			function loop() {
-        		requestAnimationFrame(loop);
-				world.doOneCycle();
-			}
-		</script>
+      function loop() {
+        requestAnimationFrame(loop);
+        world.doOneCycle();
+      }
+    </script>
 	</head>
 	<body style="margin: 0;">
 		<canvas id="world" tabindex="1" style="position: absolute;"></canvas>
