@@ -1,5 +1,5 @@
 geometryBlocks.xml	Geometry	Blocks provide arc,foldline and other
-VectorAndfill.xml	VectorAndFill	Blocks about vectors and filling
+VectorAndFill.xml	Vectors, filling	Blocks about vectors and filling
 ~	~
 iteration-composition.xml	Iteration, composition	Traditional loop constructs (while, until, etc.) plus the Lisp "named let" (a generalization of FOR) plus functional iteration (repeated invocation of a function) and function composition.
 list-utilities.xml	List utilities	Some standard functions on lists (reverse, sort, etc.)
