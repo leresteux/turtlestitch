@@ -1,11 +1,9 @@
-Morph.fromImageURL = function(url) {
+/* Morph.fromImageURL = function(url) {
     var m = new Morph();
 
     m.texture = url;
 
-    m.drawNew = function() {
-        this.image = newCanvas(this.extent());
-        var context = this.image.getContext('2d');
+    m.render = function(context) {
         context.fillStyle = 'rgba(0,0,0,0)';
         context.fillRect(0, 0, this.width(), this.height());
         if (this.texture) {
@@ -29,6 +27,31 @@ Morph.fromImageURL = function(url) {
 
     return m;
 }
+
+*/
+
+Morph.fromImageURL = function(url) {
+    var m = new Morph();
+
+    m.texture = url;
+
+    m.edge = Morph.prototype.edge;
+
+    m.render = function (ctx) {
+        Morph.prototype.render.call(this, ctx);
+        if (m.texture) {
+            m.renderTexture(m.texture, ctx);
+        }
+    };
+
+    m.fixLayout();
+
+   
+
+    return m;
+}
+
+
 
 // ColorPaletteMorph ///////////////////////////////////////////////////
 
@@ -55,17 +78,20 @@ ColorPaletteMorph.prototype.init = function (target, size) {
     ColorPaletteMorph.uber.init.call(this);
     this.target = target;
     this.targetSetter = 'color';
-    this.silentSetExtent(size);
+    this.setExtent(size);
     this.choice = null;
-    this.drawNew();
+    this.rerender();
 };
 
-ColorPaletteMorph.prototype.drawNew = function () {
-    var context, ext, x, y, h, l, colors;
+ColorPaletteMorph.prototype.render = function (context) {
+    var ext, x, y, h, l, colors;
 
     ext = this.extent();
-    this.image = newCanvas(this.extent());
-    context = this.image.getContext('2d');
+    console.log(ext);
+    
+    
+
+    
     this.choice = new Color();
     colors = ['rgb(0, 0,0)',    //black
         'rgb(128, 128, 128)',   //gray
@@ -130,7 +156,7 @@ ColorPaletteMorph.prototype.updateTarget = function () {
             this.target[this.targetSetter](this.choice);
         } else {
             this.target[this.targetSetter] = this.choice;
-            this.target.drawNew();
+            this.target.rerender();
             this.target.changed();
         }
     }
@@ -209,21 +235,20 @@ function HueWheelMorph(target, sizePoint) {
     );
 };
 
-HueWheelMorph.prototype.drawNew = function () {
-    var context, ext, x, y, radius;
+HueWheelMorph.prototype.render = function (context) {
+    var ext, x, y, radius;
 
     ext = this.extent();
-    this.image = newCanvas(this.extent());
-    context = this.image.getContext('2d');
+    console.log(context, ext);
     this.choice = new Color();
-    x = this.image.width / 2 + 2;
-    y = this.image.height / 2;
+    x = this.getImage().width / 2 + 2;
+    y = this.size / 2;
     radius = this.image.width / 2 - 22;
 
     context.font = '9px Arial';
     context.fillStyle = 'rgb(200,200,200)';
-    context.fillRect(0, 0, this.image.width, this.image.height);
-    context.strokeRect(0, 0, this.image.width, this.image.height);
+    context.fillRect(0, 0, this.getImage().width, this.getImage().height);
+    context.strokeRect(0, 0, this.getImage().width, this.getImage().height);
 
     context.textAlign = 'center';
     context.textBaseline = 'middle';
@@ -254,4 +279,33 @@ HueWheelMorph.prototype.drawNew = function () {
             }
         }
     }
+};
+
+WorldMorph.prototype.updateBroken = function () {
+    var ctx = this.worldCanvas.getContext('2d'),
+        i,ide,stage,bounds;
+    		
+    for (i = 0; i < this.children.length; i += 1) {
+    	if (this.children[i] instanceof IDE_Morph) {
+    		ide = this.children[i];
+    		stage = ide.stage;
+    		bounds = stage.bounds;
+    	}
+    }    		
+    
+    this.condenseDamages();
+    this.broken.forEach(rect => {
+        if (rect.extent().gt(ZERO)) {
+            this.fullDrawOn(ctx, rect);
+        }
+    });
+
+    
+    if (ide) {
+    	if ( this.broken.some(area => area.intersect(bounds).area() > 0)) {
+        stage.reRender();
+      }
+    }
+        
+    this.broken = [];
 };

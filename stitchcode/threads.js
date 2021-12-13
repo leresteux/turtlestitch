@@ -1,5 +1,6 @@
 
 Process.prototype.proxy = 'https://turtlestitch.org:8080';
+Process.prototype.enableJS = true;
 
 Process.prototype.reportMouseX = function () {
     var stage, world;
@@ -54,4 +55,44 @@ Process.prototype.reportPi = function (min, max) {
 
 Process.prototype.reportProxiedURL = function (url) {
     return this.reportURL(this.proxy + '/' + url);
+};
+
+Process.prototype.origReportDistanceTo = Process.prototype.reportDistanceTo;
+Process.prototype.reportDistanceTo = function (name) {
+	var thisObj = this.blockReceiver();
+	if (thisObj && this.inputOption(name) === 'mouse-pointer') {
+		return new Point(thisObj.xPosition(), thisObj.yPosition()).distanceTo(new Point(this.reportMouseX(), this.reportMouseY()));		
+	} else {
+		return this.origReportDistanceTo(name);
+  }
+}
+
+Process.prototype.origDoGotoObject = Process.prototype.doGotoObject;
+Process.prototype.doGotoObject = function (name) {
+	var thisObj = this.blockReceiver(),
+			stage;
+	
+	if (thisObj && this.inputOption(name) === 'random position') {
+		stage = thisObj.parentThatIsA(StageMorph);	
+		if (stage) {
+			thisObj.gotoXY(
+        this.reportBasicRandom(stage.reportX(stage.left()), stage.reportX(stage.right())),
+        this.reportBasicRandom(stage.reportY(stage.top()), stage.reportY(stage.bottom()))
+    );
+		}
+	} else {
+		this.origDoGotoObject(name);
+	}
+};
+
+Process.prototype.reportRandomPosition = function () {
+	var thisObj = this.blockReceiver(),
+			stage;
+	
+	if (thisObj) {
+	  stage = thisObj.parentThatIsA(StageMorph);
+	  return new List([this.reportBasicRandom(stage.reportX(stage.left()), stage.reportX(stage.right())),
+                   this.reportBasicRandom(stage.reportY(stage.top()), stage.reportY(stage.bottom()))]); 
+  }
+		
 };

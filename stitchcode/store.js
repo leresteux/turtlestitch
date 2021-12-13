@@ -14,7 +14,7 @@ SnapSerializer.prototype.openProject = function (project, ide) {
     ide.origCreator = project.origCreator || '';
     ide.creator = project.creator || '';
     ide.remixHistory = project.remixHistorycreat || '';
-    //console.log("name: " + ide.projectName + ", creator: " + ide.creator + ", origName: " + ide.origName + ", origCreator: " + ide.origCreator);    
+    //console.log("name: " + ide.projectName + ", creator: " + ide.creator + ", origName: " + ide.origName + ", origCreator: " + ide.origCreator);
     if (ide.globalVariables) {
         ide.globalVariables = project.globalVariables;
     }
@@ -39,7 +39,7 @@ SnapSerializer.prototype.openProject = function (project, ide) {
     } else {
         ide.hasChangedMedia = true;
     }
-    project.stage.drawNew();
+    project.stage.fixLayout();
     ide.createCorral();
     ide.selectSprite(sprite);
     ide.fixLayout();
@@ -49,7 +49,7 @@ SnapSerializer.prototype.openProject = function (project, ide) {
     //  watcher.onNextStep = function () {this.currentValue = null;};
     //})
 
-    ide.world().keyboardReceiver = project.stage;
+    ide.world().keyboardFocus = project.stage;
     ide.stage.initCamera();
 };
 
@@ -312,7 +312,8 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
 
         // set watcher's contentsMorph's extent if it is showing a list and
         // its monitor dimensions are given
-        if (watcher.currentValue instanceof List) {
+        if (watcher.currentValue instanceof List &&
+                watcher.cellMorph.contentsMorph) {
             extX = model.attributes.extX;
             if (extX) {
                 watcher.cellMorph.contentsMorph.setWidth(+extX);
@@ -322,7 +323,7 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
                 watcher.cellMorph.contentsMorph.setHeight(+extY);
             }
             // adjust my contentsMorph's handle position
-            watcher.cellMorph.contentsMorph.handle.drawNew();
+            watcher.cellMorph.contentsMorph.handle.fixLayout();
         }
     });
 
@@ -398,7 +399,7 @@ StageMorph.prototype.toXML = function (serializer) {
             '<blocks>%</blocks>' +
             '<variables>%</variables>\n' +
             '</project>',
-        (ide && ide.projectName) ? ide.projectName : localize('Untitled'),  
+        (ide && ide.projectName) ? ide.projectName : localize('Untitled'),
         serializer.app,
         serializer.version,
         (ide && ide.projectNotes) ? ide.projectNotes : '',
