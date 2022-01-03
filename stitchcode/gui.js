@@ -1,5 +1,5 @@
 
-VERSION="2.7"
+VERSION="2.7.2"
 
 // get debug mode
 url = new URL(window.location.href);
@@ -1411,9 +1411,9 @@ IDE_Morph.prototype.createStatusDisplay = function () {
         'Export as DXF'
     );
     downloadDXFButton.newLines = 1.7;
-    elements.push(downloadDXFButton); 	
+    elements.push(downloadDXFButton);
     */
-	
+
     var downloadEXPButton = new PushButtonMorph(
         null,
         function () { myself.downloadEXP(); },
@@ -1529,7 +1529,7 @@ IDE_Morph.prototype.downloadSVG = function() {
 IDE_Morph.prototype.downloadDXF = function() {
 	  dxfStr = this.stage.turtleShepherd.toDXF();
     blob = new Blob([dxfStr]);
-    saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.dxf');    
+    saveAs(blob, (this.projectName ? this.projectName : 'turtlestitch') + '.dxf');
 };
 
 // EXP export
@@ -1981,7 +1981,7 @@ IDE_Morph.prototype.projectMenu = function () {
             'Export as DXF',
             function() { myself.downloadDXF(); },
             'Export current drawing as DXF file'
-    );  	
+    );
     menu.addItem(
             'Export as PNG',
             function() { myself.downloadPNG(); },
