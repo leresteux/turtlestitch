@@ -436,14 +436,14 @@ SpriteMorph.prototype.forward = function (steps) {
     }
 
     if (dist != 0) {
-    	
+
   		if (dist < 0) {
     		this.sign = -1;									//this.sign is used to indicate whether the turtle would go forward or backward
     		dist = Math.abs(dist);
     	} else {
     		this.sign = 1;
-    	}      
-    		
+    	}
+
   		if ( this.isRunning  && this.isDown) {
   			if (this.stitchoptions.autoadjust) {
   				var real_length = dist / Math.round(dist / this.stitchoptions.length);
@@ -1470,7 +1470,7 @@ SpriteMorph.prototype.initBlocks = function () {
         category: 'motion',
         spec: 'random position',
     };
-	
+
     // pen blocks
 
     this.blocks.isPenDown =
@@ -1986,7 +1986,8 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('getColorHSV'));
         blocks.push(block('getColorHex'));
         blocks.push('-');
-        blocks.push(block('pickHue'));
+        // disable (does not work after upgrade to Snap 7)
+        // blocks.push(block('pickHue'));
         blocks.push(block('setHSB'));
         blocks.push(block('changeHSB'));
 		    blocks.push(block('getHSB'));
@@ -2708,7 +2709,7 @@ StageMorph.prototype.initCamera = function () {
             var zoom = myself.camera ? myself.camera.zoomFactor : 2;
             let width = Math.max(myself.width(), 480);
             let height = Math.max(myself.height(), 360);
-            
+
             this.left = width /myself.scale/ - zoom;
             this.right = width/myself.scale / zoom;
             this.top = height /myself.scale/ zoom;
