@@ -76,6 +76,7 @@ function ColorPaletteMorph(target, sizePoint) {
 
 ColorPaletteMorph.prototype.init = function (target, size) {
     ColorPaletteMorph.uber.init.call(this);
+    this.isCachingImage = true;
     this.target = target;
     this.targetSetter = 'color';
     this.setExtent(size);
@@ -87,10 +88,6 @@ ColorPaletteMorph.prototype.render = function (context) {
     var ext, x, y, h, l, colors;
 
     ext = this.extent();
-    console.log(ext);
-    
-    
-
     
     this.choice = new Color();
     colors = ['rgb(0, 0,0)',    //black
