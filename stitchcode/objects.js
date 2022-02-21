@@ -484,8 +484,10 @@ SpriteMorph.prototype.arcRight = function (radius, degrees) {
       if (degrees % 10 !== 0) {
           this.turn((degrees % 10)/2);
           this.forward(((radius * 0.174532) / 10) / (degrees % 10))
-          this.turn((degrees % 10)/2  * this.sign) 
+          this.turn((degrees % 10)/2 ) 
       }
+    } else {
+      throw new Error('degrees must be positive');
     }
 };
 
@@ -498,10 +500,12 @@ SpriteMorph.prototype.arcLeft = function (radius, degrees) {
           this.turn(-5)
       }
       if (degrees % 10 !== 0) {
-          this.turn(-(degrees % 10)/2);
+          this.turn(-((degrees % 10)/2));
           this.forward(((radius * 0.174532) / 10) / (degrees % 10))
-          this.turn(-(degrees % 10)/2) 
+          this.turn(-((degrees % 10)/2)) 
       }
+    } else {
+      throw new Error('degrees must be positive');
     }
 };
 
@@ -711,7 +715,7 @@ SpriteMorph.prototype.tatamiForwardEnd = function (steps, width=10) {
   var alpha = degrees(Math.asin(width/c));
 
   this.turn(90);
-  this.doMoveForward((c/2)*this.sign);
+  this.doMoveForward((width/2)*this.sign);
   this.turn(-90);
 }
 
