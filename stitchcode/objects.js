@@ -181,7 +181,6 @@ SpriteMorph.prototype.addJumpLine = function(x1, y1, x2, y2) {
 			];
 			var g = new MeshLine();
 			g.setGeometry( geometry );
-
 			this.cache.addGeometry('meshline', g,  [x1,y1,x2,y2, color, this.color.a]);
 		}
 
@@ -211,11 +210,11 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
 	color = new THREE.Color("rgb(0,0,255)");
 	var material = this.cache.findMaterial( color, 1);
     if (!material) {
-		material = new THREE.MeshBasicMaterial(
-			{ color: color, side:THREE.DoubleSide, opacity: 1  } );
-		material.transparent = true;
-		this.cache.addMaterial(material);
-	}
+      material = new THREE.MeshBasicMaterial(
+        { color: color, side:THREE.DoubleSide, opacity: 1  } );
+      material.transparent = true;
+      this.cache.addMaterial(material);
+    }
 
     if (this.myStitchPoints === null) {
         this.myStitchPoints = new THREE.Group();
@@ -238,7 +237,7 @@ SpriteMorph.prototype.addStitchPoint = function(x2, y2) {
     line.position.set(x2,y2,0.01);
     line.visible = !StageMorph.prototype.hideStitches;
     //if (stage.penSize <= 1)
-	stage.myStitchPoints.add(line);
+    stage.myStitchPoints.add(line);
     this.reRender();
 
 };
@@ -314,7 +313,6 @@ SpriteMorph.prototype.crossStitch = function (length, width=10, center=true, aut
       width: width,
       center: center,
     }
-
 	}
 }
 
@@ -462,7 +460,6 @@ SpriteMorph.prototype.forward = function (steps) {
 
 SpriteMorph.prototype.forwardByNr = function (totalsteps, steps) {
     stepsize = totalsteps / steps;
-
     this.forwardSegemensWithEndCheck(steps, stepsize)
 };
 
@@ -474,8 +471,40 @@ SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
   	if (rest > 0) {
   		this.moveforward(rest);
   	}
-
 };
+
+
+SpriteMorph.prototype.arcRight = function (radius, degrees) {
+    if (degrees > 0) {
+      for (var n=0; n < Math.floor(degrees / 10); n++) {
+          this.turn(5);
+          this.forward(radius * 0.174532)
+          this.turn(5)
+      }
+      if (degrees % 10 !== 0) {
+          this.turn((degrees % 10)/2);
+          this.forward(((radius * 0.174532) / 10) / (degrees % 10))
+          this.turn((degrees % 10)/2  * this.sign) 
+      }
+    }
+};
+
+
+SpriteMorph.prototype.arcLeft = function (radius, degrees) {
+    if (degrees > 0) {
+      for (var n=0; i < Math.floor(degrees / 10); n++) {
+          this.turn(-5);
+          this.forward(radius * 0.174532)
+          this.turn(-5)
+      }
+      if (degrees % 10 !== 0) {
+          this.turn(-(degrees % 10)/2);
+          this.forward(((radius * 0.174532) / 10) / (degrees % 10))
+          this.turn(-(degrees % 10)/2) 
+      }
+    }
+};
+
 
 SpriteMorph.prototype.forwardSegemensWithEndCheck = function(steps, stepsize) {
   for(i=0;i<steps;i++) {
@@ -1423,6 +1452,22 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'go to x: %n y: %n in %n',
         defaults: [0, 0, 10]
     };
+    this.blocks.arcRight =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'motion',
+        spec: 'arc $turnRight radius: %n degress: %n ',
+        defaults: [50, 30]
+    };
+    this.blocks.arcLeft =
+    {
+		only: SpriteMorph,
+        type: 'command',
+        category: 'motion',
+        spec: 'arc $turnLeft radius: %n degress: %n ',
+        defaults: [50, 30]
+    };
     this.blocks.pointTowards =
     {
 		only: SpriteMorph,
@@ -1828,6 +1873,9 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         //blocks.push(block('gotoXYBy'));
         blocks.push(block('doGotoObject'));
         blocks.push(block('reportRandomPosition'));
+        blocks.push('-');
+        blocks.push(block('arcRight'));
+        blocks.push(block('arcLeft'));
         blocks.push('-');
         blocks.push(block('changeXPosition'));
         blocks.push(block('setXPosition'));
