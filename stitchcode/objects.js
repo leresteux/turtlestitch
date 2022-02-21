@@ -492,7 +492,7 @@ SpriteMorph.prototype.arcRight = function (radius, degrees) {
 
 SpriteMorph.prototype.arcLeft = function (radius, degrees) {
     if (degrees > 0) {
-      for (var n=0; i < Math.floor(degrees / 10); n++) {
+      for (var n=0; n < Math.floor(degrees / 10); n++) {
           this.turn(-5);
           this.forward(radius * 0.174532)
           this.turn(-5)
