@@ -1457,7 +1457,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command',
         category: 'motion',
-        spec: 'arc $turnRight radius: %n degress: %n ',
+        spec: 'arc $turnRight radius: %n degrees: %n ',
         defaults: [50, 30]
     };
     this.blocks.arcLeft =
@@ -1465,7 +1465,7 @@ SpriteMorph.prototype.initBlocks = function () {
 		only: SpriteMorph,
         type: 'command',
         category: 'motion',
-        spec: 'arc $turnLeft radius: %n degress: %n ',
+        spec: 'arc $turnLeft radius: %n degrees: %n ',
         defaults: [50, 30]
     };
     this.blocks.pointTowards =
