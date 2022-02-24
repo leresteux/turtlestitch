@@ -3275,7 +3275,7 @@ StageMorph.prototype.clearStageBackground = function() {
         StageMorph.prototype.backgroundColor.r + "," +
         StageMorph.prototype.backgroundColor.g + "," +
         StageMorph.prototype.backgroundColor.b + ")"),
-        myself.hasBackgroundImage ? 0.0 : 1
+        myself.hasBackgroundImage ? 0.5 : 1
   );
   myself.hasChangedMedia = true;
 };

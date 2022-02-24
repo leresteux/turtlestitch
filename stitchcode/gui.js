@@ -2989,7 +2989,7 @@ IDE_Morph.prototype.loadAsBackgroundOrData = function (costume, name) {
               StageMorph.prototype.backgroundColor.r + "," +
               StageMorph.prototype.backgroundColor.g + "," +
               StageMorph.prototype.backgroundColor.b + ")"),
-              stage.hasBackgroundImage ? 0.0 : 1
+              stage.hasBackgroundImage ? 0.5 : 1
         );
         myself.hasChangedMedia = true;
         myself.recordUnsavedChanges();
