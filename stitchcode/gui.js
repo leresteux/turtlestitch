@@ -2965,7 +2965,7 @@ IDE_Morph.prototype.loadAsBackgroundOrData = function (costume, name) {
     dlg.createLabel();c
 
     var txt = new TextMorph(
-        localize('Import as Background Image or as raw data into a variable?'),
+        localize('Import Image as Background  or as data table into a variable?'),
         dlg.fontSize,
         dlg.fontStyle,
         true,

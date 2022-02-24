@@ -115,7 +115,19 @@ tempDict = {
     'Hintergrundfarbe...',
   'Default pen color...':
     'Vorgabewert Stiftfarbe...',
-
+  'Load a camera snapshot...':
+    'Mache ein Bild mit der Kamera...',
+  'Clear background image':
+    'Hintergrundbild l\u00f6schen',
+  'Import Image':
+    'Bild importieren',
+  'Import Image as Background  or as data table into a variable?':
+    'Bild as Hintergrund laden? oder als Datentabelle in eine Variable?',
+  'As background':
+    'Als Hintergrund',
+  'As data':
+    'Als Datennsatz',
+    
   // legacy blocks
   'clear':
     'l\u00f6schen',
