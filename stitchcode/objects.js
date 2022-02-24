@@ -45,6 +45,9 @@ SpriteMorph.prototype.init = function(globals) {
     this.stitchtype = 0;
     this.isRunning = false;
     this.stitchoptions = {};
+    this.costumes = new List();
+    this.costumes.type = 'costume';
+    this.costume = null;
 };
 
 SpriteMorph.prototype.addStitch = function(x1, y1, x2, y2, angle=false ) {
@@ -2439,6 +2442,7 @@ StageMorph.prototype.init = function (globals) {
     this.fonts = null;
     this.stepcounter = 0;
     this.isXRay = false;
+    this.hasBackgroundImage = false
 
   	// load customized fonts based on Hershey's fonts.
     /*
@@ -2607,19 +2611,18 @@ StageMorph.prototype.initRenderer = function () {
           this.renderer_status_msg = "webgl enabled";
 
       } else {
-  		console.log("webgl unavailable. fallback to canvas (SLOW!)");
-  		this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
+        console.log("webgl unavailable. fallback to canvas (SLOW!)");
+        this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
           this.renderer = new THREE.CanvasRenderer(
               {canvas: this.penTrails()});
       }
-
 
       this.renderer.setBackgroundColor = function(color) {
         StageMorph.prototype.backgroundColor  = color;
         myself.turtleShepherd.setBackgroundColor(color);
         myself.renderer.setClearColor(
-            new THREE.Color("rgb("+color.r + "," + color.g + "," + color.b + ")"),
-        1);
+            new THREE.Color("rgba("+color.r + "," + color.g + "," + color.b + ")"),
+        myself.hasBackgroundImage ? 0.0 : 1);
         myself.reRender();
       }
 
@@ -2695,13 +2698,31 @@ StageMorph.prototype.initRenderer = function () {
 };
 
 
-StageMorph.prototype.render = function () {
+StageMorph.prototype.render = function (ctx) {
+    if (this.costume) {
+      ctx.save();
+      ctx.fillStyle = this.color.toString();
+      ctx.fillRect(0, 0, this.width(), this.height());
+      ctx.scale(this.scale, this.scale);
+      ctx.drawImage(
+          this.costume.contents,
+          (this.width() / this.scale - this.costume.width()) / 2,
+          (this.height() / this.scale - this.costume.height()) / 2
+      );
+      this.cachedImage = this.applyGraphicsEffects(this.cachedImage);
+      ctx.restore();
+      this.version = Date.now(); // for observer optimization
+    }
+    this.renderThree()
+};
+
+StageMorph.prototype.renderThree = function () {
     this.renderer.render(this.scene, this.camera);
 };
 
 StageMorph.prototype.renderCycle = function () {
     if (this.renderer.changed) {
-        this.render();
+        this.renderThree();
         this.changed();
         this.parentThatIsA(IDE_Morph).statusDisplay.refresh();
         this.renderer.changed = false;
@@ -2715,6 +2736,7 @@ StageMorph.prototype.renderCycle = function () {
 
 StageMorph.prototype.reRender = function () {
     this.renderer.changed = true;
+    this.rerender()
 };
 
 StageMorph.prototype.initCamera = function () {
@@ -2772,7 +2794,7 @@ StageMorph.prototype.initCamera = function () {
         myself.camera.reset = function () {
 
             myself.controls = new THREE.OrbitControls(this, threeLayer);
-            myself.controls.addEventListener('change', function (event) { myself.render(); });
+            myself.controls.addEventListener('change', function (event) { myself.renderThree(); });
 
             if (myself.renderer.isParallelProjection) {
                 this.zoomFactor = 1.7;
@@ -2978,7 +3000,7 @@ StageMorph.prototype.turnXRayOn = function () {
       this.myStitchLines.remove(this.myStitchLines.children[i]);
   }
   stitches = this.turtleShepherd.getStitchesAsArr();
-  this.renderer.setClearColor(new THREE.Color("rgb(0,0,0)"),1);
+  this.renderer.setClearColor(new THREE.Color("rgb(0,0,0)"), this.hasBackgroundImage ? 0.0 : 1);
 
   if (!StageMorph.prototype.hideGrid)
     this.scene.grid.toggle();
@@ -3018,7 +3040,7 @@ StageMorph.prototype.turnXRayOff = function () {
           StageMorph.prototype.backgroundColor.r + "," +
           StageMorph.prototype.backgroundColor.g + "," +
           StageMorph.prototype.backgroundColor.b + ")"),
-          1
+          this.hasBackgroundImage ? 0.0 : 1
   );
 
   for (i =0; i < stitches.length; i++) {
@@ -3063,13 +3085,13 @@ StageMorph.prototype.penTrails = function () {
 
 // StageMorph drawing
 StageMorph.prototype.originalDrawOn = StageMorph.prototype.drawOn;
-StageMorph.prototype.drawOn = function (context, aRect) {
+StageMorph.prototype.drawOn = function (ctx, rect) {
     // If the scale is lower than 1, we reuse the original method,
     // otherwise we need to modify the renderer dimensions
     // we do not need to render the original canvas anymore because
     // we have removed sprites and backgrounds
 
-    var rectangle, area, delta, src, context, w, h, sl, st;
+    var rectangle, area, delta, src, w, h, sl, st;
     if (!this.isVisible) {
         return null;
     }
@@ -3078,12 +3100,15 @@ StageMorph.prototype.drawOn = function (context, aRect) {
         return this.originalDrawOn(aCanvas, aRect);
     }*/
 
-    rectangle = aRect || this.bounds;
+    // costume, if any, and background color
+    StageMorph.uber.drawOn.call(this, ctx, rect);
+
+    rectangle = rect || this.bounds;
     area = rectangle.intersect(this.bounds).round();
     if (area.extent().gt(new Point(0, 0))) {
         delta = this.position().neg();
         src = area.copy().translateBy(delta).round();
-        context.globalAlpha = this.alpha;
+        ctx.globalAlpha = this.alpha;
 
         sl = src.left();
         st = src.top();
@@ -3094,14 +3119,9 @@ StageMorph.prototype.drawOn = function (context, aRect) {
             return null;
         }
         // we only draw pen trails!
-        context.save();
-        context.clearRect(
-            area.left(),
-            area.top() ,
-            w,
-            h);
+        ctx.save();
         try {
-            context.drawImage(
+            ctx.drawImage(
                 this.penTrails(),
                 sl,
                 st,
@@ -3115,7 +3135,7 @@ StageMorph.prototype.drawOn = function (context, aRect) {
         } catch (err) { // sometimes triggered only by Firefox
             console.log(err);
         }
-        context.restore();
+        ctx.restore();
     }
 };
 
@@ -3213,7 +3233,6 @@ Cache.prototype.addGeometry = function (type, geometry, params) {
 };
 
 Cache.prototype.findGeometry = function (type, params) {
-
     var geometry = detect(
             this.geometries[type],
             function (each) {
@@ -3228,4 +3247,53 @@ Cache.prototype.findGeometry = function (type, params) {
     } else {
         return null;
     }
+};
+
+
+StageMorph.prototype.clearStageBackground = function() {
+  var myself = this;
+/*
+ var wardrobe = this.parentThatIsA(WardrobeMorph),
+        idx = this.parent.children.indexOf(this),
+        off = CamSnapshotDialogMorph.prototype.enableCamera ? 3 : 2,
+        ide = this.parentThatIsA(IDE_Morph);
+    wardrobe.removeCostumeAt(idx - off); // ignore paintbrush and camera buttons
+    if (ide.currentSprite.costume === this.object) {
+        ide.currentSprite.wearCostume(null);
+    }
+  */
+
+  myself.shadowAttribute('costumes');
+  for(var i=0; i < myself.costumes.length(); i++) {
+    myself.costumes.remove(0);
+  }
+  myself.wearCostume(null);
+  myself.hasBackgroundImage =  false;
+  myself.renderer.setClearColor(
+    new THREE.Color(
+        "rgb("+
+        StageMorph.prototype.backgroundColor.r + "," +
+        StageMorph.prototype.backgroundColor.g + "," +
+        StageMorph.prototype.backgroundColor.b + ")"),
+        myself.hasBackgroundImage ? 0.0 : 1
+  );
+  myself.hasChangedMedia = true;
+};
+
+StageMorph.prototype.loadCameraSnapshot = function() {
+    var myself = this;
+    var ide = this.parentThatIsA(IDE_Morph);
+    var camDialog,
+        sprite = this;
+
+    camDialog = new CamSnapshotDialogMorph(
+        ide,
+        sprite,
+        nop,
+        costume => {
+          ide.loadAsBackgroundOrData(costume)
+        });
+
+    camDialog.key = 'camera';
+    camDialog.popUp(this.world());
 };

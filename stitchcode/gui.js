@@ -1,5 +1,5 @@
 
-VERSION="2.7.3"
+VERSION="2.7.4"
 
 // get debug mode
 url = new URL(window.location.href);
@@ -928,6 +928,8 @@ IDE_Morph.prototype.turtlestitchMenu = function () {
     menu.addItem('Default background color...', 'userSetBackgroundColor');
     menu.addItem('Default pen color...', 'userSetPenColor');
 
+    menu.addItem('Load a camera snapshot...', 'loadCameraSnapshot');
+    menu.addItem('Clear background image', 'clearStageBackground');
 
     menu.popup(world, pos);
 };
@@ -1069,7 +1071,7 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
     var dlg, aboutTxt, pic, world = this.world();
 
     aboutTxt = 'TurtleStich! ' + VERSION + '\n\n'
-        + 'Copyright \u24B8 2021 Michael Aschauer\n\n'
+        + 'Copyright \u24B8 2022 Michael Aschauer\n\n'
 
         + 'TurtleStitch is developed by OSEDA - Association for\n'
         + 'Development of Open Source Software in Education, Design\n'
@@ -2329,16 +2331,6 @@ IDE_Morph.prototype.setLanguage = function(lang, callback) {
 };
 
 
-StageHandleMorph.prototype.fixLayout = function () {
-    if (!this.target) {return; }
-    var ide = this.target.parentThatIsA(IDE_Morph);
-    this.setTop(this.target.top() + 10);
-    this.setRight(ide.stage.left());
-
-    if (ide) {ide.add(this); } // come to front
-};
-
-
 IDE_Morph.prototype.setStageExtent = function (aPoint) {
     var myself = this,
         world = this.world(),
@@ -2930,4 +2922,145 @@ IDE_Morph.prototype.userSetPenColor = function () {
         null, // read only
         false // numeric
     );
+};
+
+IDE_Morph.prototype.loadCameraSnapshot = function () {
+    this.stage.loadCameraSnapshot()
+};
+
+IDE_Morph.prototype.clearStageBackground = function () {
+    this.stage.clearStageBackground()
+};
+
+
+IDE_Morph.prototype.droppedImage = function (aCanvas, name) {
+    var myself = this;
+    var stage = this.stage;
+    var costume = new Costume(
+        aCanvas,
+        this.stage.newCostumeName(
+          name ? name.split('.')[0] : '' // up to period
+        )
+    );
+    if (costume.isTainted()) {
+        this.inform(
+            'Unable to import this image',
+            'The picture you wish to import has been\n' +
+                'tainted by a restrictive cross-origin policy\n' +
+                'making it unusable for costumes in Snap!. \n\n' +
+                'Try downloading this picture first to your\n' +
+                'computer, and import it from there.'
+        );
+        return;
+    }
+    this.loadAsBackgroundOrData(costume)
+}
+
+IDE_Morph.prototype.loadAsBackgroundOrData = function (costume) {
+    var myself = this;
+    var stage = this.stage;
+    var dlg, world = this.world();
+    dlg = new DialogBoxMorph();
+    dlg.labelString = localize('Import Image');
+    dlg.createLabel();c
+
+    var txt = new TextMorph(
+        localize('Import as Background Image or as raw data into a variable?'),
+        dlg.fontSize,
+        dlg.fontStyle,
+        true,
+        false,
+        'center',
+        null,
+        null,
+        MorphicPreferences.isFlat ? null : new Point(1, 1),
+        WHITE
+    );
+    dlg.addBody(txt);
+
+    btn1 = dlg.addButton(
+      function () {
+        stage.addCostume(costume);
+        stage.wearCostume(costume);
+        stage.hasBackgroundImage =  true;
+        stage.renderer.setClearColor(
+          new THREE.Color(
+              "rgb("+
+              StageMorph.prototype.backgroundColor.r + "," +
+              StageMorph.prototype.backgroundColor.g + "," +
+              StageMorph.prototype.backgroundColor.b + ")"),
+              stage.hasBackgroundImage ? 0.0 : 1
+        );
+        myself.hasChangedMedia = true;
+        myself.recordUnsavedChanges();
+        this.destroy();
+      },
+      'As background'
+    );
+    btn2 = dlg.addButton(
+      function () {
+        myself.rawOpenImageData(costume.rasterized().pixels(), name)
+        this.destroy();
+      },
+      'As data',
+    );
+    dlg.fixLayout();
+    dlg.popUp(world);
+}
+
+
+IDE_Morph.prototype.loadSVG = function (anImage, name) {
+    var costume = new SVG_Costume(anImage, name);
+    var stage = this.stage;
+    this.stage.addCostume(costume);
+    this.stage.wearCostume(costume);
+    this.stage.hasBackgroundImage =  true;
+    this.stage.renderer.setClearColor(
+      new THREE.Color(
+          "rgb("+
+          StageMorph.prototype.backgroundColor.r + "," +
+          StageMorph.prototype.backgroundColor.g + "," +
+          StageMorph.prototype.backgroundColor.b + ")"),
+          stage.hasBackgroundImage ? 0.0 : 1
+    );
+    this.hasChangedMedia = true;
+};
+
+IDE_Morph.prototype.droppedAudio = function (anAudio, name) {
+   // ignore
+};
+
+IDE_Morph.prototype.rawOpenImageData = function (data, name) {
+    var data, vName, dlg,
+        globals = this.currentSprite.globalVariables();
+
+    function newVarName(name) {
+        var existing = globals.names(),
+            ix = name.indexOf('\('),
+            stem = (ix < 0) ? name : name.substring(0, ix),
+            count = 1,
+            newName = stem;
+        while (contains(existing, newName)) {
+            count += 1;
+            newName = stem + '(' + count + ')';
+        }
+        return newName;
+    }
+
+    vName = newVarName(name || 'data');
+    globals.addVar(vName);
+    globals.setVar(vName, data);
+    this.currentSprite.toggleVariableWatcher(vName, false); // global
+    this.flushBlocksCache('variables');
+    this.currentCategory = 'variables';
+    this.categories.children.forEach(each =>
+        each.refresh()
+    );
+    this.refreshPalette(true);
+    if (data instanceof List) {
+        dlg = new TableDialogMorph(data);
+        dlg.labelString = localize(dlg.labelString) + ': ' + vName;
+        dlg.createLabel();
+        dlg.popUp(this.world());
+    }
 };
