@@ -3291,7 +3291,7 @@ StageMorph.prototype.loadCameraSnapshot = function() {
         sprite,
         nop,
         costume => {
-          ide.loadAsBackgroundOrData(costume)
+          ide.loadAsBackgroundOrData(costume, 'snapshot')
         });
 
     camDialog.key = 'camera';

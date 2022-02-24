@@ -2953,10 +2953,10 @@ IDE_Morph.prototype.droppedImage = function (aCanvas, name) {
         );
         return;
     }
-    this.loadAsBackgroundOrData(costume)
+    this.loadAsBackgroundOrData(costume, name)
 }
 
-IDE_Morph.prototype.loadAsBackgroundOrData = function (costume) {
+IDE_Morph.prototype.loadAsBackgroundOrData = function (costume, name) {
     var myself = this;
     var stage = this.stage;
     var dlg, world = this.world();
