@@ -549,6 +549,12 @@ ProjectDialogMorph.prototype.buildContents = function () {
             });
 
     this.originalBuildContents();
+    /*
+    this.preview.setExtent(
+        new Point(320,240).add(this.preview.edge * 2)
+    );
+    */
+    this.notesField.setWidth(this.preview.width());
 
     if (this.ide.cloudMsg) {
         notification = new TextMorph(
@@ -567,9 +573,9 @@ ProjectDialogMorph.prototype.buildContents = function () {
         this.srcBar.add(notification);
     }
     if (notification) {
-        this.setExtent(new Point(840, 630).add(notification.extent()));
+        this.setExtent(new Point(840, 590).add(notification.extent()));
     } else {
-        this.setExtent(new Point(840, 630));
+        this.setExtent(new Point(840, 590));
     }
     this.fixLayout();
 };
