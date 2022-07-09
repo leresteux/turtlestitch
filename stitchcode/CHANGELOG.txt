@@ -1,5 +1,25 @@
 
+* 2022-07-09 (2.7.7)
+  - upgrade to Snap7
+  - fix stage handle
+  
+* 2022-03-15
+  - decrease height of project dialog
+  
+* 2022-02-24
+  - make background image half opacity
+  - German translation update
+  - load images!!!
+  
+* 2022-02-21
+  - add arc blocks
+  - show error with non positive degrees. fix bug in tatami
+  - fix spelling and naming errors
 
+* 2022-01-03
+  - remove pickHue block (currently not working)
+  - add spanish translation (thx José)
+  
 * 2021-07-30 (snap6 branch/ 2.7 dev)
   - include turtle model definition and simplex font as javascript
     instead of loading from url as json (also works offline now!)

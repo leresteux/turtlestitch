@@ -59,11 +59,13 @@ BeetleCloud.prototype.get = function (path, callBack, errorCall, errorMsg) {
                         );
                     }
                 } else {
-                    errorCall.call(
+                    if (typeof errorCall != 'undefined') {
+                      errorCall.call(
                         null,
                         myself.url,
                         errorMsg
-                    );
+                      );
+                    }
                 }
             }
         };
@@ -108,11 +110,13 @@ BeetleCloud.prototype.post = function (path, body, callBack, errorCall, errorMsg
                         );
                     }
                 } else {
-                    errorCall.call(
+                    if (typeof errorCall !== undefined) {
+                      errorCall.call(
                         null,
                         myself.url + path,
                         localize('could not connect to:')
-                    );
+                      );
+                    }
                 }
             }
         };
@@ -171,7 +175,27 @@ BeetleCloud.prototype.saveProject = function (ignorethis, discardthis, callBack,
     this.checkCredentials(
             function (user) {
                 if (user.username) {
-                    var pdata = myself.ide.serializer.serialize(myself.ide.stage);
+                    /*
+                    projectBody = myself.ide.buildProjectRequest();
+                    projectSize = myself.ide.verifyProject(projectBody);
+                    if (!projectSize) {
+                        myself.ide.showMessage('Serialization of program data failed:\n' + err);
+                        throw new Error('Serialization of program data failed:\n' + err);
+                    } // Invalid Projects don't return anything.
+                    */
+                    
+                    
+                    // var pdata = myself.ide.serializer.serialize(projectBody);
+                    project = new Project(this.scenes, this.scene);
+                    project.name = this.projectName;
+                    project.notes = this.projectNotes;
+                    project.origName = this.origName;
+                    project.origCreator  = this.origCreator;
+                    project.creator = this.creator;
+                    project.remixHistory = this.remixHistory;
+                    
+                    var pdata = myself.ide.serializer.serialize(project);
+                    
                     // check if serialized data can be parsed back again
                     try {
                         myself.ide.serializer.parse(pdata);
@@ -179,7 +203,7 @@ BeetleCloud.prototype.saveProject = function (ignorethis, discardthis, callBack,
                         myself.ide.showMessage('Serialization of program data failed:\n' + err);
                         throw new Error('Serialization of program data failed:\n' + err);
                     }
-                    
+                  
                     myself.ide.showMessage('Uploading project...'); 
 
                     //(path, body, callBack, errorCall, errorMsg)

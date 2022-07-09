@@ -1,3 +1,4 @@
+
 # TurtleStitch
 
 TurtleStitch is a visual, blocks-based programming environment for turtle graphics with a primary focus on
@@ -24,14 +25,15 @@ You can also try the [latest stable version from the git master branch](https://
 or [download it and run it offline](https://github.com/backface/turtlestitch/blob/master/OFFLINE.md)
 
 
-
 ## Acknowledgements / License
 
 Snap! Build Your Own Blocks [http://snap.berkeley.edu] is a 
 visual, blocks based programming language inspired by Scratch
 
 
-Copyright (C) 2008-2021 by Jens Mönig and Brian Harvey
+## License
+Copyright (C) 2008-2022 by Jens Mönig and Brian Harvey
+Copyright (C) 2008-2022 by Michael Aschauer
 
 Snap! is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as

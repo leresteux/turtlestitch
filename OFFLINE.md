@@ -7,7 +7,7 @@ If you would like to use TurtleStitch without being connected to the internet, e
 or in a school with limited or unreliable online service you can easily set up TurtleStitch locally on
 your computer, by following these
 
-## Simple Steps:
+### Simple Steps:
 
 1. Download the latest TurtleStitch Release from
 [https://github.com/backface/turtlestitch/releases/latest](https://github.com/backface/turtlestitch/releases/latest "TurtleStitch Source Code"), and unpack the contents of the archive to your local disk.
@@ -18,9 +18,9 @@ TurtleStitch is just a web page, you can open it locally in your browser, no nee
 on your computer. You can use whichever operating system you like, you don't even need
 admin rights. You can also use a memory stick to distribute the directory with source files
 among the participants of a workshop or the students of your class, even if some of them
-are using MacOS and others run MS Windows or Linux. 
+are using MacOS and others run MS Windows or Linux.
 
-## Remember to Unpack
+### Remember to Unpack
 
 Windows users, this is for you.
 
@@ -30,7 +30,7 @@ to your computer. If you downloaded the zip file please actually unzip it, befor
 on Windows double clicking the zip fie will *not* unzip it but instead show you the contents of
 the archive.
 
-## Which Web Browser?
+### Which Web Browser?
 
 It's best to open TurtleStitch in Chrome or Firefox.
 
@@ -41,14 +41,13 @@ will work, but some operations will be so slow it takes the fun out of programmi
 
 ## What about Tablets?
 
-We don't recommend it.
 
 TurtleStitch sorta runs on tablets, but the UI isn't optimized for mobile use. Also, many mobile
 web browsers enforce some restrictions that are not web-standards compliant, e.g. they
 will not support the soft keyboard or intentionally slow down certain operations to discourage
 using web apps in favor of proprietary "native" apps.
 
-## Restrictions of the Offline Version
+### Restrictions of the Offline Version
 
 You can't access the cloud, duh. Everything else just works.
 
@@ -57,7 +56,7 @@ file locally there aren't any restrictions. You can use all the blocks, import p
 libraries, take snapshots with the webcom, record sounds with the microphone, draw your
 own costumes etc.
 
-## Saving and Loading
+### Saving and Loading
 
 When you use TurtleStitch locally you will not be able to save projects to the cloud, nor can you
 access projects saved in the cloud. Instead projects will be exported as xml-files to your
@@ -79,8 +78,3 @@ Easy, isn't it?
 From time to time it's wise to check whether a new version of TurtleStitch is available. You can
 find out the lastest release using the link above, and compare that to the offline sources on
 your computer. If there is a newer version, simply replace the source files with the newer ones.
-
-
-Enjoy!
-
--Jens
