@@ -175,24 +175,13 @@ BeetleCloud.prototype.saveProject = function (ignorethis, discardthis, callBack,
     this.checkCredentials(
             function (user) {
                 if (user.username) {
-                    /*
-                    projectBody = myself.ide.buildProjectRequest();
-                    projectSize = myself.ide.verifyProject(projectBody);
-                    if (!projectSize) {
-                        myself.ide.showMessage('Serialization of program data failed:\n' + err);
-                        throw new Error('Serialization of program data failed:\n' + err);
-                    } // Invalid Projects don't return anything.
-                    */
-                    
-                    
-                    // var pdata = myself.ide.serializer.serialize(projectBody);
-                    project = new Project(this.scenes, this.scene);
-                    project.name = this.projectName;
-                    project.notes = this.projectNotes;
-                    project.origName = this.origName;
-                    project.origCreator  = this.origCreator;
-                    project.creator = this.creator;
-                    project.remixHistory = this.remixHistory;
+                    project = new Project(myself.ide.scenes, myself.ide.scene);
+                    project.name = myself.ide.projectName;
+                    project.notes = myself.ide.projectNotes;
+                    project.origName = myself.ide.origName;
+                    project.origCreator  = myself.ide.origCreator;
+                    project.creator = myself.ide.creator;
+                    project.remixHistory = myself.ide.remixHistory;
                     
                     var pdata = myself.ide.serializer.serialize(project);
                     

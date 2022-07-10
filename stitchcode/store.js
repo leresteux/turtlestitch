@@ -57,8 +57,6 @@ Project.prototype.toXML = function (serializer) {
         thumbdata = null;
     }
     
-    console.log(this)
-
     return serializer.format(
         '<project name="@" app="@" version="@">' +
             '<notes>$</notes>' +
