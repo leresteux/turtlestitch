@@ -1863,9 +1863,13 @@ IDE_Morph.prototype.createSpriteBar = function () {
     };
 };
 
+
 IDE_Morph.prototype.createCategories = function () {
-    // assumes the logo has already been created
-    var myself = this;
+    var myself = this,
+        categorySelectionAction = this.scene.unifiedPalette ? scrollToCategory
+            : changePalette,
+        categoryQueryAction = this.scene.unifiedPalette ? queryTopCategory
+            : queryCurrentCategory;
 
     if (this.categories) {
         this.categories.destroy();
@@ -1873,7 +1877,50 @@ IDE_Morph.prototype.createCategories = function () {
     this.categories = new Morph();
     this.categories.color = this.groupColor;
     this.categories.bounds.setWidth(this.paletteWidth);
-    // this.categories.getRenderColor = ScriptsMorph.prototype.getRenderColor;
+    this.categories.buttons = [];
+
+    this.categories.refresh = function () {
+        this.buttons.forEach(cat => {
+            cat.refresh();
+            if (cat.state) {
+                cat.scrollIntoView();
+            }
+        });
+    };
+
+    this.categories.refreshEmpty = function () {
+        var dict = myself.currentSprite.emptyCategories();
+        dict.variables = dict.variables || dict.lists || dict.other;
+        this.buttons.forEach(cat => {
+            if (dict[cat.category]) {
+                cat.enable();
+            } else {
+                cat.disable();
+            }
+        });
+    };
+
+    function changePalette(category) {
+        return () => {
+            myself.currentCategory = category;
+            myself.categories.buttons.forEach(each =>
+                each.refresh()
+            );
+            myself.refreshPalette(true);
+        };
+    }
+
+    function scrollToCategory(category) {
+        return () => myself.scrollPaletteToCategory(category);
+    }
+
+    function queryCurrentCategory(category) {
+        return () => myself.currentCategory === category;
+    }
+
+    function queryTopCategory(category) {
+        return () => myself.topVisibleCategoryInPalette() === category;
+    }
 
     function addCategoryButton(category) {
         var labelWidth = 75,
@@ -1887,23 +1934,18 @@ IDE_Morph.prototype.createCategories = function () {
         button = new ToggleButtonMorph(
             colors,
             myself, // the IDE is the target
-            () => {
-                myself.currentCategory = category;
-                myself.categories.children.forEach(each =>
-                    each.refresh()
-                );
-                myself.refreshPalette(true);
-            },
+            categorySelectionAction(category),
             category[0].toUpperCase().concat(category.slice(1)), // label
-            () => myself.currentCategory === category, // query
+            categoryQueryAction(category), // query
             null, // env
             null, // hint
             labelWidth, // minWidth
             true // has preview
         );
 
+        button.category = category;
         button.corner = 8;
-        button.padding = 3;
+        button.padding = 0;
         button.labelShadowOffset = new Point(-1, -1);
         button.labelShadowColor = colors[1];
         button.labelColor = myself.buttonLabelColor;
@@ -1913,50 +1955,125 @@ IDE_Morph.prototype.createCategories = function () {
         button.fixLayout();
         button.refresh();
         myself.categories.add(button);
+        myself.categories.buttons.push(button);
+        return button;
+    }
+
+    function addCustomCategoryButton(category, color) {
+        var labelWidth = 168,
+            colors = [
+                myself.frameColor,
+                myself.frameColor.darker(MorphicPreferences.isFlat ? 5 : 50),
+                color
+            ],
+            button;
+
+        button = new ToggleButtonMorph(
+            colors,
+            myself, // the IDE is the target
+            categorySelectionAction(category),
+            category, // label
+            categoryQueryAction(category), // query
+            null, // env
+            null, // hint
+            labelWidth, // minWidth
+            true // has preview
+        );
+
+        button.category = category;
+        button.corner = 8;
+        button.padding = 0;
+        button.labelShadowOffset = new Point(-1, -1);
+        button.labelShadowColor = colors[1];
+        button.labelColor = myself.buttonLabelColor;
+        if (MorphicPreferences.isFlat) {
+            button.labelPressColor = WHITE;
+        }
+        button.fixLayout();
+        button.refresh();
+        myself.categories.add(button);
+        myself.categories.buttons.push(button);
         return button;
     }
 
     function fixCategoriesLayout() {
         var buttonWidth = myself.categories.children[0].width(),
             buttonHeight = myself.categories.children[0].height(),
-            border = 12,
-            rows =  Math.ceil((myself.categories.children.length) / 2),
-            // xPadding = (myself.categories.width() -
-            //    border -
-            //    buttonWidth * 2) / 3,
+            more = SpriteMorph.prototype.customCategories.size,
+            border = 10,
             xPadding = 5,
             yPadding = 3,
             l = myself.categories.left(),
             t = myself.categories.top(),
-            i = 0,
+            scroller,
             row,
-            col;
+            col,
+            i;
 
-        myself.categories.children.forEach(function (button) {
-            i += 1;
-            row = Math.ceil(i / 2);
-            col = 2 - (i % 2);
+        myself.categories.children.forEach((button, i) => {
+            row = i < 8 ? i % 4 : i - 4;
+            col = (i < 4 || i > 7) ? 1 : 2;
             button.setPosition(new Point(
                 l + (col * xPadding + ((col - 1) * buttonWidth)),
-                t + (row * yPadding + ((row - 1) * buttonHeight) + border)
+                t + ((row + 1) * yPadding + (row * buttonHeight) + border) +
+                    (i > 7 ? border + 2 : 0)
             ));
         });
 
-        myself.categories.setHeight(
-            (rows + 1) * yPadding +
-                rows * buttonHeight +
-                2 * border
-        );
+        if (more > 6) {
+            scroller = new ScrollFrameMorph(null, null, myself.sliderColor);
+            scroller.setColor(myself.groupColor);
+            scroller.acceptsDrops = false;
+            scroller.contents.acceptsDrops = false;
+            scroller.setPosition(
+                new Point(0, myself.categories.children[8].top())
+            );
+            scroller.setWidth(myself.paletteWidth);
+            scroller.setHeight(buttonHeight * 6 + yPadding * 5);
+
+            for (i = 0; i < more; i += 1) {
+                scroller.addContents(myself.categories.children[8]);
+            }
+            myself.categories.add(scroller);
+            myself.categories.scroller = scroller;
+            myself.categories.setHeight(
+                (4 + 1) * yPadding
+                    + 4 * buttonHeight
+                    + 6 * (yPadding + buttonHeight) + border + 2
+                    + 2 * border
+            );
+        } else {
+            myself.categories.setHeight(
+                (4 + 1) * yPadding
+                    + 4 * buttonHeight
+                    + (more ?
+                        (more * (yPadding + buttonHeight) + border + 2)
+                            : 0)
+                    + 2 * border
+            );
+        }
     }
 
-    SpriteMorph.prototype.categories.forEach(function (cat) {
-         if (!contains(['asdf','asdf','lists'], cat)) {
+    SpriteMorph.prototype.categories.forEach(cat => {
+        if (!contains(['lists', 'other'], cat)) {
             addCategoryButton(cat);
         }
     });
+
+    // sort alphabetically
+    Array.from(
+        SpriteMorph.prototype.customCategories.keys()
+    ).sort().forEach(name =>
+        addCustomCategoryButton(
+            name,
+            SpriteMorph.prototype.customCategories.get(name)
+        )
+    );
+
     fixCategoriesLayout();
     this.add(this.categories);
 };
+
 
 IDE_Morph.prototype.projectMenu = function () {
     var menu,
