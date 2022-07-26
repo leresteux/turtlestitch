@@ -1900,8 +1900,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('yPosition'));
         blocks.push(watcherToggle('direction'));
         blocks.push(block('direction'));
-        blocks.push('-');
-        blocks.push(this.makeBlockButton(cat));
 
     } else if (cat === 'looks') {
 
@@ -1949,9 +1947,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('doScreenshot'));
         }
 
-        blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));
-
     /////////////////////////////////
 
     } else if (cat === 'sound') {
@@ -1983,9 +1978,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('reportSounds'));
         }
 
-        blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));
-
     } else if (cat === 'pen') {
 
         blocks.push(block('clear'));
@@ -2001,8 +1993,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setOpacity'));
         blocks.push(block('changeOpacity'));
         blocks.push(block('getOpacity'));
-        blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));
 
 	} else if (cat === 'embroidery') {
 
@@ -2022,14 +2012,9 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('jumpStitch'));
         blocks.push(block('tieStitch'));
         blocks.push(block('trimStitch'));
-        blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));
 
   } else if (cat === 'other') {
         blocks.push(block('zoomToFit'));
-
-        blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));
 
 	} else if (cat === 'colors') {
         blocks.push(block('setColor'));
@@ -2046,8 +2031,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setHSB'));
         blocks.push(block('changeHSB'));
 		    blocks.push(block('getHSB'));
-        blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));
 
     } else if (cat === 'control') {
         blocks.push(block('resetAll'));
@@ -2097,8 +2080,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('removeClone'));
         blocks.push('-');
         blocks.push(block('doPauseAll'));
-        blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));
 
     } else if (cat === 'sensing') {
 
@@ -2158,10 +2139,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('reportStackSize'));
             blocks.push(block('reportFrameCount'));
         }
-
-        blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));
-
 
     } else if (cat === 'operators') {
 
@@ -2224,11 +2201,6 @@ SpriteMorph.prototype.blockTemplates = function (category) {
             blocks.push(block('reportTypeOf'));
             blocks.push(block('reportTextFunction'));
         }
-
-        blocks.push('=');
-        blocks.push(this.makeBlockButton(cat));
-
-
     /////////////////////////////////
 
      } else if (cat === 'variables') {
@@ -2364,19 +2336,15 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         }
 
     /////////////////////////////////
-
-        blocks.push('=');
-
+    
         if (StageMorph.prototype.enableCodeMapping) {
             blocks.push(block('doMapCodeOrHeader'));
             blocks.push(block('doMapValueCode'));
             blocks.push(block('doMapListCode'));
             blocks.push('-');
             blocks.push(block('reportMappedCode'));
-            blocks.push('=');
         }
 
-        blocks.push(this.makeBlockButton());
  	}
     return blocks;
 };
