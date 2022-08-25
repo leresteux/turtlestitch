@@ -1,4 +1,4 @@
-VERSION="2.7.7"
+VERSION="2.7.8.2"
 
 // get debug mode
 url = new URL(window.location.href);
@@ -1945,8 +1945,8 @@ IDE_Morph.prototype.createCategories = function () {
 
         button.category = category;
         button.corner = 8;
-        button.padding = 0;
-        button.labelShadowOffset = new Point(-1, -1);
+        button.padding = 2;
+        button.labelShadowOffset = new Point(0,0);
         button.labelShadowColor = colors[1];
         button.labelColor = myself.buttonLabelColor;
         if (MorphicPreferences.isFlat) {
@@ -2016,7 +2016,7 @@ IDE_Morph.prototype.createCategories = function () {
             button.setPosition(new Point(
                 l + (col * xPadding + ((col - 1) * buttonWidth)),
                 t + ((row + 1) * yPadding + (row * buttonHeight) + border) +
-                    (i > 7 ? border + 2 : 0)
+                    (i > 9 ? border + 2 : 0)
             ));
         });
 
@@ -2045,7 +2045,7 @@ IDE_Morph.prototype.createCategories = function () {
         } else {
             myself.categories.setHeight(
                 (4 + 1) * yPadding
-                    + 4 * buttonHeight
+                    + 5 * buttonHeight
                     + (more ?
                         (more * (yPadding + buttonHeight) + border + 2)
                             : 0)
@@ -2055,7 +2055,7 @@ IDE_Morph.prototype.createCategories = function () {
     }
 
     SpriteMorph.prototype.categories.forEach(cat => {
-        if (!contains(['lists', 'other'], cat)) {
+        if (!contains(['lists', 'aa'], cat)) {
             addCategoryButton(cat);
         }
     });

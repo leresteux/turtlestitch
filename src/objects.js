@@ -149,7 +149,7 @@ SpriteMorph.prototype.categories =
         'lists',
         'other'
     ];
-
+  
 SpriteMorph.prototype.blockColor = {
     motion : new Color(74, 108, 212),
     looks : new Color(143, 86, 227),

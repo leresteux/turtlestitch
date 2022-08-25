@@ -16,6 +16,21 @@ SpriteMorph.prototype.categories =
         'other',
     ];
 
+SpriteMorph.prototype.categories =
+    [
+        'motion',
+        'sensing',
+        'pen',
+        'embroidery',   
+        'control',
+        'operators',
+        'variables',
+        'colors',
+        'other',        
+        'lists',        
+    ];
+    
+
 SpriteMorph.prototype.blockColor = {
     motion : new Color(74, 108, 212),
     pen : new Color(0, 161, 120),
@@ -478,40 +493,41 @@ SpriteMorph.prototype.forwardBy = function (totalsteps, stepsize) {
 
 
 SpriteMorph.prototype.arcRight = function (radius, degrees) {
-    if (degrees > 0) {
-      for (var n=0; n < Math.floor(degrees / 10); n++) {
+    if (degrees > 0) {    
+      for (let n=0; n < Math.floor(degrees / 10.0); n++) {
           this.turn(5);
           this.forward(radius * 0.174532)
           this.turn(5)
       }
       if (degrees % 10 !== 0) {
-          this.turn((degrees % 10)/2);
-          this.forward(((radius * 0.174532) / 10) / (degrees % 10))
-          this.turn((degrees % 10)/2 ) 
+          this.turn((degrees % 10)/2.0);
+          this.forward((radius * 0.174532) / (10.0 / (degrees % 10)))
+          this.turn((degrees % 10)/2.0 ) 
       }
     } else {
-      throw new Error('degrees must be positive');
+      // throw new Error('degrees must be positive');
+      this.arcLeft(radius, Math.abs(degrees))
     }
 };
 
 
 SpriteMorph.prototype.arcLeft = function (radius, degrees) {
     if (degrees > 0) {
-      for (var n=0; n < Math.floor(degrees / 10); n++) {
+      for (let n=0; n < Math.floor(degrees / 10.0); n++) {
           this.turn(-5);
           this.forward(radius * 0.174532)
           this.turn(-5)
       }
       if (degrees % 10 !== 0) {
-          this.turn(-((degrees % 10)/2));
-          this.forward(((radius * 0.174532) / 10) / (degrees % 10))
-          this.turn(-((degrees % 10)/2)) 
+          this.turn(-((degrees % 10)/2.0));
+          this.forward((radius * 0.174532) / (10.0 / (degrees % 10)))
+          this.turn(-((degrees % 10)/2.0)) 
       }
     } else {
-      throw new Error('degrees must be positive');
+      //throw new Error('degrees must be positive');
+      this.arcRight(radius, Math.abs(degrees))
     }
 };
-
 
 SpriteMorph.prototype.forwardSegemensWithEndCheck = function(steps, stepsize) {
   for(i=0;i<steps;i++) {
