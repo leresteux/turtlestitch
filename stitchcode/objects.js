@@ -504,9 +504,10 @@ SpriteMorph.prototype.arcRight = function (radius, degrees) {
           this.forward((radius * 0.174532) / (10.0 / (degrees % 10)))
           this.turn((degrees % 10)/2.0 ) 
       }
-    } else {
-      // throw new Error('degrees must be positive');
+    } else if (degrees < 0) {      
       this.arcLeft(radius, Math.abs(degrees))
+    } else {
+      throw new Error('degrees must not be zero');
     }
 };
 
@@ -523,9 +524,10 @@ SpriteMorph.prototype.arcLeft = function (radius, degrees) {
           this.forward((radius * 0.174532) / (10.0 / (degrees % 10)))
           this.turn(-((degrees % 10)/2.0)) 
       }
-    } else {
-      //throw new Error('degrees must be positive');
+    } else if (degrees < 0) {  
       this.arcRight(radius, Math.abs(degrees))
+    } else {
+      throw new Error('degrees must not be zero');
     }
 };
 
