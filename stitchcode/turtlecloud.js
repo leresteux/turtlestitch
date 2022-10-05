@@ -76,6 +76,56 @@ BeetleCloud.prototype.get = function (path, callBack, errorCall, errorMsg) {
 
 };
 
+
+BeetleCloud.prototype.getImage = function (path, callBack, errorCall, errorMsg) {
+    var request = new XMLHttpRequest(),
+        myself = this;
+
+    try {
+        request.open(
+            'GET',
+            this.url + path,
+            true
+        );
+        request.setRequestHeader(
+            'Content-Type',
+            'application/json; charset=utf-8'
+        );
+
+        request.withCredentials = true;
+        request.onreadystatechange = function () {
+            if (request.readyState === 4) {
+                if (request.responseText) {
+                    if(request.status === 404) { 
+                      if (errorCall) 
+                        errorCall.call(
+                            null,
+                            myself.url,
+                            errorMsg
+                        );
+                      else
+                        console.log("error in checking credentials")
+                      return false;
+                    }
+                    callBack.call(null, request.responseText);
+                } else {
+                    if (typeof errorCall != 'undefined') {
+                      errorCall.call(
+                        null,
+                        myself.url,
+                        errorMsg
+                      );
+                    }
+                }
+            }
+        };
+        request.send();
+    } catch (err) {
+        errorCall.call(this, err.toString(), 'TurtleCloud');
+    }
+
+};
+
 BeetleCloud.prototype.post = function (path, body, callBack, errorCall, errorMsg) {
     var request = new XMLHttpRequest(),
         myself = this;
@@ -327,6 +377,16 @@ BeetleCloud.prototype.getProjectList = function (callBack, errorCall) {
             );
 };
 
+BeetleCloud.prototype.getThumbnail = function (username, projectName, callBack, errorCall) {
+    this.getImage('/users/' + this.username
+            + '/projects/' + encodeURIComponent(projectName)
+            + '/image', // path
+            callBack, // ok callback
+            () => {}, // error callback
+            'Could not fetch thumbnail'); // error message
+                
+};
+
 Cloud = BeetleCloud;
 
 var SnapCloud = new BeetleCloud(
@@ -562,6 +622,17 @@ ProjectDialogMorph.prototype.buildContents = function () {
             });
 
     this.originalBuildContents();
+    this.tagsLabelField = new TextMorph("Tags (New cloud projects only):");
+    this.body.add(this.tagsLabelField);
+    this.notesLabelField = new TextMorph("Notes");
+    this.notesLabelField.edge = InputFieldMorph.prototype.edge;
+    this.body.add(this.notesLabelField);
+    this.tagsField = new InputFieldMorph("");
+    this.tagsField.edge = InputFieldMorph.prototype.edge;
+    this.tagsField.contrast = InputFieldMorph.prototype.contrast;
+    // this.tagsField.fixLayout = InputFieldMorph.prototype.fixLayout;
+    this.body.add(this.tagsField);
+    this.fixLayout();
     /*
     this.preview.setExtent(
         new Point(320,240).add(this.preview.edge * 2)
@@ -659,6 +730,7 @@ ProjectDialogMorph.prototype.shareProject = function () {
                             proj.ProjectName,
                             function () {
                                 proj.Public = 'true';
+                                proj.ispublic = 'true';
                                 myself.unshareButton.show();
                                 myself.shareButton.hide();
                                 entry.label.isBold = true;
@@ -703,6 +775,7 @@ ProjectDialogMorph.prototype.unshareProject = function () {
                             proj.ProjectName,
                             function () {
                                 proj.Public = 'false';
+                                proj.ispublic = 'true';
                                 myself.shareButton.show();
                                 myself.unshareButton.hide();
                                 entry.label.isBold = false;

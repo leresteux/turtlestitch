@@ -56,16 +56,16 @@ Project.prototype.toXML = function (serializer) {
     } catch (error) {
         thumbdata = null;
     }
-    
+
     return serializer.format(
         '<project name="@" app="@" version="@">' +
             '<notes>$</notes>' +
-            '<thumbnail>$</thumbnail>' +           
+            '<thumbnail>$</thumbnail>' +
             '<scenes select="@">%</scenes>\n' +
             '<creator>$</creator>\n' +
             '<origCreator>$</origCreator>\n' +
             '<origName>$</origName>\n' +
-            '<remixHistory>$</remixHistory>\n' +             
+            '<remixHistory>$</remixHistory>\n' +
             '</project>',
         this.name || localize('Untitled'),
         serializer.app,
@@ -98,8 +98,8 @@ SnapSerializer.prototype.loadProjectModel = function (xmlNode, ide, remixID) {
                 '\n\nand may be incompatible or fail to load here.'
         );
     }
-    
-    project_model = {project: xmlNode };   
+
+    project_model = {project: xmlNode };
     //project.notes = project_model.project.childNamed('notes') ? project_model.project.childNamed('notes').contents : ""
     project.name = project_model.project.attributes.name;
     project.origName = project_model.project.childNamed('origName') ? project_model.project.childNamed('origName').contents : ""
@@ -113,7 +113,7 @@ SnapSerializer.prototype.loadProjectModel = function (xmlNode, ide, remixID) {
     ide.origCreator = project.origCreator || '';
     ide.creator = project.creator || '';
     ide.remixHistory = project.remixHistory || '';
-    
+
     if (scenesModel) {
         if (scenesModel.attributes.select) {
             project.sceneIdx = +scenesModel.attributes.select;
@@ -441,4 +441,3 @@ SnapSerializer.prototype.loadScene = function (xmlNode, remixID) {
     this.objects = {};
     return scene.initialize();
 };
-
