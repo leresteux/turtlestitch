@@ -265,25 +265,7 @@ PaletteHandleMorph.prototype.init = function (target) {
 
 IDE_Morph.prototype.origNewProject = IDE_Morph.prototype.newProject;
 IDE_Morph.prototype.newProject = function () {
-    //this.origNewProject();
-
-    var project = new Project();
-
-    project.addDefaultScene();
-    
-    this.source = this.cloud.username ? 'cloud' : null;
-    if (location.hash.substr(0, 6) !== '#lang:') {
-        location.hash = '';
-    }
-    this.openProject(project);
-        
-    StageMorph.prototype.dimensions = new Point(480, 360);
-    StageMorph.prototype.hiddenPrimitives = {};
-    StageMorph.prototype.codeMappings = {};
-    StageMorph.prototype.codeHeaders = {};
-    StageMorph.prototype.enableCodeMapping = false;
-    StageMorph.prototype.enableInheritance = true;
-    StageMorph.prototype.enableSublistIDs = false;
+    this.origNewProject();
 
     StageMorph.prototype.hideGrid = false;
     StageMorph.prototype.hideJumps = false;
@@ -298,8 +280,7 @@ IDE_Morph.prototype.newProject = function () {
 
     this.setProjectName('');
     this.projectNotes = '';
-    this.createStageHandle();
-};
+}
 
 
 IDE_Morph.prototype.openProject = function (project) {
