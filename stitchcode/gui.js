@@ -2472,6 +2472,8 @@ IDE_Morph.prototype.createSpriteEditor = function(){
     this.originalCreateSpriteEditor();
     this.spriteEditor.color = new Color(240, 240, 240);
     this.currentSprite.scripts.color = new Color(240, 240, 240);
+    this.spriteEditor.mouseEnterDragging = nop;
+    this.spriteEditor.contents.mouseEnterDragging =nop;	
 };
 
 /* CORRAL BAR */
