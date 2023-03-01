@@ -3374,6 +3374,7 @@ StageMorph.prototype.clearStageBackground = function() {
   myself.hasChangedMedia = true;
 };
 
+
 StageMorph.prototype.loadCameraSnapshot = function() {
     var myself = this;
     var ide = this.parentThatIsA(IDE_Morph);
@@ -3390,4 +3391,33 @@ StageMorph.prototype.loadCameraSnapshot = function() {
 
     camDialog.key = 'camera';
     camDialog.popUp(this.world());
+};
+
+
+// overwrite palette and menu (to hide make new categories)
+SpriteMorph.prototype.palette = function (category) {
+    if (!this.paletteCache[category]) {
+        this.paletteCache[category] = this.freshPalette(category);
+        this.paletteCache[category].userMenu = function () {
+          var menu = new MenuMorph();
+          menu.addPair(
+              [
+                  new SymbolMorph(
+                      'magnifyingGlass',
+                      MorphicPreferences.menuFontSize
+                  ),
+                  localize('find blocks') + '...'
+              ],
+              () => myself.searchBlocks(),
+              '^F'
+          );
+          menu.addItem(
+              'hide blocks...',
+              () => new BlockVisibilityDialogMorph(myself).popUp(myself.world())
+          );
+          return menu;
+      };
+      
+    }
+    return this.paletteCache[category];
 };
