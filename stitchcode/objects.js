@@ -3396,6 +3396,7 @@ StageMorph.prototype.loadCameraSnapshot = function() {
 
 // overwrite palette and menu (to hide make new categories)
 SpriteMorph.prototype.palette = function (category) {
+    var myself = this;
     if (!this.paletteCache[category]) {
         this.paletteCache[category] = this.freshPalette(category);
         this.paletteCache[category].userMenu = function () {
@@ -3410,11 +3411,7 @@ SpriteMorph.prototype.palette = function (category) {
               ],
               () => myself.searchBlocks(),
               '^F'
-          );
-          menu.addItem(
-              'hide blocks...',
-              () => new BlockVisibilityDialogMorph(myself).popUp(myself.world())
-          );
+          );         
           return menu;
       };
       
