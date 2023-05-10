@@ -2693,21 +2693,22 @@ StageMorph.prototype.initRenderer = function () {
     var myself = this;
 
     console.log("set up renderer");
-
+    // console.log(this.penTrails().isRetinaEnabled)
+    
     if(!this.renderer) {
       if (Detector.webgl) {
           this.renderer = new THREE.WebGLRenderer({
               antialias: true,
               alpha: true,
               canvas: this.penTrails()
-          });
+          });  
           console.log("webgl enabled");
           this.renderer_status_msg = "webgl enabled";
 
       } else {
         console.log("webgl unavailable. fallback to canvas (SLOW!)");
         this.renderer_status_msg = "webgl unavailable. fallback to canvas (SLOW!)";
-          this.renderer = new THREE.CanvasRenderer(
+        this.renderer = new THREE.CanvasRenderer(
               {canvas: this.penTrails()});
       }
 
@@ -2721,7 +2722,7 @@ StageMorph.prototype.initRenderer = function () {
       }
 
       this.renderer.setBackgroundColor(StageMorph.prototype.backgroundColor);
-
+      
       this.renderer.changed = false;
       this.renderer.showingAxes = true;
       this.renderer.isParallelProjection = true;
@@ -3411,10 +3412,13 @@ SpriteMorph.prototype.palette = function (category) {
               ],
               () => myself.searchBlocks(),
               '^F'
-          );         
+          );    
+                    menu.addItem(
+              'hide blocks...',
+              () => new BlockVisibilityDialogMorph(myself).popUp(myself.world())
+          );     
           return menu;
       };
-      
     }
     return this.paletteCache[category];
 };

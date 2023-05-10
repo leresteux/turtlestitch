@@ -1,4 +1,4 @@
-VERSION="2.7.15"
+VERSION="2.7.16"
 
 // get debug mode
 url = new URL(window.location.href);
@@ -328,6 +328,8 @@ IDE_Morph.prototype.openProject = function (project) {
         true // pause generic WHEN hat blocks
     );
     this.createStageHandle();
+    this.flushBlocksCache();
+    this.refreshPalette(true);
 };
 
 
@@ -3349,8 +3351,10 @@ IDE_Morph.prototype.switchToScene = function (
     if (!scene || !scene.stage) {
         return;
     }
-    this.siblings().forEach(morph =>
-        morph.destroy()
+    this.siblings().filter(
+        morph => !morph.nag
+    ).forEach(
+        morph => morph.destroy()
     );
     this.scene.captureGlobalSettings();
     this.scene = scene;
@@ -3398,4 +3402,15 @@ StageHandleMorph.prototype.init = function (target) {
     this.isDraggable = false;
     this.noticesTransparentClick = true;
     this.setExtent(new Point(12, 50));
+};
+
+
+// backport from Snap 8
+
+IDE_Morph.prototype.inform = function (title, message) {
+    return new DialogBoxMorph().inform(
+        title,
+        localize(message),
+        this.world()
+    );
 };
