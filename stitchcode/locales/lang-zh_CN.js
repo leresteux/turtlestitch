@@ -117,7 +117,11 @@ tempDict = {
     '移到 x: %n y: %n 每针 %n',
   'go to x: %n y: %n in %n':
     '移到 x: %n y: %n 针数 %n',
-
+  'arc $turnRight radius: %n degrees: %n ':
+    '圆弧 $turnRight 半径: %n 角度: %n ',
+  'arc $turnLeft radius: %n degrees: %n ':
+    '圆弧 $turnLeft 半径: %n 角度: %n ',
+  
   // new blocks
   'point towards x: %n y: %n':
     '面向 x: %n y: %n',
