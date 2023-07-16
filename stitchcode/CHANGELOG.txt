@@ -1,7 +1,55 @@
 
+
+* 2023-07-16  (2.7.17)
+  - geometryBlocks and VectorAndFill library updates (Simon)
+  - Chinese update (Simon)
+  
+* 2023-05-10 (2.7.16)
+  - backport app check
+  
+* 2023-03-01 (2.7.15)
+  - deactivate custom categories and hide blocks (microworld does not work yet)
+  
+* 2023-02-20 (2.7.14)
+  - bug fixed due to typo 
+  
+* 2023-02-14 (2.7.13)
+  - bug fixed due to typo in change color
+  
+* 2023-12-06 (2.7.12)
+  - update cors-proxy url
+  
+*  2023-12-01
+  - catch errors due to infinity
+
+*  2023-10-31
+  - fix a bug due to misspelling changeBrightness
+  
+*  2023-10-29  (2.7.11)
+  - gui update fixes scrolling issues (thanks Simon for PR)
+
+*  2023-10-07  (2.7.10)
+  - fix labels, dimensions in new project
+  
+*  2023-10-05  (2.7.9)
+  - load project list without thumbnails (speed up, thumbnails only loads on select)
+  - fix in reportURL
+  - fix in new project
+  - PRs from Simon's libarzes
+
+* 2022-08-25 (2.7.8)
+  - don't do arc for zero (and another bug fix)
+
+* 2022-07-26
+  - remove double instances of makeablock
+
+* 2022-07-10
+  - update createCategories
+  - fix saving project to cloud
+
 * 2022-07-09 (2.7.7)
   - upgrade to Snap7
-  - fix stage handle
+  - fix stage handle-
   
 * 2022-03-15
   - decrease height of project dialog
