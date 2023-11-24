@@ -8,7 +8,7 @@
     written by Jens Mönig
     jens@moenig.org
 
-    Copyright (C) 2010-2023 by Jens Mönig
+    Copyright (C) 2010-2022 by Jens Mönig
 
     This file is part of Snap!.
 
@@ -317,6 +317,7 @@
                 var	world1, world2;
 
                 window.onload = function () {
+                    disableRetinaSupport();
                     world1 = new WorldMorph(
                         document.getElementById('world1'), false);
                     world2 = new WorldMorph(
@@ -325,7 +326,7 @@
                 };
 
                 function loop() {
-                    requestAnimationFrame(loop);
+            requestAnimationFrame(loop);
                     world1.doOneCycle();
                     world2.doOneCycle();
                 }
@@ -641,7 +642,7 @@
 
     Drops of image elements from outside the world canvas are dispatched as
 
-        droppedImage(aCanvas, name, embeddedData)
+        droppedImage(aCanvas, name)
         droppedSVG(anImage, name)
 
     events to interested Morphs at the mouse pointer. If you want your Morph
@@ -662,22 +663,8 @@
     droppedImage() event with a canvas containing a rasterized version of the
     SVG.
 
-    Note that PNG images provide for embedded text comments, which can be used
-    to include code or arbitrary data such as a CSV, JSON or XML file inside
-    the image. Such a payload has to be identified by an agreed-upon marker.
-    The default tag is stored in MorphicPreferences and can be overriden by
-    apps wishing to make use of this feature. If such an embedded text-payload
-    is found inside a PNG it is passed as the optional third "embeddedData"
-    parameter to the "droppedImage()" event. embedded text only applies to PNGs.
-    You can embed a string into the PNG metadata of a PNG by  calling
-
-        embedMetadataPNG(aCanvas, aString)
-
-    with a raster image represented by a canvas and a string that is to be
-    embedded into the PNG's metadata.
-
-    The same event mechanism applies to drops of audio or text files from
-    outside the world canvas.
+    The same applies to drops of audio or text files from outside the world
+    canvas.
 
     Those are dispatched as
 
@@ -1289,8 +1276,6 @@
     Jason N (@cyderize) contributed native copy & paste for text editing.
     Bartosz Leper contributed retina display support.
     Zhenlei Jia and Dariusz Dorożalski pioneered IME text editing.
-    Dariusz Dorożalski and Jesus Villalobos contributed embedding blocks
-    into image metadata.
     Bernat Romagosa contributed to text editing and to the core design.
     Michael Ball found and fixed a longstanding scrolling bug.
     Brian Harvey contributed to the design and implementation of submenus.
@@ -1304,9 +1289,9 @@
 
 /*global window, HTMLCanvasElement, FileReader, Audio, FileList, Map*/
 
-/*jshint esversion: 11, bitwise: false*/
+/*jshint esversion: 6*/
 
-var morphicVersion = '2023-November-07';
+var morphicVersion = '2022-January-28';
 var modules = {}; // keep track of additional loaded modules
 var useBlurredShadows = true;
 
@@ -1318,7 +1303,6 @@ const CLEAR = new Color(0, 0, 0, 0);
 Object.freeze(ZERO);
 Object.freeze(BLACK);
 Object.freeze(WHITE);
-Object.freeze(CLEAR);
 
 var standardSettings = {
     minimumFontHeight: getMinimumFontHeight(), // browser settings
@@ -1334,7 +1318,6 @@ var standardSettings = {
     mouseScrollAmount: 40,
     useSliderForInput: false,
     isTouchDevice: false, // turned on by touch events, don't set
-    pngPayloadMarker: 'Data\tPayload\tEmbedded',
     rasterizeSVGs: false,
     isFlat: false,
     grabThreshold: 5,
@@ -1355,7 +1338,6 @@ var touchScreenSettings = {
     mouseScrollAmount: 40,
     useSliderForInput: false,
     isTouchDevice: true,
-    pngPayloadMarker: 'Data\tPayload\tEmbedded',
     rasterizeSVGs: false,
     isFlat: false,
     grabThreshold: 5,
@@ -1587,45 +1569,6 @@ function copy(target) {
     return c;
 }
 
-function embedMetadataPNG(aCanvas, aString) {
-    var embedTag = MorphicPreferences.pngPayloadMarker,
-        crc32 = (str, crc) => {
-            let table = [...Array(256).keys()].map(it =>
-                [...Array(8)].reduce((cc) =>
-                (cc & 1) ? (0xedb88320 ^ (cc >>> 1)) : (cc >>> 1), it)
-                );
-            crc = [...str].reduce(
-                (crc, ch) => (crc >>> 8) ^ table[(crc ^ ch.charCodeAt(0)) & 0xff],
-                (crc ? crc = 0 : crc) ^ (-1) // (crc ||= 0) ^ (-1)
-            );
-            return ( crc ^ (-1) ) >>> 0;
-        },
-        arr2Str = (arr) =>
-            arr.reduce((res, byte) => res + String.fromCharCode(byte), ''),
-        int2BStr = (val) =>
-            arr2Str(Array.from(new Uint8Array(new Uint32Array( [val] ).buffer)).reverse()),
-        buildChunk = (data) => {
-            let res = "iTXt" + data;
-            return int2BStr(data.length) + res + int2BStr(crc32(res));
-        },
-        parts = aCanvas.toDataURL("image/png").split(","),
-        bPart = atob(parts[1]).split(""),
-        newChunk = buildChunk(
-            "Snap!_SRC\0\0\0\0\0" +
-            embedTag +
-            encodeURIComponent(aString) +
-            embedTag
-        );
-    try {
-        bPart.splice(-12, 0, ...newChunk);
-        parts[1] = btoa(bPart.join(""));
-    } catch (err) {
-        console.log(err);
-    }
-    return parts.join(',');
-}
-
-
 // Retina Display Support //////////////////////////////////////////////
 
 /*
@@ -1778,7 +1721,7 @@ function enableRetinaSupport() {
                 this.height = prevHeight;
             }
         },
-        configurable: true // [Jens]: allow to be deleted and reconfigured
+        configurable: true // [Jens]: allow to be deleted an reconfigured
     });
 
     Object.defineProperty(canvasProto, 'width', {
@@ -1796,7 +1739,7 @@ function enableRetinaSupport() {
                 context.restore();
                 context.save();
                 */
-                context?.scale(pixelRatio, pixelRatio);
+                context.scale(pixelRatio, pixelRatio);
             } catch (err) {
                 console.log('Retina Display Support Problem', err);
                 uber.width.set.call(this, width);
@@ -1817,7 +1760,7 @@ function enableRetinaSupport() {
             context.restore();
             context.save();
             */
-            context?.scale(pixelRatio, pixelRatio);
+            context.scale(pixelRatio, pixelRatio);
         }
     });
 
@@ -2765,7 +2708,7 @@ Rectangle.prototype.boundingBox = function () {
 
 Rectangle.prototype.center = function () {
     return this.origin.add(
-        this.corner.subtract(this.origin).divideBy(2)
+        this.corner.subtract(this.origin).floorDivideBy(2)
     );
 };
 
@@ -3464,7 +3407,7 @@ Morph.prototype.setBottom = function (y) {
 Morph.prototype.setCenter = function (aPoint) {
     this.setPosition(
         aPoint.subtract(
-            this.extent().divideBy(2)
+            this.extent().floorDivideBy(2)
         )
     );
 };
@@ -3472,7 +3415,7 @@ Morph.prototype.setCenter = function (aPoint) {
 Morph.prototype.setFullCenter = function (aPoint) {
     this.setPosition(
         aPoint.subtract(
-            this.fullBounds().extent().divideBy(2)
+            this.fullBounds().extent().floorDivideBy(2)
         )
     );
 };
@@ -4513,28 +4456,7 @@ Morph.prototype.developersMenu = function () {
     );
     menu.addItem(
         "pic...",
-        () => {
-            var imgURL = this.fullImage().toDataURL(),
-                doc, body, tag, str;
-            try {
-                doc = window.open('', '_blank', 'popup').document;
-                body = doc.getElementsByTagName('body')[0];
-                str = '' + this;
-                doc.title = str;
-                tag = doc.createElement('h1');
-                tag.textContent = str;
-                body.appendChild(tag);
-                tag = doc.createElement('img');
-                tag.alt = str;
-                tag.src = imgURL;
-                body.appendChild(tag);
-            } catch (error) {
-                console.warn(
-                    'failed to popup pic, morph:%O, error:%O, image URL:%O',
-                    this, error, [imgURL]
-                );
-            }
-        },
+        () => window.open(this.fullImage().toDataURL()),
         'open a new window\nwith a picture of this morph'
     );
     menu.addLine();
@@ -8261,7 +8183,7 @@ MenuMorph.prototype.adjustWidths = function () {
         if (item === this.label) {
             item.text.setPosition(
                 item.center().subtract(
-                    item.text.extent().divideBy(2)
+                    item.text.extent().floorDivideBy(2)
                 )
             );
         }
@@ -9367,25 +9289,7 @@ TextMorph.prototype.parse = function () {
                         this.maxLineWidth,
                         context.measureText(oldline).width
                     );
-                    w = context.measureText(word).width;
-                    if (w > this.maxWidth) {
-                        oldline = '';
-                        word.split('').forEach((letter, idx) => {
-                            w = context.measureText(oldline + letter).width;
-                            if (w > this.maxWidth && oldline.length) {
-                                this.lines.push(oldline);
-                                this.lineSlots.push(slot + idx);
-                                this.maxLineWidth = Math.max(
-                                    this.maxLineWidth,
-                                    context.measureText(oldline).width
-                                );
-                                oldline = '';
-                            }
-                            oldline += letter;
-                        });
-                    } else {
-                        oldline = word + ' ';
-                    }
+                    oldline = word + ' ';
                 } else {
                     oldline = newline;
                 }
@@ -9919,7 +9823,7 @@ TriggerMorph.prototype.createLabel = function () {
 TriggerMorph.prototype.fixLayout = function () {
     this.label.setPosition(
         this.center().subtract(
-            this.label.extent().divideBy(2)
+            this.label.extent().floorDivideBy(2)
         )
     );
 };
@@ -11259,7 +11163,6 @@ HandMorph.prototype.init = function (aWorld) {
     this.temporaries = [];
     this.touchHoldTimeout = null;
     this.contextMenuEnabled = false;
-    this.touchStartPosition = null;
 
     // properties for caching dragged objects:
     this.cachedFullImage = null;
@@ -11381,12 +11284,12 @@ HandMorph.prototype.grab = function (aMorph) {
         if (!aMorph.noDropShadow) {
             aMorph.addShadow();
         }
+        this.add(aMorph);
 
         // cache the dragged object's display resources
         this.cachedFullImage = aMorph.fullImage();
         this.cachedFullBounds = aMorph.fullBounds();
 
-        this.add(aMorph);
         this.changed();
         if (oldParent && oldParent.reactToGrabOf) {
             oldParent.reactToGrabOf(aMorph);
@@ -11506,10 +11409,6 @@ HandMorph.prototype.processTouchStart = function (event) {
     MorphicPreferences.isTouchDevice = true;
     clearInterval(this.touchHoldTimeout);
     if (event.touches.length === 1) {
-        this.touchStartPosition = new Point(
-            event.touches[0].pageX,
-            event.touches[0].pageY
-        );
         this.touchHoldTimeout = setInterval( // simulate mouseRightClick
             () => {
                 this.processMouseDown({button: 2});
@@ -11526,12 +11425,7 @@ HandMorph.prototype.processTouchStart = function (event) {
 };
 
 HandMorph.prototype.processTouchMove = function (event) {
-    var pos = new Point(event.touches[0].pageX, event.touches[0].pageY);
     MorphicPreferences.isTouchDevice = true;
-    if (this.touchStartPosition.distanceTo(pos) <
-            MorphicPreferences.grabThreshold) {
-        return;
-    }
     if (event.touches.length === 1) {
         var touch = event.touches[0];
         this.processMouseMove(touch);
@@ -11749,7 +11643,7 @@ HandMorph.prototype.processDrop = function (event) {
     onto the world canvas, turn it into an offscreen canvas or audio
     element and dispatch the
 
-        droppedImage(canvas, name, embeddedData)
+        droppedImage(canvas, name)
         droppedSVG(image, name)
         droppedAudio(audio, name)
         droppedText(text, name, type)
@@ -11798,38 +11692,16 @@ HandMorph.prototype.processDrop = function (event) {
     function readImage(aFile) {
         var pic = new Image(),
             frd = new FileReader(),
-            trg = target,
-            embedTag = MorphicPreferences.pngPayloadMarker;
-
+            trg = target;
         while (!trg.droppedImage) {
             trg = trg.parent;
         }
-                
         pic.onload = () => {
-            (async () => {
-                // extract embedded data (e.g. blocks)
-                // from the image's metadata if present
-                var buff = new Uint8Array(await aFile?.arrayBuffer()),
-                    strBuff = buff.reduce((acc, b) =>
-                        acc + String.fromCharCode(b), ""),
-                    embedded;
-
-                if (strBuff.includes(embedTag)) {
-                    try {
-                        embedded = decodeURIComponent(
-                            (strBuff)?.split(embedTag)[1]
-                        );
-                    } catch (err) {
-                        console.log(err);
-                    }
-                }
-                canvas = newCanvas(new Point(pic.width, pic.height), true);
-                canvas.getContext('2d').drawImage(pic, 0, 0);
-                trg.droppedImage(canvas, aFile.name, embedded);
-                bulkDrop();
-            })();
+            canvas = newCanvas(new Point(pic.width, pic.height), true);
+            canvas.getContext('2d').drawImage(pic, 0, 0);
+            trg.droppedImage(canvas, aFile.name);
+            bulkDrop();
         };
-
         frd = new FileReader();
         frd.onloadend = (e) => pic.src = e.target.result;
         frd.readAsDataURL(aFile);
@@ -12081,10 +11953,6 @@ WorldMorph.prototype.init = function (aCanvas, fillPage) {
     this.activeMenu = null;
     this.activeHandle = null;
 
-    if (!fillPage && aCanvas.isRetinaEnabled) {
-        this.initRetina();
-    }
-
     this.initKeyboardHandler();
     this.resetKeyboardHandler();
     this.initEventListeners();
@@ -12213,29 +12081,16 @@ WorldMorph.prototype.fillPage = function () {
     });
 };
 
-WorldMorph.prototype.initRetina = function () {
-    var canvasHeight = this.worldCanvas.getBoundingClientRect().height,
-        canvasWidth = this.worldCanvas.getBoundingClientRect().width;
-    this.worldCanvas.style.width = canvasWidth + 'px';
-    this.worldCanvas.width = canvasWidth;
-    this.setWidth(canvasWidth);
-    this.worldCanvas.style.height = canvasHeight + 'px';
-    this.worldCanvas.height = canvasHeight;
-    this.setHeight(canvasHeight);
-};
-
 // WorldMorph global pixel access:
 
 WorldMorph.prototype.getGlobalPixelColor = function (point) {
     // answer the color at the given point.
-    // first, create a new temporary canvas representing the fullImage
-    // and sample that one instead of the actual world canvas
-    // this slows things down but keeps Chrome from crashing
-    // in v119 in the Fall of 2023
-    var dta = Morph.prototype.fullImage.call(this)
-            .getContext('2d')
-            .getImageData(point.x, point.y, 1, 1)
-            .data;
+    var dta = this.worldCanvas.getContext('2d').getImageData(
+        point.x,
+        point.y,
+        1,
+        1
+    ).data;
     return new Color(dta[0], dta[1], dta[2]);
 };
 
@@ -12258,8 +12113,6 @@ WorldMorph.prototype.initKeyboardHandler = function () {
     kbd.world = this;
     kbd.style.zIndex = -1;
     kbd.autofocus = true;
-    kbd.style.width = '0px';
-    kbd.style.height = '0px';
     document.body.appendChild(kbd);
     this.keyboardHandler = kbd;
 
@@ -12452,7 +12305,6 @@ WorldMorph.prototype.initEventListeners = function () {
     window.addEventListener(
         "drop",
         event => {
-            this.hand.processMouseMove(event);
             this.hand.processDrop(event);
             event.preventDefault();
         },
