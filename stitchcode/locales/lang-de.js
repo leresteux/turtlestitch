@@ -191,7 +191,10 @@ tempDict = {
     'absolute Helligkeit',
   'change hue by %n':
     '\u00e4ndere Farbton um %n',
-
+  'arc $turnRight radius: %n degrees: %n ':
+     'Kreisbogen $turnRight mit Radius: %n Winkel: %n ',
+  'arc $turnLeft radius: %n degrees: %n ':
+     'Kreisbogen $turnLeft mit Radius: %n Winkel: %n ',
   // new categories
   'Embroidery':
     'Stickerei',
@@ -212,7 +215,7 @@ tempDict = {
   'satin stitch with width %n center %b':
     'Satinstich mit Breite %n zentriert %b',
   'tatami stitch width %n interval %n center %b':
-    'Tatami-Stich mit Breite %n Intervall %n Versatz %n zentriert %b',
+    'Tatami-Stich mit Breite %n Intervall %n zentriert %b',
   'jump stitch %b':
     'Sprungstich %b',
   'tie stitch':
