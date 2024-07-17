@@ -1,9 +1,11 @@
-/* Sprite */
+/* Sprite 
+ici creation categorie
+*/
 // modified SpriteMorph turtlestitch functions
 
 
 SpriteMorph.prototype.categories =
-    [
+    ['by_square',
         'motion',
         'control',
         'sensing',
@@ -14,10 +16,11 @@ SpriteMorph.prototype.categories =
         'lists',
         'colors',
         'other',
+        //'lists',  
     ];
 
 SpriteMorph.prototype.categories =
-    [
+    [   'by_square',  
         'motion',
         'sensing',
         'pen',
@@ -26,8 +29,8 @@ SpriteMorph.prototype.categories =
         'operators',
         'variables',
         'colors',
-        'other',        
-        'lists',        
+        'other', 
+      //'list',
     ];
     
 
@@ -41,9 +44,10 @@ SpriteMorph.prototype.blockColor = {
     sensing : new Color(4, 148, 220),
     operators : new Color(98, 194, 19),
     variables : new Color(243, 118, 29),
-    lists : new Color(217, 77, 17),
+   // lists : new Color(217, 77, 17),
     other: new Color(150, 150, 150),
     colors : new Color(207, 74, 217),
+    by_square : new Color(200, 50, 10),
 };
 
 
@@ -292,7 +296,22 @@ SpriteMorph.prototype.stopRunning = function () {
   this.isRunning = false;
 	this.stitchoptions = {};
 }
-
+//test
+SpriteMorph.prototype.julien = function (length, autoadjust=true) {
+  if (!isFinite(length)) {
+    throw new Error('length must not be Infinity');
+  }
+	if (length > 0) {
+		this.isRunning = true;
+		this.stitchoptions = {
+      length: length,
+      autoadjust: autoadjust,
+    }
+    this.stitchtype = 0;
+	} else {
+		throw new Error('length must be larger than zero');
+	}
+}
 SpriteMorph.prototype.runningStitch = function (length, autoadjust=true) {
   if (!isFinite(length)) {
     throw new Error('length must not be Infinity');
@@ -1784,16 +1803,33 @@ SpriteMorph.prototype.initBlocks = function () {
         spec: 'color: %hsb',
         category: 'colors'
     };
+// easy blocks
 
+this.blocks.stopRunning =
+{
+    only: SpriteMorph,
+    type: 'command',
+    spec: 'stop running',
+    category: 'easy',
+};
     // Embroidery blocks
 
     this.blocks.stopRunning =
     {
-		    only: SpriteMorph,
+        only: SpriteMorph,
         type: 'command',
         spec: 'stop running',
         category: 'embroidery',
     };
+      //test from runningStitch
+      this.blocks.julien =
+      {
+          only: SpriteMorph,
+          type: 'command',
+          spec: 'julien by %n steps',
+          category: 'embroidery',
+          defaults: [10]
+      };
 
     this.blocks.runningStitch =
     {
@@ -2119,9 +2155,14 @@ SpriteMorph.prototype.blockTemplates = function (category) {
         blocks.push(block('setOpacity'));
         blocks.push(block('changeOpacity'));
         blocks.push(block('getOpacity'));
+        //test
+      } else if (cat === 'easy') {
 
-	} else if (cat === 'embroidery') {
-
+        blocks.push(block('clear'));
+      } else if (cat === 'embroidery') {
+        //test
+        blocks.push(block('julien'));
+        blocks.push('-');
         blocks.push(block('clear'));
         blocks.push(block('stopRunning'));
         blocks.push('-');
