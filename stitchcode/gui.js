@@ -1,4 +1,4 @@
-VERSION="2.7.17"
+VERSION="2.7.18"
 
 // get debug mode
 url = new URL(window.location.href);
@@ -1115,7 +1115,7 @@ IDE_Morph.prototype.aboutTurtleStitch = function () {
     var dlg, aboutTxt, pic, world = this.world();
 
     aboutTxt = 'TurtleStich! ' + VERSION + '\n\n'
-        + 'Copyright \u24B8 2022 Michael Aschauer\n\n'
+        + 'Copyright \u24B8 2014-2024 Michael Aschauer\n\n'
 
         + 'TurtleStitch is developed by OSEDA - Association for\n'
         + 'Development of Open Source Software in Education, Design\n'
