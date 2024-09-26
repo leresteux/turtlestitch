@@ -210,9 +210,9 @@ tempDict = {
 
   // embroidery blocks and stuff
   'running stitch by %n steps' :
-    'point courant en %n étapes',
+    'point droit en %n étapes',
   'triple run by %n' :
-    'point courant triple en %n étapes',
+    'point droit triple en %n étapes',
   'cross stitch in %n by %n center %b' :
     'point de croix de %n sur %n centré %b',
   'zigzag with density %n width %n center %b':
