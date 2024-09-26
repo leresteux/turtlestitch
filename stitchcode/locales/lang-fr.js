@@ -1,6 +1,8 @@
 
 /* traduction 
-V0.1-16/07/2024-julien leresteux-leresteux.net
+v0.2-26/09/2024 
+V0.1-16/07/2024
+julien leresteux-leresteux.net
 */ 
 tempDict = {
 
@@ -210,9 +212,9 @@ tempDict = {
 
   // embroidery blocks and stuff
   'running stitch by %n steps' :
-    'point courant en %n étapes',
+    'point droit en %n étapes',
   'triple run by %n' :
-    'point courant triple en %n étapes',
+    'point droit triple en %n étapes',
   'cross stitch in %n by %n center %b' :
     'point de croix de %n sur %n centré %b',
   'zigzag with density %n width %n center %b':
