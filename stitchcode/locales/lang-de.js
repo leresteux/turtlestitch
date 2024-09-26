@@ -195,6 +195,7 @@ tempDict = {
      'Kreisbogen $turnRight mit Radius: %n Winkel: %n ',
   'arc $turnLeft radius: %n degrees: %n ':
      'Kreisbogen $turnLeft mit Radius: %n Winkel: %n ',
+     
   // new categories
   'Embroidery':
     'Stickerei',
