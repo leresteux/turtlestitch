@@ -364,7 +364,7 @@ BeetleCloud.prototype.getProjectList = function (callBack, errorCall) {
                                     });
                                     callBack.call(null, response);
                                 } else {
-									alert("empty")
+                                    // alert("empty")
                                     callBack.call(null, []);
                                 } 
                             },
