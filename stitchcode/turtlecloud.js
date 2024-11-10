@@ -8,7 +8,9 @@ function BeetleCloud (url, ide) {
 BeetleCloud.prototype.init = function (url, ide) {
     this.url = url;
     this.ide = ide;
-    this.checkCredentials();
+    if (typeof this.url !== 'undefined')  {
+       this.checkCredentials();
+    }
 };
 
 BeetleCloud.prototype.parseDict = Cloud.prototype.parseDict;
@@ -244,6 +246,10 @@ BeetleCloud.prototype.saveProject = function (ignorethis, discardthis, callBack,
                     }
                   
                     myself.ide.showMessage('Uploading project...'); 
+
+                    if (typeof myself.ide.tags == 'undefined')  {
+                      myself.ide.tags = ""
+                    }
 
                     //(path, body, callBack, errorCall, errorMsg)
                     myself.post(
