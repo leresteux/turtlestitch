@@ -1,0 +1,492 @@
+<blocks app="TurtleStitch 2.7, http://www.turtlestitch.org" version="2">
+	<block-definition s="Beweeg  %&apos;case&apos; vakjes in de richting %&apos;direction&apos;" type="command" category="motion">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%n"/>
+			<input type="%n">
+				<options>§_directionDialMenu</options>
+			</input>
+		</inputs>
+		<script>
+			<block s="setHeading">
+				<block var="direction"/>
+			</block>
+			<block s="forward">
+				<block s="reportProduct">
+					<l>25</l>
+					<block var="case"/>
+				</block>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="brode %&apos;oui/non&apos;" type="command" category="embroidery">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%b">true</input>
+		</inputs>
+		<script>
+			<block s="doIfElse">
+				<block s="reportEquals">
+					<block var="oui/non"/>
+					<block s="reportBoolean">
+						<l>
+							<bool>true</bool>
+						</l>
+					</block>
+				</block>
+				<script>
+					<block s="beanStitch">
+						<l>12.5</l>
+					</block>
+					<block s="jumpStitch">
+						<l>
+							<bool>false</bool>
+						</l>
+					</block>
+				</script>
+				<script>
+					<block s="trimStitch"/>
+					<block s="jumpStitch">
+						<l>
+							<bool>true</bool>
+						</l>
+					</block>
+				</script>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="mettre le melange bleu %&apos;bleu&apos; jaune %&apos;jaune&apos; rouge %&apos;rouge&apos;" type="command" category="colors">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%b">false</input>
+			<input type="%b">false</input>
+			<input type="%b">false</input>
+		</inputs>
+		<script>
+			<block s="doWait">
+				<l>0.1</l>
+			</block>
+			<block s="doIfElse">
+				<block s="reportEquals">
+					<block var="bleu"/>
+					<block s="reportBoolean">
+						<l>
+							<bool>true</bool>
+						</l>
+					</block>
+				</block>
+				<script>
+					<block s="doIfElse">
+						<block s="reportEquals">
+							<block var="jaune"/>
+							<block s="reportBoolean">
+								<l>
+									<bool>true</bool>
+								</l>
+							</block>
+						</block>
+						<script>
+							<block s="doIfElse">
+								<block s="reportEquals">
+									<block var="rouge"/>
+									<block s="reportBoolean">
+										<l>
+											<bool>true</bool>
+										</l>
+									</block>
+								</block>
+								<script>
+									<block s="setColor">
+										<color>0,0,0,1</color>
+									</block>
+								</script>
+								<script>
+									<block s="setColor">
+										<color>0,255,0,1</color>
+									</block>
+								</script>
+							</block>
+						</script>
+						<script>
+							<block s="doIfElse">
+								<block s="reportEquals">
+									<block var="rouge"/>
+									<block s="reportBoolean">
+										<l>
+											<bool>true</bool>
+										</l>
+									</block>
+								</block>
+								<script>
+									<block s="setColor">
+										<color>255,0,255,1</color>
+									</block>
+								</script>
+								<script>
+									<block s="setColor">
+										<color>0,0,255,1</color>
+									</block>
+								</script>
+							</block>
+						</script>
+					</block>
+				</script>
+				<script>
+					<block s="doIfElse">
+						<block s="reportEquals">
+							<block var="jaune"/>
+							<block s="reportBoolean">
+								<l>
+									<bool>true</bool>
+								</l>
+							</block>
+						</block>
+						<script>
+							<block s="doIfElse">
+								<block s="reportEquals">
+									<block var="rouge"/>
+									<block s="reportBoolean">
+										<l>
+											<bool>true</bool>
+										</l>
+									</block>
+								</block>
+								<script>
+									<block s="setColor">
+										<color>255,165,0,1</color>
+									</block>
+								</script>
+								<script>
+									<block s="setColor">
+										<color>255,255,0,1</color>
+									</block>
+								</script>
+							</block>
+						</script>
+						<script>
+							<block s="doIfElse">
+								<block s="reportEquals">
+									<block var="rouge"/>
+									<block s="reportBoolean">
+										<l>
+											<bool>true</bool>
+										</l>
+									</block>
+								</block>
+								<script>
+									<block s="setColor">
+										<color>255,0,0,1</color>
+									</block>
+								</script>
+								<script>
+									<block s="setColor">
+										<color>192,192,192,1</color>
+									</block>
+								</script>
+							</block>
+						</script>
+					</block>
+				</script>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="Beweeg diagonaal %&apos;case&apos; vakjes in de richting %&apos;direction&apos;" type="command" category="motion">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%n"/>
+			<input type="%n">
+				<options>§_directionDialMenu</options>
+			</input>
+		</inputs>
+		<script>
+			<block s="setHeading">
+				<block var="direction"/>
+			</block>
+			<block s="forward">
+				<block s="reportProduct">
+					<l>1.414</l>
+					<block s="reportProduct">
+						<l>25</l>
+						<block var="case"/>
+					</block>
+				</block>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="Beweeg al draaiend  %&apos;cases&apos; vakjes in de richting %&apos;angle&apos;" type="command" category="motion">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%n"/>
+			<input type="%n">
+				<options>§_directionDialMenu</options>
+			</input>
+		</inputs>
+		<script>
+			<block s="turn">
+				<block var="angle"/>
+			</block>
+			<block s="forward">
+				<block s="reportProduct">
+					<l>25</l>
+					<block var="cases"/>
+				</block>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="Aantal vakjes %&apos;cases&apos;" type="reporter" category="motion">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%n"/>
+		</inputs>
+		<script>
+			<block s="doReport">
+				<block s="reportProduct">
+					<l>25</l>
+					<block var="cases"/>
+				</block>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="Maak %&apos;arc de cercle&apos; cirkel van %&apos;cases&apos; vakjes naar rechts $turnRight" type="command" category="motion">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%n"/>
+			<input type="%n"/>
+		</inputs>
+		<script>
+			<block s="arcRight">
+				<block s="reportQuotient">
+					<custom-block s="nbre de cases %n">
+						<block var="cases"/>
+					</custom-block>
+					<l>2</l>
+				</block>
+				<block s="reportProduct">
+					<l>360</l>
+					<block var="arc de cercle"/>
+				</block>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="Maak %&apos;arc de cercle&apos; cirkel van %&apos;cases&apos; vakjes naar links $turnLeft" type="command" category="motion">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%n"/>
+			<input type="%n"/>
+		</inputs>
+		<script>
+			<block s="arcLeft">
+				<block s="reportQuotient">
+					<custom-block s="nbre de cases %n">
+						<block var="cases"/>
+					</custom-block>
+					<l>2</l>
+				</block>
+				<block s="reportProduct">
+					<l>360</l>
+					<block var="arc de cercle"/>
+				</block>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="Uitsparing %&apos;dessineouinonn&apos;" type="command" category="pen">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%b"/>
+		</inputs>
+		<script>
+			<block s="doIfElse">
+				<block s="reportEquals">
+					<block var="dessineouinonn"/>
+					<block s="reportBoolean">
+						<l>
+							<bool>true</bool>
+						</l>
+					</block>
+				</block>
+				<script>
+					<block s="down"/>
+				</script>
+				<script>
+					<block s="up"/>
+				</script>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="brode une &quot;fleur&quot; de %&apos;nbre de petales&apos; petales avec le code : %&apos;codes&apos;" type="command" category="embroidery">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%n">4</input>
+			<input type="%cmdRing"/>
+		</inputs>
+		<script>
+			<block s="doDeclareVariables">
+				<list>
+					<l>a</l>
+					<l>b</l>
+					<l>c</l>
+					<l>d</l>
+				</list>
+			</block>
+			<custom-block s="Beweeg  %n vakjes in de richting %n">
+				<l/>
+				<l/>
+			</custom-block>
+			<block s="doSetVar">
+				<l>a</l>
+				<block s="xPosition"/>
+			</block>
+			<block s="doSetVar">
+				<l>b</l>
+				<block s="yPosition"/>
+			</block>
+			<block s="doSetVar">
+				<l>c</l>
+				<block s="direction"/>
+			</block>
+			<block s="doSetVar">
+				<l>d</l>
+				<block s="reportQuotient">
+					<l>360</l>
+					<block var="nbre de petales"/>
+				</block>
+			</block>
+			<block s="doRepeat">
+				<block var="nbre de petales"/>
+				<script>
+					<block s="gotoXY">
+						<block var="a"/>
+						<block var="b"/>
+					</block>
+					<custom-block s="Beweeg  %n cases en tournant de %n">
+						<l>0.5</l>
+						<block var="d"/>
+					</custom-block>
+					<custom-block s="brode %b">
+						<l>
+							<bool>true</bool>
+						</l>
+					</custom-block>
+					<block s="doRun">
+						<block var="codes"/>
+						<list/>
+					</block>
+					<custom-block s="brode %b">
+						<l>
+							<bool>false</bool>
+						</l>
+					</custom-block>
+					<block s="doChangeVar">
+						<l>c</l>
+						<block var="d"/>
+					</block>
+					<block s="setHeading">
+						<block var="c"/>
+					</block>
+				</script>
+			</block>
+		</script>
+	</block-definition>
+	<block-definition s="découpe une &quot;fleur&quot; de %&apos;nbre de petales&apos; petales avec le code : %&apos;codes&apos;" type="command" category="pen">
+		<header/>
+		<code/>
+		<translations/>
+		<inputs>
+			<input type="%n">4</input>
+			<input type="%cmdRing"/>
+		</inputs>
+		<script>
+			<block s="doDeclareVariables">
+				<list>
+					<l>a</l>
+					<l>b</l>
+					<l>c</l>
+					<l>d</l>
+				</list>
+			</block>
+			<custom-block s="Beweeg  %n vakjes in de richting %n">
+				<l/>
+				<l/>
+			</custom-block>
+			<block s="doSetVar">
+				<l>a</l>
+				<block s="xPosition"/>
+			</block>
+			<block s="doSetVar">
+				<l>b</l>
+				<block s="yPosition"/>
+			</block>
+			<block s="doSetVar">
+				<l>c</l>
+				<block s="direction"/>
+			</block>
+			<block s="doSetVar">
+				<l>d</l>
+				<block s="reportQuotient">
+					<l>360</l>
+					<block var="nbre de petales"/>
+				</block>
+			</block>
+			<block s="doRepeat">
+				<block var="nbre de petales"/>
+				<script>
+					<block s="gotoXY">
+						<block var="a"/>
+						<block var="b"/>
+					</block>
+					<block s="doWait">
+						<l>0.1</l>
+					</block>
+					<custom-block s="Beweeg  %n cases en tournant de %n">
+						<l>0.5</l>
+						<block var="d"/>
+					</custom-block>
+					<custom-block s="Uitsparing %b">
+						<l>
+							<bool>true</bool>
+						</l>
+					</custom-block>
+					<block s="doWait">
+						<l>0.1</l>
+					</block>
+					<block s="doRun">
+						<block var="codes"/>
+						<list/>
+					</block>
+					<custom-block s="Uitsparing %b">
+						<l>
+							<bool>false</bool>
+						</l>
+					</custom-block>
+					<block s="doChangeVar">
+						<l>c</l>
+						<block var="d"/>
+					</block>
+					<block s="setHeading">
+						<block var="c"/>
+					</block>
+				</script>
+			</block>
+		</script>
+	</block-definition>
+</blocks>
