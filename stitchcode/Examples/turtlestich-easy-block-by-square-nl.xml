@@ -21,7 +21,7 @@
 			</block>
 		</script>
 	</block-definition>
-	<block-definition s="brode %&apos;oui/non&apos;" type="command" category="embroidery">
+	<block-definition s="borduren %&apos;oui/non&apos;" type="command" category="embroidery">
 		<header/>
 		<code/>
 		<translations/>
@@ -58,8 +58,8 @@
 				</script>
 			</block>
 		</script>
-	</block-definition>
-	<block-definition s="mettre le melange bleu %&apos;bleu&apos; jaune %&apos;jaune&apos; rouge %&apos;rouge&apos;" type="command" category="colors">
+	</block-definition> 
+	<block-definition s="maak een mengsel van  blauw %&apos;bleu&apos;  geel %&apos;jaune&apos; rood %&apos;rouge&apos;" type="command" category="colors">
 		<header/>
 		<code/>
 		<translations/>
@@ -270,7 +270,7 @@
 		<script>
 			<block s="arcRight">
 				<block s="reportQuotient">
-					<custom-block s="nbre de cases %n">
+					<custom-block s="Aantal vakjes %n">//bug
 						<block var="cases"/>
 					</custom-block>
 					<l>2</l>
@@ -293,7 +293,7 @@
 		<script>
 			<block s="arcLeft">
 				<block s="reportQuotient">
-					<custom-block s="nbre de cases %n">
+					<custom-block s="Aantal vakjes %n">
 						<block var="cases"/>
 					</custom-block>
 					<l>2</l>
@@ -305,7 +305,7 @@
 			</block>
 		</script>
 	</block-definition>
-	<block-definition s="Uitsparing %&apos;dessineouinonn&apos;" type="command" category="pen">
+	<block-definition s="knippen %&apos;dessineouinonn&apos;" type="command" category="pen">
 		<header/>
 		<code/>
 		<translations/>
@@ -331,7 +331,7 @@
 			</block>
 		</script>
 	</block-definition>
-	<block-definition s="brode une &quot;fleur&quot; de %&apos;nbre de petales&apos; petales avec le code : %&apos;codes&apos;" type="command" category="embroidery">
+	<block-definition s="borduur een &quot;bloem&quot; met %&apos;nbre de petales&apos; blaadjes met de code: %&apos;codes&apos;" type="command" category="embroidery">
 		<header/>
 		<code/>
 		<translations/>
@@ -407,7 +407,7 @@
 			</block>
 		</script>
 	</block-definition>
-	<block-definition s="découpe une &quot;fleur&quot; de %&apos;nbre de petales&apos; petales avec le code : %&apos;codes&apos;" type="command" category="pen">
+	<block-definition s="knippen een &quot;bloem&quot; met %&apos;nbre de petales&apos; blaadjes met de code: %&apos;codes&apos;" type="command" category="pen">
 		<header/>
 		<code/>
 		<translations/>
@@ -461,7 +461,7 @@
 						<l>0.5</l>
 						<block var="d"/>
 					</custom-block>
-					<custom-block s="Uitsparing %b">
+					<custom-block s="knippen %b">
 						<l>
 							<bool>true</bool>
 						</l>
@@ -473,7 +473,7 @@
 						<block var="codes"/>
 						<list/>
 					</block>
-					<custom-block s="Uitsparing %b">
+					<custom-block s="knippen %b">
 						<l>
 							<bool>false</bool>
 						</l>
