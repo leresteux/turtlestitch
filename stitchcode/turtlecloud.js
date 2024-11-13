@@ -8,7 +8,9 @@ function BeetleCloud (url, ide) {
 BeetleCloud.prototype.init = function (url, ide) {
     this.url = url;
     this.ide = ide;
-    this.checkCredentials();
+    if (typeof this.url !== 'undefined')  {
+       this.checkCredentials();
+    }
 };
 
 BeetleCloud.prototype.parseDict = Cloud.prototype.parseDict;
@@ -245,6 +247,10 @@ BeetleCloud.prototype.saveProject = function (ignorethis, discardthis, callBack,
                   
                     myself.ide.showMessage('Uploading project...'); 
 
+                    if (typeof myself.ide.tags == 'undefined')  {
+                      myself.ide.tags = ""
+                    }
+
                     //(path, body, callBack, errorCall, errorMsg)
                     myself.post(
                             '/projects/save?projectname='
@@ -364,7 +370,7 @@ BeetleCloud.prototype.getProjectList = function (callBack, errorCall) {
                                     });
                                     callBack.call(null, response);
                                 } else {
-									alert("empty")
+                                    // alert("empty")
                                     callBack.call(null, []);
                                 } 
                             },
@@ -630,8 +636,10 @@ ProjectDialogMorph.prototype.buildContents = function () {
     this.tagsField = new InputFieldMorph("");
     this.tagsField.edge = InputFieldMorph.prototype.edge;
     this.tagsField.contrast = InputFieldMorph.prototype.contrast;
-    // this.tagsField.fixLayout = InputFieldMorph.prototype.fixLayout;
+    this.tagsField.fixLayout = InputFieldMorph.prototype.fixLayout;
     this.body.add(this.tagsField);
+    this.tagsField.hide();
+    this.tagsLabelField.hide();    
     this.fixLayout();
     /*
     this.preview.setExtent(

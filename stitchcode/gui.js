@@ -1,4 +1,4 @@
-VERSION="2.7.18"
+VERSION="2.7.19"
 
 // get debug mode
 url = new URL(window.location.href);
@@ -3117,12 +3117,8 @@ ProjectDialogMorph.prototype.fixLayout = function () {
     this.notesLabelField.setLeft(this.preview.left() + 1);
     this.notesField.setTop(this.notesLabelField.bottom());
     this.notesField.setLeft(this.preview.left());
-    this.notesField.setHeight(this.body.bottom() - this.notesLabelField.bottom() - this.notesLabelField.height() - thin);
-    this.tagsLabelField.setTop(this.notesField.bottom() + thin);
-    this.tagsLabelField.setLeft(this.notesField.left()  + 1);
-    this.tagsField.setTop(this.notesField.bottom() + 2);
-    this.tagsField.setLeft(this.tagsLabelField.right());
-    this.tagsField.setWidth(this.notesField.width() -  this.tagsLabelField.width() - 1);
+    this.notesField.setHeight(this.body.bottom() - this.notesLabelField.bottom() - thin);
+
   }
   this.changed();
 }
