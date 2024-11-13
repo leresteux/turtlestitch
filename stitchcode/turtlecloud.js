@@ -636,8 +636,10 @@ ProjectDialogMorph.prototype.buildContents = function () {
     this.tagsField = new InputFieldMorph("");
     this.tagsField.edge = InputFieldMorph.prototype.edge;
     this.tagsField.contrast = InputFieldMorph.prototype.contrast;
-    // this.tagsField.fixLayout = InputFieldMorph.prototype.fixLayout;
+    this.tagsField.fixLayout = InputFieldMorph.prototype.fixLayout;
     this.body.add(this.tagsField);
+    this.tagsField.hide();
+    this.tagsLabelField.hide();    
     this.fixLayout();
     /*
     this.preview.setExtent(
